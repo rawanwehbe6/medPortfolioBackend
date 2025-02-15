@@ -1,6 +1,13 @@
 const express = require("express");
 const pool = require('./config/db');
 const app = express();
+const authRoutes = require('./routes/authRoutes');
+
+// Use express.json() to parse incoming JSON requests
+app.use(express.json());  // This should be placed before any route handling
+
+// Mount the authentication routes
+app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
 
 // Define a simple route
 app.get("/", (req, res) => {

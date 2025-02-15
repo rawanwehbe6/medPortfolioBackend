@@ -40,7 +40,7 @@ async function createTables() {
         Name VARCHAR(100) NOT NULL,
         Email VARCHAR(100) UNIQUE NOT NULL,
         Role ENUM('admin', 'trainee', 'supervisor') NOT NULL,
-        Password VARCHAR(15) NOT NULL,
+        Password VARCHAR(255) NOT NULL, /*changed from VARCHAR(15) to VARCHAR(255)*/
         Bau_ID INT,
         PRIMARY KEY (User_ID),
         FOREIGN KEY (Bau_ID) REFERENCES BAU(Bau_ID)
