@@ -133,4 +133,4 @@ async function createTables() {
 }
 
 createTables();
-module.exports = pool.promise();
+module.exports = pool;

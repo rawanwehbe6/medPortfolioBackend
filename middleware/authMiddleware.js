@@ -11,6 +11,7 @@ const authenticate = (req, res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);//checks if the token is valid using the secret key
     req.userId = decoded.userId;
+    req.role = decoded.role;
     next();
   } catch (err) {
     console.error(err);
