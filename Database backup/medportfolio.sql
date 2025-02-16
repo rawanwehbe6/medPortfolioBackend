@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 16, 2025 at 10:11 PM
+-- Generation Time: Feb 16, 2025 at 10:17 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -50,7 +50,7 @@ CREATE TABLE `users` (
   `User_ID` int(11) NOT NULL,
   `Name` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
-  `Role` enum('admin','trainee','supervisor') NOT NULL,
+  `Role` enum('admin','trainee','educational_supervisor','clinical_supervisor','clinic') NOT NULL,
   `Password` varchar(255) NOT NULL,
   `Bau_ID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -62,7 +62,7 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`) VALUES
 (1, 'Admin User', 'admin', 'admin', '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL),
 (2, 'John Doe', 'john.doe@example.com', '', '$2b$10$K1l2UAK8TT/ry4JZfkp1WOCFRXDzR2qYmbXRZtgiRH3N.Nmr06ueK', NULL),
-(3, 'John Doe2', 'john.doe2@example.com', 'supervisor', '$2b$10$7bRIDLmrLZ7fTf3q9BP/eu4My7kc1j7bfPKQ7KByN/U6gITcx.mAi', NULL);
+(3, 'John Doe2', 'john.doe2@example.com', '', '$2b$10$7bRIDLmrLZ7fTf3q9BP/eu4My7kc1j7bfPKQ7KByN/U6gITcx.mAi', NULL);
 
 --
 -- Indexes for dumped tables
