@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 // Start the server
 const PORT = process.env.PORT || 3000;
 
-app.get('/test-db-connection', testConnection);
+app.get('/tdb', testConnection);
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
