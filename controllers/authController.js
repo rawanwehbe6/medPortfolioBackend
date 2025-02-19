@@ -76,7 +76,103 @@ async function login(req, res) {
   }
 }
 
+const updateUser = async (req, res) => {
+  const { email, newEmail, name, password, role } = req.body;
+
+  try {
+    // Check if user exists
+    const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    if (existingUser.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // If changing email, check if new email is already taken
+    if (newEmail) {
+      const [emailCheck] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [newEmail]);
+      if (emailCheck.length > 0) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
+    }
+
+    // Hash new password if provided
+    let hashedPassword = null;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Construct update query dynamically
+    const updates = [];
+    const values = [];
+
+    if (newEmail) {
+      updates.push('Email = ?');
+      values.push(newEmail);
+    }
+    if (name) {
+      updates.push('Name = ?');
+      values.push(name);
+    }
+    if (hashedPassword) {
+      updates.push('Password = ?');
+      values.push(hashedPassword);
+    }
+    if (role) {
+      updates.push('Role = ?');
+      values.push(role);
+    }
+
+    // Ensure at least one field is updated
+    if (updates.length === 0) {
+      return res.status(400).json({ message: 'No valid fields to update' });
+    }
+
+    // Execute the update query
+    values.push(email); // Add email to match the correct user
+    const query = `UPDATE USERS SET ${updates.join(', ')} WHERE Email = ?`;
+
+    await pool.execute(query, values);
+
+    res.json({ message: 'User updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during update' });
+  }
+};
+
+const deleteUser = async (req, res) => {
+  const { email } = req.body; // Expect email in the request body
+
+  // Ensure only admins can delete users
+  if (req.role !== 'admin') {
+    return res.status(403).json({ message: 'Access denied. Only admins can delete users.' });
+  }
+
+  try {
+    // Check if the user exists
+    const [users] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    if (users.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Delete the user from the database
+    const [deleteResult] = await pool.execute('DELETE FROM USERS WHERE Email = ?', [email]);
+
+    // Ensure the user was actually deleted
+    if (deleteResult.affectedRows === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during user deletion' });
+  }
+};
+
+
 module.exports = {
   register,
   login,
+  updateUser,
+  deleteUser,
 };
