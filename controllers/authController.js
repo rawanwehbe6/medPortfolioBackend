@@ -3,14 +3,9 @@ const jwt = require('jsonwebtoken');// For generating JWT tokens
 const pool = require('../config/db');// Database connection
 
 // Register new users (Only Admins Can Add Users)
-const register = async (req, res) => {
+const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
-
-  // Ensure only admins can add new users
-  if (req.role !== 'admin') {
-    return res.status(403).json({ message: 'Access denied. Only admins can add users.' });
-  }
-
+ console.log("Received Data:", { name, email, password, role });
   try {
     // Check if user already exists
     const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
@@ -21,8 +16,10 @@ const register = async (req, res) => {
     // Hash the password for security
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the new user into the database
-    await pool.execute('INSERT INTO USERS (Name, Email, Password, Role) VALUES (?, ?, ?, ?)', [name, email, hashedPassword, role]);
+    // Insert new user
+    await pool.execute("INSERT INTO USERS (Name, Email, Password, Role) VALUES (?, ?, ?, ?)", [
+      name, email, hashedPassword, role,
+    ]);
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
@@ -77,11 +74,12 @@ async function login(req, res) {
 }
 
 const updateUser = async (req, res) => {
-  const { email, newEmail, name, password, role } = req.body;
+  const { newEmail, name, password, role } = req.body;
+  const { id } = req.params; // Get user ID from URL parameter
 
   try {
-    // Check if user exists
-    const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    // Check if user exists by ID
+    const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
     if (existingUser.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -96,7 +94,7 @@ const updateUser = async (req, res) => {
 
     // Hash new password if provided
     let hashedPassword = null;
-    if (password) {
+    if (password && password.trim() !== '') {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
@@ -127,8 +125,8 @@ const updateUser = async (req, res) => {
     }
 
     // Execute the update query
-    values.push(email); // Add email to match the correct user
-    const query = `UPDATE USERS SET ${updates.join(', ')} WHERE Email = ?`;
+    values.push(id); // Use ID to match the correct user
+    const query = `UPDATE USERS SET ${updates.join(', ')} WHERE User_ID = ?`;
 
     await pool.execute(query, values);
 
@@ -139,23 +137,19 @@ const updateUser = async (req, res) => {
   }
 };
 
-const deleteUser = async (req, res) => {
-  const { email } = req.body; // Expect email in the request body
 
-  // Ensure only admins can delete users
-  if (req.role !== 'admin') {
-    return res.status(403).json({ message: 'Access denied. Only admins can delete users.' });
-  }
+const deleteUser = async (req, res) => {
+  const { id } = req.params; // Get user ID from URL parameter
 
   try {
-    // Check if the user exists
-    const [users] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    // Check if the user exists by User_ID
+    const [users] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
     if (users.length === 0) {
       return res.status(404).json({ message: 'User not found' });
     }
 
     // Delete the user from the database
-    const [deleteResult] = await pool.execute('DELETE FROM USERS WHERE Email = ?', [email]);
+    const [deleteResult] = await pool.execute('DELETE FROM USERS WHERE User_ID = ?', [id]);
 
     // Ensure the user was actually deleted
     if (deleteResult.affectedRows === 0) {
@@ -170,8 +164,9 @@ const deleteUser = async (req, res) => {
 };
 
 
+
 module.exports = {
-  register,
+  registerUser,
   login,
   updateUser,
   deleteUser,
