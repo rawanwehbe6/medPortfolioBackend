@@ -73,6 +73,62 @@ async function login(req, res) {
   }
 }
 
+// Reset Password
+const resetPassword = async (req, res) => {
+  try {
+    // Extract token from header
+    const token = req.headers.authorization?.split(" ")[1]; 
+    if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
+
+    // Verify JWT token
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
+    const userId = decoded.userId; // Extract user ID from token
+    const { oldPassword, newPassword, confirmPassword } = req.body;
+
+    // Validate request body
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Fetch user from the database
+    const [users] = await pool.execute("SELECT Password FROM USERS WHERE User_ID = ?", [userId]);
+    if (users.length === 0) return res.status(404).json({ message: "User not found" });
+
+    const user = users[0];
+
+    // Validate old password
+    const validOldPassword = await bcrypt.compare(oldPassword, user.Password);
+    if (!validOldPassword) return res.status(400).json({ message: "Old password is incorrect" });
+
+    // Check if new password matches confirmation
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ message: "New passwords do not match" });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update the password in the database
+    const [updateResult] = await pool.execute("UPDATE USERS SET Password = ? WHERE User_ID = ?", [hashedNewPassword, userId]);
+
+    if (updateResult.affectedRows === 0) {
+      return res.status(500).json({ message: "Failed to reset password" });
+    }
+
+    res.status(200).json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error("Error during password reset:", err);
+    res.status(500).json({ error: "Server error during password reset" });
+  }
+};
+
+//Update user
 const updateUser = async (req, res) => {
   const { newEmail, name, password, role } = req.body;
   const { id } = req.params; // Get user ID from URL parameter
@@ -168,6 +224,7 @@ const deleteUser = async (req, res) => {
 module.exports = {
   registerUser,
   login,
+  resetPassword,
   updateUser,
   deleteUser,
 };

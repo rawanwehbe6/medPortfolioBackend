@@ -8,5 +8,7 @@ router.post("/register", auth("register_user"), authController.registerUser);
 router.put("/update/:id", auth("update_user"), authController.updateUser);
 router.delete("/delete/:id", auth("delete_user"), authController.deleteUser);
 router.post('/login', authController.login);
+const { resetPassword } = require("../controllers/authController");
+router.post("/reset-password", resetPassword);
 
 module.exports = router;
