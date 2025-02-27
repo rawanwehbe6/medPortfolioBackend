@@ -193,7 +193,7 @@ const updateUser = async (req, res) => {
   }
 };
 
-
+//Delete user
 const deleteUser = async (req, res) => {
   const { id } = req.params; // Get user ID from URL parameter
 
@@ -219,7 +219,63 @@ const deleteUser = async (req, res) => {
   }
 };
 
+//Add user type
+const addUserType = async (req, res) => {
+  const { name } = req.body;
+  console.log("Received Data:", { name });
+  
+  try {
+    // Check if user type already exists
+    const [existingType] = await pool.execute('SELECT * FROM usertypes WHERE Name = ?', [name]);
+    if (existingType.length > 0) {
+      return res.status(400).json({ message: 'User type already exists' });
+    }
 
+    // Insert new user type (Id auto-increments)
+    await pool.execute("INSERT INTO usertypes (Name) VALUES (?)", [name]);
+
+    res.status(201).json({ message: 'User type added successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during user type addition' });
+  }
+};
+
+//Assign roles to user type
+const assignFunctionToUserType = async (req, res) => {
+  const { usertypeName, functionName } = req.body;
+  console.log("Assigning Function:", { usertypeName, functionName });
+  
+  try {
+    // Get usertype ID
+    const [usertype] = await pool.execute('SELECT Id FROM usertypes WHERE Name = ?', [usertypeName]);
+    if (usertype.length === 0) {
+      return res.status(404).json({ message: 'User type not found' });
+    }
+    const usertypeId = usertype[0].Id;
+
+    // Get function ID
+    const [func] = await pool.execute('SELECT Id FROM functions WHERE Name = ?', [functionName]);
+    if (func.length === 0) {
+      return res.status(404).json({ message: 'Function not found' });
+    }
+    const functionId = func[0].Id;
+
+    // Check if the assignment already exists
+    const [existingAssignment] = await pool.execute('SELECT * FROM usertype_functions WHERE UsertypeId = ? AND FunctionsId = ?', [usertypeId, functionId]);
+    if (existingAssignment.length > 0) {
+      return res.status(400).json({ message: 'Function already assigned to this user type' });
+    }
+
+    // Insert new function assignment
+    await pool.execute("INSERT INTO usertype_functions (UsertypeId, FunctionsId) VALUES (?, ?)", [usertypeId, functionId]);
+
+    res.status(201).json({ message: 'Function assigned to user type successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during function assignment' });
+  }
+};
 
 module.exports = {
   registerUser,
@@ -227,4 +283,6 @@ module.exports = {
   resetPassword,
   updateUser,
   deleteUser,
+  addUserType,
+  assignFunctionToUserType,
 };
