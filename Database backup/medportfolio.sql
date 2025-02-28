@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 25, 2025 at 04:33 PM
+-- Generation Time: Feb 27, 2025 at 09:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,6 +43,29 @@ CREATE TABLE `bau` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `elearning_materials`
+--
+
+CREATE TABLE `elearning_materials` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `category` enum('medical_course','books_articles','workshops_activities') NOT NULL,
+  `description` text DEFAULT NULL,
+  `resource_url` text NOT NULL,
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `elearning_materials`
+--
+
+INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`) VALUES
+(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08'),
+(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `functions`
 --
 
@@ -59,6 +82,20 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('register_user', 1),
 ('update_user', 2),
 ('delete_user', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `trainee_elearning_material_progress`
+--
+
+CREATE TABLE `trainee_elearning_material_progress` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `material_id` int(11) NOT NULL,
+  `status` enum('in_progress','completed') DEFAULT 'in_progress',
+  `completed_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -83,7 +120,8 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`) V
 (1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL),
 (17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL),
 (18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL),
-(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL);
+(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL),
+(21, 'trainee example', 'trainee@example.com', 2, 'examplepass', NULL);
 
 -- --------------------------------------------------------
 
@@ -142,10 +180,24 @@ ALTER TABLE `bau`
   ADD UNIQUE KEY `Email` (`Email`);
 
 --
+-- Indexes for table `elearning_materials`
+--
+ALTER TABLE `elearning_materials`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `functions`
 --
 ALTER TABLE `functions`
   ADD PRIMARY KEY (`Id`);
+
+--
+-- Indexes for table `trainee_elearning_material_progress`
+--
+ALTER TABLE `trainee_elearning_material_progress`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `trainee_id` (`trainee_id`,`material_id`),
+  ADD KEY `material_id` (`material_id`);
 
 --
 -- Indexes for table `users`
@@ -180,16 +232,28 @@ ALTER TABLE `bau`
   MODIFY `Bau_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `elearning_materials`
+--
+ALTER TABLE `elearning_materials`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `trainee_elearning_material_progress`
+--
+ALTER TABLE `trainee_elearning_material_progress`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
@@ -200,6 +264,13 @@ ALTER TABLE `usertypes`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `trainee_elearning_material_progress`
+--
+ALTER TABLE `trainee_elearning_material_progress`
+  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_2` FOREIGN KEY (`material_id`) REFERENCES `elearning_materials` (`id`);
 
 --
 -- Constraints for table `users`

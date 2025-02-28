@@ -4,6 +4,7 @@ const pool = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
 const { testConnection } = require('./testing/dbtest');
+const elearningRoutes = require('./routes/elearningRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -15,6 +16,9 @@ app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handl
 app.get("/", (req, res) => {
     res.send("Hello, Express!");
 });
+
+// Mount the elearning routes
+app.use('/api', elearningRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
