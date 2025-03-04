@@ -3,7 +3,6 @@ const express = require("express");
 const pool = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
-const keyCompetenciesRoutes = require('./routes/keyCompetenciesRoutes');
 const { testConnection } = require('./testing/dbtest');
 
 // Use express.json() to parse incoming JSON requests
@@ -11,7 +10,6 @@ app.use(express.json());  // This should be placed before any route handling
 
 // Mount the authentication routes
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
-app.use('/api/keyCompetencies', keyCompetenciesRoutes);
 
 // Define a simple route
 app.get("/", (req, res) => {
@@ -19,7 +17,7 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.get('/tdb', testConnection);
 

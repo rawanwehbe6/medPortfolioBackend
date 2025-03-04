@@ -3,7 +3,6 @@ const express = require("express");
 const pool = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
-const keyCompetenciesRoutes = require('./routes/keyCompetenciesRoutes');
 const { testConnection } = require('./testing/dbtest');
 
 // Use express.json() to parse incoming JSON requests
@@ -19,7 +18,7 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 6000;
 
 app.get('/tdb', testConnection);
 
