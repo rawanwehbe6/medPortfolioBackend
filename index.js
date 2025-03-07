@@ -4,6 +4,7 @@ const pool = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
 const keyCompetenciesRoutes = require('./routes/keyCompetenciesRoutes');
+const AccomplishmentRoutes= require('./routes/AccomplishmentRoutes');
 const { testConnection } = require('./testing/dbtest');
 const elearningRoutes = require('./routes/elearningRoutes');
 
@@ -13,6 +14,7 @@ app.use(express.json());  // This should be placed before any route handling
 // Mount the authentication routes
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
 app.use('/api/keyCompetencies', keyCompetenciesRoutes);
+app.use('/api/Accomplishment', AccomplishmentRoutes);
 
 // Define a simple route
 app.get("/", (req, res) => {
