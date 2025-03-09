@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 08, 2025 at 12:41 AM
+-- Generation Time: Mar 09, 2025 at 07:16 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -64,6 +64,31 @@ CREATE TABLE `bau` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `eduactconferences`
+--
+
+CREATE TABLE `eduactconferences` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `host` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `certificate` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `eduactconferences`
+--
+
+INSERT INTO `eduactconferences` (`id`, `user_id`, `title`, `date`, `host`, `description`, `certificate`) VALUES
+(1, 26, 'conference1', '0000-00-00', 'host1', 'description1', NULL),
+(3, 26, 'conference2', '2025-03-08', 'host2', 'description2', NULL),
+(4, 26, 'conference', '2024-05-09', 'host', 'description', '1741544068694.PNG');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `elearning_materials`
 --
 
@@ -102,7 +127,10 @@ CREATE TABLE `functions` (
 INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('register_user', 1),
 ('update_user', 2),
-('delete_user', 3);
+('delete_user', 3),
+('viewMaterial', 4),
+('completeMaterial', 5),
+('get_elearning_progress', 6);
 
 -- --------------------------------------------------------
 
@@ -118,6 +146,13 @@ CREATE TABLE `trainee_elearning_material_progress` (
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `trainee_elearning_material_progress`
+--
+
+INSERT INTO `trainee_elearning_material_progress` (`id`, `trainee_id`, `material_id`, `status`, `completed_at`) VALUES
+(1, 23, 1, 'completed', '2025-02-28 11:44:29');
+
 -- --------------------------------------------------------
 
 --
@@ -130,20 +165,21 @@ CREATE TABLE `users` (
   `Email` varchar(100) NOT NULL,
   `Role` int(9) NOT NULL,
   `Password` varchar(255) NOT NULL,
-  `Bau_ID` int(11) DEFAULT NULL
+  `Bau_ID` int(11) DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`) VALUES
-(1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL),
-(17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL),
-(18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL),
-(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL),
-(21, 'trainee example', 'trainee@example.com', 2, 'examplepass', NULL),
-(22, 'test', 'test@example.com', 2, '$2b$10$FvNsjO4K8iMXMRdmBiGiV.CRgKZ0xjfnmaaf4NjQJgX7UCJBaZlsW', NULL);
+INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `reset_token`) VALUES
+(1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL, NULL),
+(17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL, NULL),
+(18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL, NULL),
+(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL, NULL),
+(23, 'trainee1', 'trainee@example.com', 2, '$2b$10$X8UNE6qMYCnOmLkNCgWXEO.799dmU4Z29AaZZhLdhdQO3UQtwx/6u', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyYWluZWVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDE0NDgyNjcsImV4cCI6MTc0MTQ1MTg2N30.VREFtakw77mANcTS5VkIck9xQqNBcwFHXZmhEWgepCI'),
+(26, 'rima test', 'rimashbaro02@gmail.com', 2, '$2b$10$G7S8x0jKHZy67NtzXjVu/.nFcJ/oGXwLx1GmDQ1VMWhHXraDEWF7q', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -188,38 +224,14 @@ CREATE TABLE `usertype_functions` (
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (6, 1),
 (7, 2),
-(8, 3);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `user_skills`
---
-
-CREATE TABLE `user_skills` (
-  `User_ID` int(25) NOT NULL,
-  `Skill_Name` varchar(255) NOT NULL,
-  `Skill_ID` int(25) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `user_skills`
---
-
-INSERT INTO `user_skills` (`User_ID`, `Skill_Name`, `Skill_ID`) VALUES
-(22, 'Test', 1),
-(22, 'Testssssss', 5);
+(8, 3),
+(2, 4),
+(2, 5),
+(2, 6);
 
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `accomplishments`
---
-ALTER TABLE `accomplishments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_user` (`User_ID`);
 
 --
 -- Indexes for table `bau`
@@ -227,6 +239,13 @@ ALTER TABLE `accomplishments`
 ALTER TABLE `bau`
   ADD PRIMARY KEY (`Bau_ID`),
   ADD UNIQUE KEY `Email` (`Email`);
+
+--
+-- Indexes for table `eduactconferences`
+--
+ALTER TABLE `eduactconferences`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `elearning_materials`
@@ -271,27 +290,20 @@ ALTER TABLE `usertype_functions`
   ADD KEY `usertype_functions_ibfk_2` (`UsertypeId`);
 
 --
--- Indexes for table `user_skills`
---
-ALTER TABLE `user_skills`
-  ADD PRIMARY KEY (`Skill_ID`),
-  ADD KEY `UserID` (`User_ID`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
-
---
--- AUTO_INCREMENT for table `accomplishments`
---
-ALTER TABLE `accomplishments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `bau`
 --
 ALTER TABLE `bau`
   MODIFY `Bau_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `eduactconferences`
+--
+ALTER TABLE `eduactconferences`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `elearning_materials`
@@ -303,19 +315,19 @@ ALTER TABLE `elearning_materials`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
@@ -324,20 +336,14 @@ ALTER TABLE `usertypes`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `user_skills`
---
-ALTER TABLE `user_skills`
-  MODIFY `Skill_ID` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
---
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `accomplishments`
+-- Constraints for table `eduactconferences`
 --
-ALTER TABLE `accomplishments`
-  ADD CONSTRAINT `fk_user` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+ALTER TABLE `eduactconferences`
+  ADD CONSTRAINT `eduactconferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
@@ -359,12 +365,6 @@ ALTER TABLE `users`
 ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `user_skills`
---
-ALTER TABLE `user_skills`
-  ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

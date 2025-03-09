@@ -7,6 +7,7 @@ const keyCompetenciesRoutes = require('./routes/keyCompetenciesRoutes');
 const AccomplishmentRoutes= require('./routes/AccomplishmentRoutes');
 const { testConnection } = require('./testing/dbtest');
 const elearningRoutes = require('./routes/elearningRoutes');
+const educationalActivitiesRoutes = require('./routes/educationalActivitiesRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -23,6 +24,9 @@ app.get("/", (req, res) => {
 
 // Mount the elearning routes
 app.use('/api', elearningRoutes);
+
+// Mount the educational Activities routes
+app.use("/api/educational-activities", educationalActivitiesRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
