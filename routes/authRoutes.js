@@ -2,6 +2,8 @@ const express = require('express');
 const authController = require('../controllers/authController');
 const authenticate = require('../middleware/authMiddleware');
 const auth = require("../middleware/auth");
+const { forgotPassword, resetPasswordWithToken } = require("../controllers/authController");
+
 const router = express.Router();
 
 router.post("/register", auth("register_user"), authController.registerUser);
@@ -11,5 +13,6 @@ router.post('/login', authController.login);
 router.post("/reset-password", authController.resetPassword);
 router.post("/add-user-type", auth("add_user_type"), authController.addUserType);
 router.post('/assign-function-to-user-type', auth("assign_roles"), authController.assignFunctionToUserType);
-
+router.post('/forgot-password', forgotPassword);
+router.post("/resetPassWithToken", resetPasswordWithToken);
 module.exports = router;

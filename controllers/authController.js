@@ -1,6 +1,8 @@
 const bcrypt = require('bcrypt');// For hashing passwords
 const jwt = require('jsonwebtoken');// For generating JWT tokens
 const pool = require('../config/db');// Database connection
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 // Register new users (Only Admins Can Add Users)
 const registerUser = async (req, res) => {
@@ -277,6 +279,66 @@ const assignFunctionToUserType = async (req, res) => {
   }
 };
 
+// Forgot Password (Generate Reset Token)
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: "Email is required" });
+
+  try {
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    const [result] = await pool.execute("UPDATE USERS SET reset_token = ? WHERE Email = ?", [token, email]);
+
+    if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+
+    // Send Email with Reset Link
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Password Reset",
+      html: `<p>Click <a href="${process.env.FRONTEND_URL}/reset-password/${token}">here</a> to reset your password.</p>`,
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
+      if (err) return res.status(500).json({ message: "Email not sent", error: err });
+
+      res.json({ message: "Password reset email sent" });
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Reset Password (Verify Token & Update Password)
+const resetPasswordWithToken = async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) return res.status(400).json({ message: "All fields required" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const [result] = await pool.execute("UPDATE USERS SET Password = ?, reset_token = NULL WHERE Email = ?", [hashedPassword, decoded.email]);
+
+    if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+
+    res.json({ message: "Password reset successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ message: "Invalid or expired token" });
+  }
+};
+
 module.exports = {
   registerUser,
   login,
@@ -285,4 +347,6 @@ module.exports = {
   deleteUser,
   addUserType,
   assignFunctionToUserType,
+  forgotPassword,
+  resetPasswordWithToken,
 };
