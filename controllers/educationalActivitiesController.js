@@ -1,4 +1,5 @@
 const db = require("../config/db");
+
 //Ensure date is in the format mm/dd/yyyy
 const isValidDate = (date) => {
     const regex = /^\d{2}\/\d{2}\/\d{4}$/; // Matches mm/dd/yyyy
@@ -11,6 +12,7 @@ const isValidDate = (date) => {
     const [month, day, year] = date.split('/');
     return `${year}-${month}-${day}`;
   };
+
 //Add Course
 const addCourse = async (req, res) => {
   try {
@@ -48,7 +50,7 @@ const updateCourse = async (req, res) => {
       const { id } = req.params;
       const { title, date, institution, description } = req.body;
       const certificate = req.file ? req.file.filename : null;
-      const user_id = req.userId; // Assuming user is authenticated
+      const user_id = req.userId; 
   
       if (!title || !date || !institution || !description) {
         return res.status(400).json({ message: "All fields are required." });
@@ -73,7 +75,7 @@ const updateCourse = async (req, res) => {
 const deleteCourse = async (req, res) => {
     try {
       const { id } = req.params;
-      const user_id = req.userId; // Assuming user is authenticated
+      const user_id = req.userId; 
   
       await db.query(
         "DELETE FROM eduactcourses WHERE id = ? AND user_id = ?",
@@ -86,6 +88,83 @@ const deleteCourse = async (req, res) => {
       res.status(500).json({ message: "Server error." });
     }
   };
+
+  //Add Workshop
+const addWorkshop = async (req, res) => {
+  try {
+    const { title, date, organizer, description } = req.body;
+    const certificate = req.file ? req.file.filename : null;
+    const user_id = req.userId; 
+
+    if (!title || !date || !organizer || !description) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Convert date from mm/dd/yyyy to yyyy-mm-dd
+    let formattedDate;
+    try {
+      formattedDate = formatDateToDatabaseFormat(date);
+    } catch (error) {
+      return res.status(400).json({ message: error.message });
+    }
+
+    await db.query(
+      "INSERT INTO eduactworkshops (user_id, title, date, organizer, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
+      [user_id, title, formattedDate, organizer, description, certificate]
+    );
+
+    res.status(201).json({ message: "Workshop added successfully." });
+  } catch (error) {
+    console.error("Error in addWorkshop:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Update Workshop
+const updateWorkshop = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, date, organizer, description } = req.body;
+    const certificate = req.file ? req.file.filename : null;
+    const user_id = req.userId; 
+
+    if (!title || !date || !organizer || !description) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // Convert date from mm/dd/yyyy to yyyy-mm-dd
+    const formattedDate = formatDateToDatabaseFormat(date);
+
+    await db.query(
+      "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
+      [title, formattedDate, organizer, description, certificate, id, user_id]
+    );
+
+    res.status(200).json({ message: "Workshop updated successfully." });
+  } catch (error) {
+    console.error("Error in updateWorkshop:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Delete Workshop
+const deleteWorkshop = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.userId; 
+
+    await db.query(
+      "DELETE FROM eduactworkshops WHERE id = ? AND user_id = ?",
+      [id, user_id]
+    );
+
+    res.status(200).json({ message: "Workshop deleted successfully." });
+  } catch (error) {
+    console.error("Error in deleteWorkshop:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
 //Add Conference
 const addConference = async (req, res) => {
     try {
@@ -113,5 +192,8 @@ module.exports = {
     addCourse,
     updateCourse,
     deleteCourse,
-    addConference
+    addConference,
+    addWorkshop,
+    updateWorkshop,
+    deleteWorkshop,
   };

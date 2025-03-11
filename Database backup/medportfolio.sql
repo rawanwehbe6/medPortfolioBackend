@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 10, 2025 at 11:13 PM
+-- Generation Time: Mar 11, 2025 at 11:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -108,6 +108,29 @@ CREATE TABLE `eduactcourses` (
 
 INSERT INTO `eduactcourses` (`id`, `user_id`, `title`, `date`, `institution`, `description`, `certificate`) VALUES
 (5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `eduactworkshops`
+--
+
+CREATE TABLE `eduactworkshops` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `organizer` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `certificate` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `eduactworkshops`
+--
+
+INSERT INTO `eduactworkshops` (`id`, `user_id`, `title`, `date`, `organizer`, `description`, `certificate`) VALUES
+(1, 27, 'Pediatric Advanced Life Support Updated.', '2024-06-12', 'BAU', 'An updated workshop on pediatric life support techniques.', '1741689975178.jpg');
 
 -- --------------------------------------------------------
 
@@ -279,6 +302,13 @@ ALTER TABLE `eduactcourses`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `eduactworkshops`
+--
+ALTER TABLE `eduactworkshops`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
@@ -343,6 +373,12 @@ ALTER TABLE `eduactcourses`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT for table `eduactworkshops`
+--
+ALTER TABLE `eduactworkshops`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
@@ -387,6 +423,12 @@ ALTER TABLE `eduactconferences`
 --
 ALTER TABLE `eduactcourses`
   ADD CONSTRAINT `eduactcourses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `eduactworkshops`
+--
+ALTER TABLE `eduactworkshops`
+  ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
