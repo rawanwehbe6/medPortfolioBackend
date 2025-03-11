@@ -15,4 +15,6 @@ router.post("/add-user-type", auth("add_user_type"), authController.addUserType)
 router.post('/assign-function-to-user-type', auth("assign_roles"), authController.assignFunctionToUserType);
 router.post('/forgot-password', forgotPassword);
 router.post("/resetPassWithToken", resetPasswordWithToken);
+router.post("/contactUs", authController.contactUs);
+
 module.exports = router;
