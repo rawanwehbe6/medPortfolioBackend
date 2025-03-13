@@ -8,7 +8,7 @@ const AccomplishmentRoutes= require('./routes/AccomplishmentRoutes');
 const { testConnection } = require('./testing/dbtest');
 const elearningRoutes = require('./routes/elearningRoutes');
 const educationalActivitiesRoutes = require('./routes/educationalActivitiesRoutes');
-const surgicalExperienceRoutes = require('./routes/surgicalExperienceRoutes');
+const surgicalExperienceRoutes = require('./routes/keyCompetenciesRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -17,7 +17,7 @@ app.use(express.json());  // This should be placed before any route handling
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
 app.use('/api/keyCompetencies', keyCompetenciesRoutes);
 app.use('/api/Accomplishment', AccomplishmentRoutes);
-app.use('/api/surgical-experiences', surgicalExperienceRoutes);
+app.use('/api', surgicalExperienceRoutes);
 
 // Define a simple route
 app.get("/", (req, res) => {
@@ -31,7 +31,7 @@ app.use('/api', elearningRoutes);
 app.use("/api/educational-activities", educationalActivitiesRoutes);
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 app.get('/tdb', testConnection);
 

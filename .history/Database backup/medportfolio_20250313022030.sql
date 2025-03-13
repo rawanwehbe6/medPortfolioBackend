@@ -485,29 +485,6 @@ ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
-CREATE TABLE `surgical_experiences` (
-  `Experience_ID` int(11) NOT NULL,
-  `User_ID` int(11) NOT NULL,
-  `Procedure_Name` varchar(255) NOT NULL,
-  `Date` date NOT NULL,
-  `Role` varchar(100) DEFAULT NULL,
-  `Clinic` varchar(255) DEFAULT NULL,
-  `Description` text DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-ALTER TABLE `surgical_experiences`
-  ADD PRIMARY KEY (`Experience_ID`),
-  ADD KEY `User_ID` (`User_ID`);
-
-ALTER TABLE `surgical_experiences`
-  MODIFY `Experience_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
-ALTER TABLE `surgical_experiences`
-  ADD CONSTRAINT `surgical_experiences_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
-COMMIT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

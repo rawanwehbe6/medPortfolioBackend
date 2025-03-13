@@ -17,6 +17,8 @@ app.use(express.json());  // This should be placed before any route handling
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
 app.use('/api/keyCompetencies', keyCompetenciesRoutes);
 app.use('/api/Accomplishment', AccomplishmentRoutes);
+app.use('/api', elearningRoutes);
+app.use("/api/educational-activities", educationalActivitiesRoutes);
 app.use('/api/surgical-experiences', surgicalExperienceRoutes);
 
 // Define a simple route
@@ -24,16 +26,11 @@ app.get("/", (req, res) => {
     res.send("Hello, Express!");
 });
 
-// Mount the elearning routes
-app.use('/api', elearningRoutes);
-
-// Mount the educational Activities routes
-app.use("/api/educational-activities", educationalActivitiesRoutes);
-
 // Start the server
 const PORT = process.env.PORT || 3000;
 
 app.get('/tdb', testConnection);
+
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

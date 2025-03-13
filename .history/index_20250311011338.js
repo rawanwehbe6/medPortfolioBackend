@@ -17,7 +17,6 @@ app.use(express.json());  // This should be placed before any route handling
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
 app.use('/api/keyCompetencies', keyCompetenciesRoutes);
 app.use('/api/Accomplishment', AccomplishmentRoutes);
-app.use('/api/surgical-experiences', surgicalExperienceRoutes);
 
 // Define a simple route
 app.get("/", (req, res) => {
