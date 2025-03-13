@@ -5,18 +5,23 @@ const {
     addCourse,
     updateCourse,
     deleteCourse,
-    addConference,
     addWorkshop,
     updateWorkshop,
     deleteWorkshop,
-  } = require("../controllers/educationalActivitiesController");const auth = require("../middleware/authMiddleware");
+    addConference,
+    updateConference,
+    deleteConference
+  } = require("../controllers/educationalActivitiesController");
+const auth = require("../middleware/authMiddleware");
 
 router.post("/addCourse", auth, upload.single('certificate'), addCourse);
 router.put("/updateCourse/:id", auth, upload.single('certificate'), updateCourse);
 router.delete("/deleteCourse/:id", auth, deleteCourse);
-router.post("/addConference", auth, upload.single('certificate'), addConference);
 router.post("/addWorkshop", auth, upload.single('certificate'), addWorkshop);
 router.put("/updateWorkshop/:id", auth, upload.single('certificate'), updateWorkshop);
 router.delete("/deleteWorkshop/:id", auth, deleteWorkshop);
+router.post("/addConference", auth, upload.single('certificate'), addConference);
+router.put("/updateConference/:id", auth, upload.single("certificate"), updateConference);
+router.delete("/deleteConference/:id", auth, deleteConference);
 
 module.exports = router;
