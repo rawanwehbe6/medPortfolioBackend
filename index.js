@@ -11,6 +11,8 @@ const educationalActivitiesRoutes = require('./routes/educationalActivitiesRoute
 const surgicalExperienceRoutes = require('./routes/surgicalExperienceRoutes');
 const bodyParser = require('body-parser');
 const researchRoutes = require('./routes/researchRoutes');
+const supervisor = require('./routes/supervisorRoutes');
+const admin = require('./routes/AdminRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -22,6 +24,8 @@ app.use('/api/keyCompetencies', keyCompetenciesRoutes);
 app.use('/api/Accomplishment', AccomplishmentRoutes);
 app.use('/api/surgical-experiences', surgicalExperienceRoutes);
 app.use('/api', researchRoutes);
+app.use('/api/supervisor', supervisor);
+app.use('/api/admin', admin);
 
 // Define a simple route
 app.get("/", (req, res) => {

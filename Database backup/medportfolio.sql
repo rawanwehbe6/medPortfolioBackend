@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 11, 2025 at 04:21 PM
+-- Generation Time: Mar 18, 2025 at 12:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -198,6 +198,23 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('viewMaterial', 4),
 ('completeMaterial', 5),
 ('get_elearning_progress', 6);
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `supervisor_supervisee`
+--
+
+CREATE TABLE `supervisor_supervisee` (
+  `SupervisorID` int(10) NOT NULL,
+  `SuperviseeID` int(10) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `supervisor_supervisee`
+--
+
+INSERT INTO `supervisor_supervisee` (`SupervisorID`, `SuperviseeID`) VALUES
+(28, 22);
 
 -- --------------------------------------------------------
 
@@ -240,14 +257,15 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `reset_token`) VALUES
-(1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL, NULL),
-(17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL, NULL),
-(18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL, NULL),
-(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL, NULL),
-(23, 'trainee1', 'trainee@example.com', 2, '$2b$10$X8UNE6qMYCnOmLkNCgWXEO.799dmU4Z29AaZZhLdhdQO3UQtwx/6u', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyYWluZWVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDE0NDgyNjcsImV4cCI6MTc0MTQ1MTg2N30.VREFtakw77mANcTS5VkIck9xQqNBcwFHXZmhEWgepCI'),
-(26, 'rima test', 'rimashbaro02@gmail.com', 2, '$2b$10$G7S8x0jKHZy67NtzXjVu/.nFcJ/oGXwLx1GmDQ1VMWhHXraDEWF7q', NULL, NULL),
-(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$rfV993WXptxQMcmEJjyQk.fWjt09wGlr.AXBwu7W5S79asUGc1yOC', NULL, NULL);
+INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`) VALUES
+(1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL),
+(17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL),
+(18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL),
+(19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL),
+(22, 'test', 'test@example.com', 2, '$2b$10$FvNsjO4K8iMXMRdmBiGiV.CRgKZ0xjfnmaaf4NjQJgX7UCJBaZlsW', NULL),
+(23, 'tes2', 'test2@example.com', 2, '$2b$10$ypn2CNLRLCr00oi2iCJD6OWkxmynivThXE7K71S/2mya51uIeBHtK', NULL),
+(28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL),
+(29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL);
 
 -- --------------------------------------------------------
 
@@ -296,10 +314,39 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 4),
 (2, 5),
 (2, 6);
+(8, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_skills`
+--
+
+CREATE TABLE `user_skills` (
+  `User_ID` int(25) NOT NULL,
+  `Skill_Name` varchar(255) NOT NULL,
+  `Skill_ID` int(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_skills`
+--
+
+INSERT INTO `user_skills` (`User_ID`, `Skill_Name`, `Skill_ID`) VALUES
+(22, 'Test', 1),
+(22, 'Testsssssss', 6),
+(22, 'Testsssssssss', 7);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `accomplishments`
+--
+ALTER TABLE `accomplishments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user` (`User_ID`);
 
 --
 -- Indexes for table `bau`
@@ -348,6 +395,13 @@ ALTER TABLE `functions`
   ADD PRIMARY KEY (`Id`);
 
 --
+-- Indexes for table `supervisor_supervisee`
+--
+ALTER TABLE `supervisor_supervisee`
+  ADD PRIMARY KEY (`SupervisorID`,`SuperviseeID`),
+  ADD KEY `SuperviseeID` (`SuperviseeID`);
+
+--
 -- Indexes for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -378,8 +432,21 @@ ALTER TABLE `usertype_functions`
   ADD KEY `usertype_functions_ibfk_2` (`UsertypeId`);
 
 --
+-- Indexes for table `user_skills`
+--
+ALTER TABLE `user_skills`
+  ADD PRIMARY KEY (`Skill_ID`),
+  ADD KEY `UserID` (`User_ID`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `accomplishments`
+--
+ALTER TABLE `accomplishments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `bau`
@@ -433,7 +500,7 @@ ALTER TABLE `trainee_elearning_material_progress`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
@@ -442,26 +509,36 @@ ALTER TABLE `usertypes`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- Constraints for dumped tables
+-- AUTO_INCREMENT for table `user_skills`
 --
+ALTER TABLE `user_skills`
+  MODIFY `Skill_ID` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
--- Constraints for table `eduactconferences`
+-- Constraints for dumped tables
 --
 ALTER TABLE `eduactconferences`
   ADD CONSTRAINT `eduactconferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
-
---
 -- Constraints for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
   ADD CONSTRAINT `eduactcourses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+-- Constraints for table `accomplishments`
 
+ALTER TABLE `accomplishments`
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 --
 -- Constraints for table `eduactworkshops`
 --
 ALTER TABLE `eduactworkshops`
   ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+--
+-- Constraints for table `supervisor_supervisee`
+--
+
+ALTER TABLE `supervisor_supervisee`
+  ADD CONSTRAINT `supervisor_supervisee_ibfk_1` FOREIGN KEY (`SuperviseeID`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `supervisor_supervisee_ibfk_2` FOREIGN KEY (`SupervisorID`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
@@ -534,6 +611,10 @@ ALTER TABLE `research`
 --
 ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+-- Constraints for table `user_skills`
+--
+ALTER TABLE `user_skills`
+  ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

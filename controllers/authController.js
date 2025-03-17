@@ -66,7 +66,7 @@ async function login(req, res) {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: rows[0].User_ID, role: rows[0].Role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: rows[0].User_ID, role: rows[0].Role }, process.env.JWT_SECRET, { expiresIn: '24h' });
 
     res.json({ message: 'Login successful', token });
   } catch (err) {
