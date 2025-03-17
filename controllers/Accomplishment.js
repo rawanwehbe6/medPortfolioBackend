@@ -1,16 +1,10 @@
 const pool = require("../config/db");
-const jwt = require('jsonwebtoken');
 
 const addAccomplishment = async (req, res) => {
   try {
-    // Extract token from Authorization header
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-
-    // Verify the token and extract user information
-    if (token) {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
     }
-
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
     const userId = req.user ? req.user.userId : null; // Ensure this is correctly set
@@ -45,14 +39,9 @@ const addAccomplishment = async (req, res) => {
 
 const updateAccomplishment = async (req, res) => {
   try {
-    // Extract token from Authorization header
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-
-    // Verify the token and extract user information
-    if (token) {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
+   if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
     }
-
     const { id } = req.params; // Get the accomplishment ID from the request parameters
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -92,12 +81,8 @@ const updateAccomplishment = async (req, res) => {
 
 const deleteAccomplishment = async (req, res) => {
   try {
-    // Extract token from Authorization header
-    const token = req.headers.authorization && req.headers.authorization.split(' ')[1];
-
-    // Verify the token and extract user information
-    if (token) {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
+    if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
     }
 
     const { id } = req.params; // Get the accomplishment ID from the request parameters

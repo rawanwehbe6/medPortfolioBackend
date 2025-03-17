@@ -3,7 +3,9 @@ const pool = require('../config/db'); // Database connection
 // Create a new skill
 const createSkill = async (req, res) => {
   const { skillName } = req.body;
-
+    if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
+    }
   try {
     // Check if the skill already exists for the user
     const [existingSkill] = await pool.execute(
@@ -32,7 +34,9 @@ const createSkill = async (req, res) => {
 const updateSkill = async (req, res) => {
   const { id } = req.params; // This is actually Skill_ID
   const { skillName } = req.body;
-
+  if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
+    }
   try {
     // Check if skill exists and belongs to the user
     const [skill] = await pool.execute(
@@ -63,10 +67,11 @@ const updateSkill = async (req, res) => {
     res.status(500).json({ error: "Server error during skill update" });
   }
 };
-
 const deleteSkill = async (req, res) => {
   const { id } = req.params; // This is actually Skill_ID
-
+  if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
+    }
   try {
     // Check if skill exists and belongs to the user
     const [skill] = await pool.execute(
