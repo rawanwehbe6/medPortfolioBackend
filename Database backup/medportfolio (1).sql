@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 12:20 AM
+-- Generation Time: Mar 22, 2025 at 09:21 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -198,6 +198,40 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('viewMaterial', 4),
 ('completeMaterial', 5),
 ('get_elearning_progress', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mortality_morbidity_review_assessment`
+--
+
+CREATE TABLE `mortality_morbidity_review_assessment` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `resident_fellow_name` varchar(255) NOT NULL,
+  `date_of_presentation` date NOT NULL,
+  `diagnosis` text NOT NULL,
+  `cause_of_death_morbidity` text NOT NULL,
+  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `major_positive_feature` text DEFAULT NULL,
+  `suggested_areas_for_improvement` text DEFAULT NULL,
+  `resident_signature_path` varchar(255) DEFAULT NULL,
+  `assessor_signature_path` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mortality_morbidity_review_assessment`
+--
+
+INSERT INTO `mortality_morbidity_review_assessment` (`id`, `user_id`, `resident_fellow_name`, `date_of_presentation`, `diagnosis`, `cause_of_death_morbidity`, `brief_introduction`, `patient_details`, `assessment_analysis`, `review_of_literature`, `recommendations`, `handling_questions`, `overall_performance`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `created_at`) VALUES
+(1, 27, 'test user', '2023-10-15', 'Cardiac Arrest', 'Heart Failure', 'Meets Expectations', 'Exceeds Expectations', 'Meets Expectations', 'Below Expectations', 'Exceeds Expectations', 'Meets Expectations', 'Exceeds Expectations', 'Excellent communication skills', 'Needs more focus on time management', 'uploads\\1742673455632.jpg', 'uploads\\1742673455633.jpg', '2025-03-22 19:57:35');
 
 -- --------------------------------------------------------
 
@@ -432,6 +466,13 @@ ALTER TABLE `functions`
   ADD PRIMARY KEY (`Id`);
 
 --
+-- Indexes for table `mortality_morbidity_review_assessment`
+--
+ALTER TABLE `mortality_morbidity_review_assessment`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
@@ -541,6 +582,12 @@ ALTER TABLE `functions`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
+--
+ALTER TABLE `mortality_morbidity_review_assessment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
@@ -603,6 +650,12 @@ ALTER TABLE `eduactcourses`
 --
 ALTER TABLE `eduactworkshops`
   ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `mortality_morbidity_review_assessment`
+--
+ALTER TABLE `mortality_morbidity_review_assessment`
+  ADD CONSTRAINT `mortality_morbidity_review_assessment_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `supervisor_supervisee`
