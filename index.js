@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const researchRoutes = require('./routes/researchRoutes');
 const supervisor = require('./routes/supervisorRoutes');
 const admin = require('./routes/AdminRoutes');
+const formRoutes = require('./routes/formRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -37,6 +38,9 @@ app.use('/api', elearningRoutes);
 
 // Mount the educational Activities routes
 app.use("/api/educational-activities", educationalActivitiesRoutes);
+
+// Mount form routes
+app.use('/api/mortality-morbidity-review-assessment', formRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;
