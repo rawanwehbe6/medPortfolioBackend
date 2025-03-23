@@ -106,9 +106,25 @@ const getTupleById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Fetch tuple by ID
+    // Fetch tuple by ID with resident name
     const [result] = await pool.execute(
-      "SELECT * FROM grand_round_presentation_assessment WHERE id = ?",
+      `SELECT 
+         u.Name AS resident_name,
+         gra.date,
+         gra.diagnosis,
+         gra.case_complexity,
+         gra.history_taking,
+         gra.physical_examination,
+         gra.provisional_diagnosis,
+         gra.treatment,
+         gra.future_planning,
+         gra.assessor_comment,
+         gra.resident_comment,
+         gra.resident_signature,
+         gra.assessor_signature
+       FROM grand_round_presentation_assessment gra
+       JOIN users u ON gra.resident_id = u.User_ID
+       WHERE gra.id = ?`,
       [id]
     );
 

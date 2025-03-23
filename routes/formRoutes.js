@@ -3,7 +3,9 @@ const mortalityMorbidityController = require('../controllers/MortalityMorbidityf
 const seminarAssessmentController = require('../controllers/SeminarAssessmentController');
 const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
-const assessmentController = require('../controllers/grand_round_presentation_assessment');
+const grpa = require('../controllers/grand_round_presentation_assessment');
+const cbda = require('../controllers/case-based_discussion_assessment.js');
+
 const auth = require('../middleware/verifyToken.js');
 const router = express.Router();
 
@@ -28,10 +30,16 @@ const handleFileUpload = (req, res, next) => {
 
 
 // Define routes
-router.post('/grpacreate', auth, uploadPNG, assessmentController.createForm);
-router.put('/grpaupdate/:id', auth, handleFileUpload, assessmentController.updateForm);
-router.get('/grpa/:id', auth, assessmentController.getTupleById);
-router.delete('/grpa/:id', auth, assessmentController.deleteTupleById);
+router.post('/grpacreate', auth, uploadPNG, grpa.createForm);
+router.put('/grpaupdate/:id', auth, handleFileUpload, grpa.updateForm);
+router.get('/grpa/:id', auth, grpa.getTupleById);
+router.delete('/grpa/:id', auth, grpa.deleteTupleById);
+
+
+router.post('/cbdacreate', auth, uploadPNG, cbda.createForm);
+router.put('/cbdaupdate/:id', auth, handleFileUpload, cbda.updateForm);
+router.get('/cbda/:id', auth, cbda.getTupleById);
+router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
 // Mortality or Morbidity Review Assessment Form Routes

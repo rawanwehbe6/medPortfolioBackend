@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 22, 2025 at 09:21 PM
+-- Generation Time: Mar 23, 2025 at 10:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -59,6 +59,30 @@ CREATE TABLE `bau` (
   `Logo` varchar(255) NOT NULL,
   `AffiliatedInstitutions` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`AffiliatedInstitutions`)),
   `AdministrationContact` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `case_based_discussion_assessment`
+--
+
+CREATE TABLE `case_based_discussion_assessment` (
+  `id` int(9) NOT NULL,
+  `resident_id` int(9) NOT NULL,
+  `supervisor_id` int(9) NOT NULL,
+  `date` date NOT NULL DEFAULT current_timestamp(),
+  `diagnosis` varchar(512) NOT NULL,
+  `case_complexity` enum('Low','Moderate','High') NOT NULL,
+  `Investigation_Referral` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `overall_clinical_care` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `assessor_comment` varchar(4096) NOT NULL,
+  `resident_comment` varchar(4096) DEFAULT NULL,
+  `resident_signature` varchar(255) DEFAULT NULL,
+  `assessor_signature` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -198,6 +222,37 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('viewMaterial', 4),
 ('completeMaterial', 5),
 ('get_elearning_progress', 6);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `grand_round_presentation_assessment`
+--
+
+CREATE TABLE `grand_round_presentation_assessment` (
+  `id` int(9) NOT NULL,
+  `resident_id` int(9) NOT NULL,
+  `supervisor_id` int(9) NOT NULL,
+  `date` date NOT NULL DEFAULT current_timestamp(),
+  `diagnosis` varchar(512) NOT NULL,
+  `case_complexity` enum('Low','Moderate','High') NOT NULL,
+  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `physical_examination` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `provisional_diagnosis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `assessor_comment` varchar(4096) NOT NULL,
+  `resident_comment` varchar(4096) DEFAULT NULL,
+  `resident_signature` varchar(255) DEFAULT NULL,
+  `assessor_signature` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `grand_round_presentation_assessment`
+--
+
+INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`) VALUES
+(2, 22, 28, '2025-03-23', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1742763784070.png');
 
 -- --------------------------------------------------------
 
@@ -427,6 +482,14 @@ ALTER TABLE `bau`
   ADD UNIQUE KEY `Email` (`Email`);
 
 --
+-- Indexes for table `case_based_discussion_assessment`
+--
+ALTER TABLE `case_based_discussion_assessment`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resident_id` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
 -- Indexes for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
@@ -464,6 +527,14 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `functions`
   ADD PRIMARY KEY (`Id`);
+
+--
+-- Indexes for table `grand_round_presentation_assessment`
+--
+ALTER TABLE `grand_round_presentation_assessment`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resident_id` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `mortality_morbidity_review_assessment`
@@ -546,6 +617,12 @@ ALTER TABLE `bau`
   MODIFY `Bau_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `case_based_discussion_assessment`
+--
+ALTER TABLE `case_based_discussion_assessment`
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
@@ -580,6 +657,12 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `functions`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `grand_round_presentation_assessment`
+--
+ALTER TABLE `grand_round_presentation_assessment`
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
@@ -634,6 +717,13 @@ ALTER TABLE `accomplishments`
   ADD CONSTRAINT `fk_user` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `case_based_discussion_assessment`
+--
+ALTER TABLE `case_based_discussion_assessment`
+  ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `eduactconferences`
 --
 ALTER TABLE `eduactconferences`
@@ -650,6 +740,13 @@ ALTER TABLE `eduactcourses`
 --
 ALTER TABLE `eduactworkshops`
   ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `grand_round_presentation_assessment`
+--
+ALTER TABLE `grand_round_presentation_assessment`
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `mortality_morbidity_review_assessment`
