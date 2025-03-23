@@ -795,31 +795,6 @@ ALTER TABLE `user_skills`
   ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
-CREATE TABLE fellow_resident_evaluation (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fellow_name VARCHAR(255) NOT NULL,
-    fellow_id INT NOT NULL,
-    hospital VARCHAR(255) NOT NULL,
-    date_of_rotation DATE NOT NULL,
-    instructor_name VARCHAR(255) NOT NULL,
-    instructor_signature VARCHAR(255), 
-    punctuality INT CHECK (punctuality BETWEEN 1 AND 5),
-    dependable INT CHECK (dependable BETWEEN 1 AND 5),
-    respectful INT CHECK (respectful BETWEEN 1 AND 5),
-    positive_interaction INT CHECK (positive_interaction BETWEEN 1 AND 5),
-    self_learning INT CHECK (self_learning BETWEEN 1 AND 5),
-    communication INT CHECK (communication BETWEEN 1 AND 5),
-    history_taking INT CHECK (history_taking BETWEEN 1 AND 5),
-    physical_examination INT CHECK (physical_examination BETWEEN 1 AND 5),
-    clinical_reasoning INT CHECK (clinical_reasoning BETWEEN 1 AND 5),
-    application_knowledge INT CHECK (application_knowledge BETWEEN 1 AND 5),
-    overall_marks INT CHECK (overall_marks BETWEEN 0 AND 100),
-    strengths TEXT,
-    suggestions TEXT,
-    evaluator_id INT NOT NULL,
-    FOREIGN KEY (fellow_id) REFERENCES users(User_ID),
-    FOREIGN KEY (evaluator_id) REFERENCES users(User_ID)
-);
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
