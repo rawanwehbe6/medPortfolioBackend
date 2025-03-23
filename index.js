@@ -40,7 +40,7 @@ app.use('/api', elearningRoutes);
 app.use("/api/educational-activities", educationalActivitiesRoutes);
 
 // Mount form routes
-app.use('/api/mortality-morbidity-review-assessment', formRoutes);
+app.use('/api/forms', formRoutes);
 
 // Start the server
 const PORT = process.env.PORT || 3000;

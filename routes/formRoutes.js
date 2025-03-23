@@ -1,44 +1,41 @@
 const express = require('express');
-const formController = require('../controllers/formController');
+const mortalityMorbidityController = require('../controllers/MortalityMorbidityformController.js'); 
 const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Add a new Mortality or Morbidity Review Assessment form entry
+// Mortality or Morbidity Review Assessment Form Routes
 router.post(
-  '/', 
+  '/mortality-morbidity', 
   authMiddleware,
   upload.fields([
     { name: 'resident_signature', maxCount: 1 },
     { name: 'assessor_signature', maxCount: 1 },
   ]),
-  formController.addMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.addMortalityMorbidityReviewAssessment
 );
 
-// Get Mortality or Morbidity Review Assessment form entries by user ID
 router.get(
-  '/', 
+  '/mortality-morbidity', 
   authMiddleware,
-  formController.getMortalityMorbidityReviewAssessmentsByUserId
+  mortalityMorbidityController.getMortalityMorbidityReviewAssessmentsByUserId
 );
 
-// Update a Mortality or Morbidity Review Assessment form entry
 router.put(
-  '/:id', 
+  '/mortality-morbidity/:id', 
   authMiddleware,
   upload.fields([
     { name: 'resident_signature', maxCount: 1 },
     { name: 'assessor_signature', maxCount: 1 },
   ]),
-  formController.updateMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.updateMortalityMorbidityReviewAssessment
 );
 
-// Delete a Mortality or Morbidity Review Assessment form entry
 router.delete(
-  '/:id', 
+  '/mortality-morbidity/:id', 
   authMiddleware,
-  formController.deleteMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.deleteMortalityMorbidityReviewAssessment
 );
 
 module.exports = router;

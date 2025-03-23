@@ -19,8 +19,9 @@ const addMortalityMorbidityReviewAssessment = async (req, res) => {
     suggested_areas_for_improvement,
   } = req.body;
 
-  const resident_signature_path = req.files['resident_signature'][0].path;
-  const assessor_signature_path = req.files['assessor_signature'][0].path;
+  // Check if files exist
+  const resident_signature_path = req.files['resident_signature'] ? req.files['resident_signature'][0].path : null;
+  const assessor_signature_path = req.files['assessor_signature'] ? req.files['assessor_signature'][0].path : null;
 
   const query = `
     INSERT INTO mortality_morbidity_review_assessment (
@@ -66,6 +67,7 @@ const addMortalityMorbidityReviewAssessment = async (req, res) => {
     const [result] = await db.execute(query, params);
     res.status(201).json({ message: 'Mortality or Morbidity Review Assessment form submitted successfully', id: result.insertId });
   } catch (error) {
+    console.error('Error submitting form:', error);
     res.status(500).json({ message: 'Error submitting Mortality or Morbidity Review Assessment form' });
   }
 };
@@ -101,6 +103,7 @@ const updateMortalityMorbidityReviewAssessment = async (req, res) => {
     suggested_areas_for_improvement,
   } = req.body;
 
+  // Check if files exist
   const resident_signature_path = req.files['resident_signature'] ? req.files['resident_signature'][0].path : null;
   const assessor_signature_path = req.files['assessor_signature'] ? req.files['assessor_signature'][0].path : null;
 
@@ -148,6 +151,7 @@ const updateMortalityMorbidityReviewAssessment = async (req, res) => {
     await db.execute(query, params);
     res.status(200).json({ message: 'Mortality or Morbidity Review Assessment form updated successfully' });
   } catch (error) {
+    console.error('Error updating form:', error);
     res.status(500).json({ message: 'Error updating Mortality or Morbidity Review Assessment form' });
   }
 };
