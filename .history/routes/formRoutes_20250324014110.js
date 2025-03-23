@@ -110,15 +110,9 @@ router.delete(
   seminarAssessmentController.deleteSeminarAssessment
 );
 
-//fellow resident form routes
 router.post('/fellow-eval', auth, frp.createForm);
 router.put('/fellow-eval/:id', auth, frp.updateForm);
 router.get('/fellow-eval/:id', auth, frp.getTupleById);
 router.delete('/fellow-eval/:id', auth, frp.deleteTupleById);
 
-// Journal Club Assessment Routes
-router.post('/journal-club', auth, uploadPNG, journalClubController.createAssessment);
-router.put('/journal-club/:id', auth, handleFileUpload, journalClubController.updateAssessment);
-router.get('/journal-club/:id', auth, journalClubController.getAssessmentById);
-router.delete('/journal-club/:id', auth, journalClubController.deleteAssessmentById);
 module.exports = router;
