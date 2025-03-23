@@ -3,8 +3,36 @@ const mortalityMorbidityController = require('../controllers/MortalityMorbidityf
 const seminarAssessmentController = require('../controllers/SeminarAssessmentController');
 const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
-
+const assessmentController = require('../controllers/grand_round_presentation_assessment');
+const auth = require('../middleware/verifyToken.js');
 const router = express.Router();
+
+
+const uploadPNG = upload.fields([
+    { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
+]);
+
+const handleFileUpload = (req, res, next) => {
+    uploadPNG(req, res, (err) => {
+        if (err) return res.status(400).json({ error: "File upload failed" });
+
+        if (req.user.role === 2) {
+            // Role 2 (Resident) must upload a signature
+            if (!req.files || !req.files.signature || req.files.signature.length === 0) {
+                return res.status(400).json({ error: "PNG file is required for resident" });
+            }
+        }
+        next();
+    });
+};
+
+
+// Define routes
+router.post('/grpacreate', auth, uploadPNG, assessmentController.createForm);
+router.put('/grpaupdate/:id', auth, handleFileUpload, assessmentController.updateForm);
+router.get('/grpa/:id', auth, assessmentController.getTupleById);
+router.delete('/grpa/:id', auth, assessmentController.deleteTupleById);
+
 
 // Mortality or Morbidity Review Assessment Form Routes
 router.post(
