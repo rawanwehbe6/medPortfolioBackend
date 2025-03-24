@@ -2,7 +2,7 @@ const pool = require("../config/db");
 
 const createForm = async (req, res) => {
     try {
-        const { role } = req.user;
+        const { role, userId } = req.user;  // Get the userId from the logged-in user's session
         const { fellow_name, fellow_id, hospital, date_of_rotation, instructor_name, instructor_signature,
             punctuality, dependable, respectful, positive_interaction, self_learning,
             communication, history_taking, physical_examination, clinical_reasoning,
@@ -12,17 +12,18 @@ const createForm = async (req, res) => {
             return res.status(403).json({ message: "Permission denied" });
         }
 
+        // Add evaluator_id here
         await pool.execute(
             `INSERT INTO fellow_resident_evaluation 
             (fellow_name, fellow_id, hospital, date_of_rotation, instructor_name, instructor_signature,
             punctuality, dependable, respectful, positive_interaction, self_learning,
             communication, history_taking, physical_examination, clinical_reasoning,
-            application_knowledge, overall_marks, strengths, suggestions) 
+            application_knowledge, overall_marks, strengths, suggestions, evaluator_id) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [fellow_name, fellow_id, hospital, date_of_rotation, instructor_name, instructor_signature,
-            punctuality, dependable, respectful, positive_interaction, self_learning,
-            communication, history_taking, physical_examination, clinical_reasoning,
-            application_knowledge, overall_marks, strengths, suggestions]
+            punctuality, dependable, respectful, positive_interaction, self_learning, communication,
+            history_taking, physical_examination, clinical_reasoning, application_knowledge, overall_marks,
+            strengths, suggestions, userId]  // Set evaluator_id to the logged-in user's ID
         );
 
         res.status(201).json({ message: "Evaluation form created successfully" });
@@ -31,6 +32,7 @@ const createForm = async (req, res) => {
         res.status(500).json({ error: "Server error while creating form" });
     }
 };
+
 
 const updateForm = async (req, res) => {
     try {
@@ -97,6 +99,10 @@ const deleteTupleById = async (req, res) => {
 
         if (result.length === 0) {
             return res.status(404).json({ error: "Evaluation record not found" });
+        }
+
+        if (result[0].evaluator_id !== userId && userId !== 1) {
+            return res.status(403).json({ message: "Permission denied: Only the assigned evaluator can delete this record" });
         }
 
         await pool.execute("DELETE FROM fellow_resident_evaluation WHERE id = ?", [id]);
