@@ -1,0 +1,43 @@
+CREATE TABLE `mortality_morbidity_review_assessment` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
+  `resident_id` int(9) NOT NULL COMMENT 'Equivalent to user_id in your original table',
+  `supervisor_id` int(9) NOT NULL COMMENT 'Assessor role equivalent',
+  `resident_fellow_name` varchar(255) NOT NULL,
+  `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
+  `diagnosis` text NOT NULL,
+  `cause_of_death_morbidity` text NOT NULL,
+  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `major_positive_feature` text DEFAULT NULL,
+  `suggested_areas_for_improvement` text DEFAULT NULL,
+  `resident_signature_path` varchar(255) DEFAULT NULL,
+  `assessor_signature_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+CREATE TABLE `seminar_assessment` (
+  `id` int(9) NOT NULL AUTO_INCREMENT,
+  `resident_id` int(9) NOT NULL COMMENT 'User_ID of the resident',
+  `supervisor_id` int(9) NOT NULL COMMENT 'User_ID of the supervisor',
+  `resident_fellow_name` varchar(255) NOT NULL,
+  `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
+  `topic` varchar(255) NOT NULL,
+  `content` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `presentation_skills` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `communication` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `audience_management` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `references` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `major_positive_feature` text DEFAULT NULL,
+  `suggested_areas_for_improvement` text DEFAULT NULL,
+  `resident_signature_path` varchar(255) DEFAULT NULL,
+  `assessor_signature_path` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
