@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 23, 2025 at 10:43 PM
+-- Generation Time: Mar 28, 2025 at 07:53 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -203,6 +203,35 @@ INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `re
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `fellow_resident_evaluation`
+--
+
+CREATE TABLE `fellow_resident_evaluation` (
+  `id` int(11) NOT NULL,
+  `fellow_name` varchar(255) NOT NULL,
+  `fellow_id` int(11) NOT NULL,
+  `hospital` varchar(255) NOT NULL,
+  `date_of_rotation` date NOT NULL,
+  `instructor_name` varchar(255) NOT NULL,
+  `instructor_signature` varchar(255) DEFAULT NULL,
+  `punctuality` int(11) DEFAULT NULL CHECK (`punctuality` between 1 and 5),
+  `dependable` int(11) DEFAULT NULL CHECK (`dependable` between 1 and 5),
+  `respectful` int(11) DEFAULT NULL CHECK (`respectful` between 1 and 5),
+  `positive_interaction` int(11) DEFAULT NULL CHECK (`positive_interaction` between 1 and 5),
+  `self_learning` int(11) DEFAULT NULL CHECK (`self_learning` between 1 and 5),
+  `communication` int(11) DEFAULT NULL CHECK (`communication` between 1 and 5),
+  `history_taking` int(11) DEFAULT NULL CHECK (`history_taking` between 1 and 5),
+  `physical_examination` int(11) DEFAULT NULL CHECK (`physical_examination` between 1 and 5),
+  `clinical_reasoning` int(11) DEFAULT NULL CHECK (`clinical_reasoning` between 1 and 5),
+  `application_knowledge` int(11) DEFAULT NULL CHECK (`application_knowledge` between 1 and 5),
+  `overall_marks` int(11) DEFAULT NULL CHECK (`overall_marks` between 0 and 100),
+  `strengths` text DEFAULT NULL,
+  `suggestions` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `functions`
 --
 
@@ -257,14 +286,47 @@ INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervi
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `journal_club_assessment`
+--
+
+CREATE TABLE `journal_club_assessment` (
+  `id` int(11) NOT NULL,
+  `resident_name` varchar(255) NOT NULL,
+  `date` date NOT NULL,
+  `article_reference` varchar(255) NOT NULL,
+  `paper_selection` varchar(255) DEFAULT NULL,
+  `background_knowledge` varchar(255) DEFAULT NULL,
+  `critical_analysis_methodology` text DEFAULT NULL,
+  `critical_analysis_results` text DEFAULT NULL,
+  `conclusions_drawn` text DEFAULT NULL,
+  `audio_visual_aids` text DEFAULT NULL,
+  `handling_questions` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `major_positive_feature` text DEFAULT NULL,
+  `suggested_article_selection` text DEFAULT NULL,
+  `suggested_critical_analysis` text DEFAULT NULL,
+  `suggested_slide_design` text DEFAULT NULL,
+  `suggested_presentation` text DEFAULT NULL,
+  `suggested_answering_questions` text DEFAULT NULL,
+  `agreed_action_plan` text DEFAULT NULL,
+  `resident_signature` varchar(255) DEFAULT NULL,
+  `assessor_signature` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mortality_morbidity_review_assessment`
 --
 
 CREATE TABLE `mortality_morbidity_review_assessment` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `id` int(9) NOT NULL,
+  `resident_id` int(9) NOT NULL COMMENT 'Equivalent to user_id in your original table',
+  `supervisor_id` int(9) NOT NULL COMMENT 'Assessor role equivalent',
   `resident_fellow_name` varchar(255) NOT NULL,
-  `date_of_presentation` date NOT NULL,
+  `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
   `diagnosis` text NOT NULL,
   `cause_of_death_morbidity` text NOT NULL,
   `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
@@ -277,16 +339,8 @@ CREATE TABLE `mortality_morbidity_review_assessment` (
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
-  `assessor_signature_path` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `assessor_signature_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `mortality_morbidity_review_assessment`
---
-
-INSERT INTO `mortality_morbidity_review_assessment` (`id`, `user_id`, `resident_fellow_name`, `date_of_presentation`, `diagnosis`, `cause_of_death_morbidity`, `brief_introduction`, `patient_details`, `assessment_analysis`, `review_of_literature`, `recommendations`, `handling_questions`, `overall_performance`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `created_at`) VALUES
-(1, 27, 'test user', '2023-10-15', 'Cardiac Arrest', 'Heart Failure', 'Meets Expectations', 'Exceeds Expectations', 'Meets Expectations', 'Below Expectations', 'Exceeds Expectations', 'Meets Expectations', 'Exceeds Expectations', 'Excellent communication skills', 'Needs more focus on time management', 'uploads\\1742673455632.jpg', 'uploads\\1742673455633.jpg', '2025-03-22 19:57:35');
 
 -- --------------------------------------------------------
 
@@ -303,6 +357,32 @@ CREATE TABLE `research` (
   `File_Path` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `seminar_assessment`
+--
+
+CREATE TABLE `seminar_assessment` (
+  `id` int(9) NOT NULL,
+  `resident_id` int(9) NOT NULL COMMENT 'User_ID of the resident',
+  `supervisor_id` int(9) NOT NULL COMMENT 'User_ID of the supervisor',
+  `resident_fellow_name` varchar(255) NOT NULL,
+  `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
+  `topic` varchar(255) NOT NULL,
+  `content` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `presentation_skills` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `communication` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `audience_management` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `references` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `major_positive_feature` text DEFAULT NULL,
+  `suggested_areas_for_improvement` text DEFAULT NULL,
+  `resident_signature_path` varchar(255) DEFAULT NULL,
+  `assessor_signature_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -523,6 +603,13 @@ ALTER TABLE `elearning_materials`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fellow_id` (`fellow_id`);
+
+--
 -- Indexes for table `functions`
 --
 ALTER TABLE `functions`
@@ -537,17 +624,28 @@ ALTER TABLE `grand_round_presentation_assessment`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
+-- Indexes for table `journal_club_assessment`
+--
+ALTER TABLE `journal_club_assessment`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
+
+--
+-- Indexes for table `seminar_assessment`
+--
+ALTER TABLE `seminar_assessment`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `supervisor_supervisee`
@@ -653,6 +751,12 @@ ALTER TABLE `elearning_materials`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
@@ -665,16 +769,28 @@ ALTER TABLE `grand_round_presentation_assessment`
   MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `journal_club_assessment`
+--
+ALTER TABLE `journal_club_assessment`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `seminar_assessment`
+--
+ALTER TABLE `seminar_assessment`
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `surgical_experiences`
@@ -742,17 +858,17 @@ ALTER TABLE `eduactworkshops`
   ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`);
+
+--
 -- Constraints for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
-
---
--- Constraints for table `mortality_morbidity_review_assessment`
---
-ALTER TABLE `mortality_morbidity_review_assessment`
-  ADD CONSTRAINT `mortality_morbidity_review_assessment_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `supervisor_supervisee`
@@ -794,57 +910,6 @@ ALTER TABLE `usertype_functions`
 ALTER TABLE `user_skills`
   ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
-
-CREATE TABLE fellow_resident_evaluation (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fellow_name VARCHAR(255) NOT NULL,
-    fellow_id INT NOT NULL,
-    hospital VARCHAR(255) NOT NULL,
-    date_of_rotation DATE NOT NULL,
-    instructor_name VARCHAR(255) NOT NULL,
-    instructor_signature VARCHAR(255), 
-    punctuality INT CHECK (punctuality BETWEEN 1 AND 5),
-    dependable INT CHECK (dependable BETWEEN 1 AND 5),
-    respectful INT CHECK (respectful BETWEEN 1 AND 5),
-    positive_interaction INT CHECK (positive_interaction BETWEEN 1 AND 5),
-    self_learning INT CHECK (self_learning BETWEEN 1 AND 5),
-    communication INT CHECK (communication BETWEEN 1 AND 5),
-    history_taking INT CHECK (history_taking BETWEEN 1 AND 5),
-    physical_examination INT CHECK (physical_examination BETWEEN 1 AND 5),
-    clinical_reasoning INT CHECK (clinical_reasoning BETWEEN 1 AND 5),
-    application_knowledge INT CHECK (application_knowledge BETWEEN 1 AND 5),
-    overall_marks INT CHECK (overall_marks BETWEEN 0 AND 100),
-    strengths TEXT,
-    suggestions TEXT,
-    FOREIGN KEY (fellow_id) REFERENCES users(User_ID)
-);
-
--- Create journal_club_assessment Table without evaluator_id
-CREATE TABLE IF NOT EXISTS journal_club_assessment (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    resident_name VARCHAR(255) NOT NULL,
-    date DATE NOT NULL,
-    article_reference VARCHAR(255) NOT NULL,
-    paper_selection VARCHAR(255),
-    background_knowledge VARCHAR(255),
-    critical_analysis_methodology TEXT,
-    critical_analysis_results TEXT,
-    conclusions_drawn TEXT,
-    audio_visual_aids TEXT,
-    handling_questions TEXT,
-    overall_performance TEXT,
-    major_positive_feature TEXT,
-    suggested_article_selection TEXT,
-    suggested_critical_analysis TEXT,
-    suggested_slide_design TEXT,
-    suggested_presentation TEXT,
-    suggested_answering_questions TEXT,
-    agreed_action_plan TEXT,
-    resident_signature VARCHAR(255),  -- Store file path or reference for signature
-    assessor_signature VARCHAR(255),  -- Store file path or reference for signature
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
