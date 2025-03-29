@@ -111,7 +111,7 @@ router.delete(
 );
 
 //fellow resident form routes
-router.post("/fellow-resident/create", auth, upload.single("instructor_signature"), frp.createForm);
+router.post('/fellow-resident/create', auth, upload.single("instructor_signature"), frp.createForm);
 router.put('/fellow-resident/update/:id', auth, upload.single("instructor_signature"), frp.updateForm);
 router.get('/fellow-resident/:id', auth, frp.getTupleById);
 router.delete('/fellow-resident/:id', auth, frp.deleteTupleById);

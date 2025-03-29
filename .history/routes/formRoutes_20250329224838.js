@@ -111,10 +111,10 @@ router.delete(
 );
 
 //fellow resident form routes
-router.post("/fellow-resident/create", auth, upload.single("instructor_signature"), frp.createForm);
-router.put('/fellow-resident/update/:id', auth, upload.single("instructor_signature"), frp.updateForm);
-router.get('/fellow-resident/:id', auth, frp.getTupleById);
-router.delete('/fellow-resident/:id', auth, frp.deleteTupleById);
+router.post('/fellow-eval', auth, frp.createForm);
+router.put('/fellow-eval/:id', auth, frp.updateForm);
+router.get('/fellow-eval/:id', auth, frp.getTupleById);
+router.delete('/fellow-eval/:id', auth, frp.deleteTupleById);
 
 // Journal Club Assessment Routes
 router.post('/journal-club', auth, uploadPNG, journalClubController.createAssessment);

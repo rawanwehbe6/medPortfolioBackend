@@ -1,15 +1,13 @@
 const pool = require("../config/db");
-const upload = require("../middleware/multerConfig"); // Reference multerConfig.js
+const upload = require("../middleware/multerConfig"); // Updated to reference multerConfig.js
 
 const createForm = async (req, res) => {
     try {
         const { role } = req.user;
-        const {
-            fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
+        const { fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
             punctuality, dependable, respectful, positive_interaction, self_learning,
             communication, history_taking, physical_examination, clinical_reasoning,
-            application_knowledge, overall_marks, strengths, suggestions
-        } = req.body;
+            application_knowledge, overall_marks, strengths, suggestions } = req.body;
 
         const instructor_signature = req.file ? req.file.filename : null;
 
@@ -24,27 +22,10 @@ const createForm = async (req, res) => {
             communication, history_taking, physical_examination, clinical_reasoning,
             application_knowledge, overall_marks, strengths, suggestions) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                fellow_name || null,
-                fellow_id || null,
-                hospital || null,
-                date_of_rotation || null,
-                instructor_name || null,
-                instructor_signature || null,
-                punctuality || null,
-                dependable || null,
-                respectful || null,
-                positive_interaction || null,
-                self_learning || null,
-                communication || null,
-                history_taking || null,
-                physical_examination || null,
-                clinical_reasoning || null,
-                application_knowledge || null,
-                overall_marks || null,
-                strengths || null,
-                suggestions || null
-            ]
+            [fellow_name, fellow_id, hospital, date_of_rotation, instructor_name, instructor_signature,
+            punctuality, dependable, respectful, positive_interaction, self_learning,
+            communication, history_taking, physical_examination, clinical_reasoning,
+            application_knowledge, overall_marks, strengths, suggestions]
         );
 
         res.status(201).json({ message: "Evaluation form created successfully" });
@@ -58,12 +39,10 @@ const updateForm = async (req, res) => {
     try {
         const { role } = req.user;
         const { id } = req.params;
-        const {
-            fellow_name, instructor_name,
+        const { fellow_name, instructor_name,
             punctuality, dependable, respectful, positive_interaction, self_learning, 
             communication, history_taking, physical_examination, clinical_reasoning, 
-            application_knowledge, overall_marks, strengths, suggestions
-        } = req.body;
+            application_knowledge, overall_marks, strengths, suggestions } = req.body;
 
         const instructor_signature = req.file ? req.file.filename : null;
 
@@ -79,25 +58,10 @@ const updateForm = async (req, res) => {
                 physical_examination = ?, clinical_reasoning = ?, application_knowledge = ?, 
                 overall_marks = ?, strengths = ?, suggestions = ? 
             WHERE id = ?`,
-            [
-                fellow_name || null,
-                instructor_name || null,
-                instructor_signature || null,
-                punctuality || null,
-                dependable || null,
-                respectful || null,
-                positive_interaction || null,
-                self_learning || null,
-                communication || null,
-                history_taking || null,
-                physical_examination || null,
-                clinical_reasoning || null,
-                application_knowledge || null,
-                overall_marks || null,
-                strengths || null,
-                suggestions || null,
-                id
-            ]
+            [fellow_name, instructor_name, instructor_signature,
+            punctuality, dependable, respectful, positive_interaction, self_learning, 
+            communication, history_taking, physical_examination, clinical_reasoning, 
+            application_knowledge, overall_marks, strengths, suggestions, id]
         );
 
         res.status(200).json({ message: "Evaluation form updated successfully" });
