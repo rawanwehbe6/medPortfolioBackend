@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 28, 2025 at 07:53 PM
+-- Generation Time: Mar 29, 2025 at 09:10 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -94,7 +94,6 @@ CREATE TABLE `case_based_discussion_assessment` (
 CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -103,8 +102,8 @@ CREATE TABLE `contact_messages` (
 -- Dumping data for table `contact_messages`
 --
 
-INSERT INTO `contact_messages` (`id`, `name`, `email`, `message`, `created_at`) VALUES
-(1, 'Lorence', 'lorence@gmail.com', 'This is a test message.', '2025-03-11 15:18:45');
+INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
+(1, 'Lorence', 'This is a test message.', '2025-03-11 15:18:45');
 
 -- --------------------------------------------------------
 
@@ -323,19 +322,19 @@ CREATE TABLE `journal_club_assessment` (
 
 CREATE TABLE `mortality_morbidity_review_assessment` (
   `id` int(9) NOT NULL,
-  `resident_id` int(9) NOT NULL COMMENT 'Equivalent to user_id in your original table',
-  `supervisor_id` int(9) NOT NULL COMMENT 'Assessor role equivalent',
+  `resident_id` int(9) NOT NULL,
+  `supervisor_id` int(9) NOT NULL,
   `resident_fellow_name` varchar(255) NOT NULL,
   `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
   `diagnosis` text NOT NULL,
   `cause_of_death_morbidity` text NOT NULL,
-  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
@@ -367,18 +366,18 @@ CREATE TABLE `research` (
 
 CREATE TABLE `seminar_assessment` (
   `id` int(9) NOT NULL,
-  `resident_id` int(9) NOT NULL COMMENT 'User_ID of the resident',
-  `supervisor_id` int(9) NOT NULL COMMENT 'User_ID of the supervisor',
+  `resident_id` int(9) NOT NULL,
+  `supervisor_id` int(9) NOT NULL,
   `resident_fellow_name` varchar(255) NOT NULL,
   `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
   `topic` varchar(255) NOT NULL,
-  `content` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `presentation_skills` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `communication` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `audience_management` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `references` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `content` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `presentation_skills` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `communication` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `audience_management` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
+  `references` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
@@ -630,22 +629,10 @@ ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `mortality_morbidity_review_assessment`
---
-ALTER TABLE `mortality_morbidity_review_assessment`
-  ADD PRIMARY KEY (`id`);
-
---
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
-
---
--- Indexes for table `seminar_assessment`
---
-ALTER TABLE `seminar_assessment`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `supervisor_supervisee`
@@ -775,22 +762,10 @@ ALTER TABLE `journal_club_assessment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
---
-ALTER TABLE `mortality_morbidity_review_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `seminar_assessment`
---
-ALTER TABLE `seminar_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `surgical_experiences`
