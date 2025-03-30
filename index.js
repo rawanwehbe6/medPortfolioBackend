@@ -14,6 +14,8 @@ const researchRoutes = require('./routes/researchRoutes');
 const supervisor = require('./routes/supervisorRoutes');
 const admin = require('./routes/AdminRoutes');
 const formRoutes = require('./routes/formRoutes');
+const messagesRoutes = require('./routes/messagesRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -27,6 +29,8 @@ app.use('/api/surgical-experiences', surgicalExperienceRoutes);
 app.use('/api', researchRoutes);
 app.use('/api/supervisor', supervisor);
 app.use('/api/admin', admin);
+app.use('/api/messages', messagesRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // Define a simple route
 app.get("/", (req, res) => {
@@ -34,7 +38,7 @@ app.get("/", (req, res) => {
 });
 
 // Mount the elearning routes
-app.use('/api', elearningRoutes);
+app.use('/api/elearning-materials', elearningRoutes);
 
 // Mount the educational Activities routes
 app.use("/api/educational-activities", educationalActivitiesRoutes);

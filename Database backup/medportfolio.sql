@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 29, 2025 at 09:10 PM
+-- Generation Time: Mar 30, 2025 at 01:07 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -84,6 +84,15 @@ CREATE TABLE `case_based_discussion_assessment` (
   `resident_signature` varchar(255) DEFAULT NULL,
   `assessor_signature` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `case_based_discussion_assessment`
+--
+
+INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `Investigation_Referral`, `treatment`, `future_planning`, `history_taking`, `overall_clinical_care`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`) VALUES
+(2, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289787224.png'),
+(3, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289824406.png'),
+(4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png');
 
 -- --------------------------------------------------------
 
@@ -188,16 +197,21 @@ CREATE TABLE `elearning_materials` (
   `category` enum('medical_course','books_articles','workshops_activities') NOT NULL,
   `description` text DEFAULT NULL,
   `resource_url` text NOT NULL,
-  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `Host` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `elearning_materials`
 --
 
-INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`) VALUES
-(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08'),
-(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58');
+INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`, `Host`) VALUES
+(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08', NULL),
+(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58', NULL),
+(3, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:01:45', NULL),
+(4, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:02:22', NULL),
+(7, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:24', 'jad'),
+(8, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:32', NULL);
 
 -- --------------------------------------------------------
 
@@ -280,7 +294,8 @@ CREATE TABLE `grand_round_presentation_assessment` (
 --
 
 INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`) VALUES
-(2, 22, 28, '2025-03-23', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1742763784070.png');
+(2, 22, 28, '2025-03-23', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1742763784070.png'),
+(3, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292176217.jpg');
 
 -- --------------------------------------------------------
 
@@ -313,6 +328,29 @@ CREATE TABLE `journal_club_assessment` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `supervisor_id` int(11) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `subject`, `message`, `trainee_id`, `supervisor_id`, `date`) VALUES
+(2, 'Training Schedule', 'Your next training session is on Monday.', 23, 28, '2025-03-29 23:51:53'),
+(3, 'Training Schedule', 'Your next training session is on Monday.', 22, 28, '2025-03-29 23:54:53');
 
 -- --------------------------------------------------------
 
@@ -419,6 +457,29 @@ CREATE TABLE `surgical_experiences` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `tasks`
+--
+
+CREATE TABLE `tasks` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `deadline` date NOT NULL,
+  `description` text DEFAULT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `supervisor_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `tasks`
+--
+
+INSERT INTO `tasks` (`id`, `name`, `deadline`, `description`, `trainee_id`, `supervisor_id`) VALUES
+(1, 'Task 1', '2025-04-01', 'Complete module 1', 23, 28),
+(2, 'Task 1', '2025-04-01', 'Complete module 1', 22, 28);
 
 -- --------------------------------------------------------
 
@@ -629,6 +690,14 @@ ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
@@ -647,6 +716,14 @@ ALTER TABLE `supervisor_supervisee`
 ALTER TABLE `surgical_experiences`
   ADD PRIMARY KEY (`Experience_ID`),
   ADD KEY `User_ID` (`User_ID`);
+
+--
+-- Indexes for table `tasks`
+--
+ALTER TABLE `tasks`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `trainee_elearning_material_progress`
@@ -705,7 +782,7 @@ ALTER TABLE `bau`
 -- AUTO_INCREMENT for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -735,7 +812,7 @@ ALTER TABLE `eduactworkshops`
 -- AUTO_INCREMENT for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `fellow_resident_evaluation`
@@ -753,13 +830,19 @@ ALTER TABLE `functions`
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `research`
@@ -772,6 +855,12 @@ ALTER TABLE `research`
 --
 ALTER TABLE `surgical_experiences`
   MODIFY `Experience_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `tasks`
+--
+ALTER TABLE `tasks`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
@@ -846,6 +935,13 @@ ALTER TABLE `grand_round_presentation_assessment`
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `supervisor_supervisee`
 --
 ALTER TABLE `supervisor_supervisee`
@@ -857,6 +953,13 @@ ALTER TABLE `supervisor_supervisee`
 --
 ALTER TABLE `surgical_experiences`
   ADD CONSTRAINT `surgical_experiences_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tasks`
+--
+ALTER TABLE `tasks`
+  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
