@@ -1,5 +1,80 @@
 const pool = require('../config/db');
 
+const addLearningMaterial = async (req, res) => {
+  try {
+    if (req.user.role !== 1 && req.user.role !== 3) {
+      return res.status(403).json({ message: "Permission denied: User is not authorized" });
+    }
+
+    const { title, category, description, resource_url, host } = req.body;
+
+    // Validate required fields
+    if (!title || !category || !resource_url) {
+      return res.status(400).json({ error: "Missing required fields: title, category, or resource_url" });
+    }
+
+    // Ensure `host` is provided if `category` is `workshops_activities`
+    let finalHost = null;
+    if (category === "workshops_activities") {
+      if (!host) {
+        return res.status(400).json({ error: "Host is required for workshops_activities" });
+      }
+      finalHost = host;
+    }
+
+    // Execute SQL query to insert new learning material
+    await pool.execute(
+      `INSERT INTO elearning_materials (title, category, description, resource_url, Host) VALUES (?, ?, ?, ?, ?)`,
+      [title, category, description || null, resource_url, finalHost]
+    );
+
+    res.status(201).json({ message: "Learning material added successfully" });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while adding learning material" });
+  }
+};
+
+const getMedicalCourses = async (req, res) => {
+  try {
+    const [materials] = await pool.execute(
+      "SELECT title, description, resource_url FROM elearning_materials WHERE category = 'medical_course'"
+    );
+
+    res.status(200).json({ materials });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching medical courses" });
+  }
+};
+
+const getBooksAndArticles = async (req, res) => {
+  try {
+    const [materials] = await pool.execute(
+      "SELECT title, description, resource_url FROM elearning_materials WHERE category = 'books_articles'"
+    );
+
+    res.status(200).json({ materials });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching books and articles" });
+  }
+};
+
+const getWorkshopsAndActivities = async (req, res) => {
+  try {
+    const [materials] = await pool.execute(
+      "SELECT title, description, resource_url, Host FROM elearning_materials WHERE category = 'workshops_activities'"
+    );
+
+    res.status(200).json({ materials });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching workshops and activities" });
+  }
+};
+
+
 // Called when a trainee views a material; sets status to "in_progress"
 const viewMaterial = async (req, res) => {
   const { materialId } = req.params;
@@ -66,4 +141,8 @@ module.exports = {
   viewMaterial,
   completeMaterial,
   getProgress,
+  addLearningMaterial,
+  getMedicalCourses,
+  getBooksAndArticles,
+  getWorkshopsAndActivities,
 };

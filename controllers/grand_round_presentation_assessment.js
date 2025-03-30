@@ -3,8 +3,9 @@ const pool = require("../config/db");
 const createForm = async (req, res) => {
     try {
         const { role } = req.user;
+        supervisor_id=req.user.userId;
         const {
-            resident_id, supervisor_id, diagnosis, case_complexity, history_taking,
+            resident_id,  diagnosis, case_complexity, history_taking,
             physical_examination, provisional_diagnosis, treatment, future_planning, assessor_comment
         } = req.body;
 

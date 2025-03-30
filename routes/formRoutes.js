@@ -44,68 +44,40 @@ router.get('/cbda/:id', auth, cbda.getTupleById);
 router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
-// Mortality or Morbidity Review Assessment Form Routes
-router.post(
-  '/mortality-morbidity', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  mortalityMorbidityController.addMortalityMorbidityReviewAssessment
-);
+// Mortality & Morbidity Review Assessment Form Routes
+router.post('/mortality-morbidity',authMiddleware,uploadPNG,
+  mortalityMorbidityController.createMortalityMorbidityForm);
+
+router.put('/mortality-morbidity/:id',authMiddleware,handleFileUpload,
+  mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
-  '/mortality-morbidity', 
+  '/mortality-morbidity/:id',
   authMiddleware,
-  mortalityMorbidityController.getMortalityMorbidityReviewAssessmentsByUserId
-);
-
-router.put(
-  '/mortality-morbidity/:id', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  mortalityMorbidityController.updateMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.getMortalityMorbidityFormById
 );
 
 router.delete(
-  '/mortality-morbidity/:id', 
+  '/mortality-morbidity/:id',
   authMiddleware,
-  mortalityMorbidityController.deleteMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.deleteMortalityMorbidityForm
 );
 
 // Seminar Assessment Form Routes
-router.post(
-  '/seminar-assessment', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  seminarAssessmentController.addSeminarAssessment
-);
+router.post('/seminar-assessment',authMiddleware,uploadPNG,
+  seminarAssessmentController.createSeminarAssessment);
+
+router.put('/seminar-assessment/:id',authMiddleware,handleFileUpload,
+  seminarAssessmentController.updateSeminarAssessment);
 
 router.get(
-  '/seminar-assessment', 
+  '/seminar-assessment/:id',
   authMiddleware,
-  seminarAssessmentController.getSeminarAssessmentsByUserId
-);
-
-router.put(
-  '/seminar-assessment/:id', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  seminarAssessmentController.updateSeminarAssessment
+  seminarAssessmentController.getSeminarAssessmentById
 );
 
 router.delete(
-  '/seminar-assessment/:id', 
+  '/seminar-assessment/:id',
   authMiddleware,
   seminarAssessmentController.deleteSeminarAssessment
 );
