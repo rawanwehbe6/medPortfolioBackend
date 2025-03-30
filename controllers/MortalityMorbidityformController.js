@@ -5,8 +5,9 @@ const upload = require('../middleware/multerConfig');
 const createMortalityMorbidityForm = async (req, res) => {
     try {
         const { role } = req;
+        supervisor_id=req.user.userId;
         const {
-            resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
+            resident_id,  resident_fellow_name, date_of_presentation,
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
@@ -19,7 +20,7 @@ const createMortalityMorbidityForm = async (req, res) => {
         }
 
         // Only assessor signature allowed on creation
-        const assessor_signature_path = req.files?.assessor_signature ? req.files.assessor_signature[0].path : null;
+        const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
 
         await db.execute(
             `INSERT INTO mortality_morbidity_review_assessment 
@@ -72,10 +73,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
           }
 
           // Residents can only update their name and signature
-          const resident_signature_path = req.files?.resident_signature 
-              ? req.files.resident_signature[0].path 
-              : currentRecord.resident_signature_path;
-
+          const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
           updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET resident_fellow_name = ?, resident_signature_path = ? 
                          WHERE id = ?`;
@@ -87,9 +85,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
 
       } else if ([1, 3, 4, 5].includes(role)) {  // Admin or supervisor roles
           // Supervisors can update all fields except resident signature and name
-          const assessor_signature_path = req.files?.assessor_signature 
-              ? req.files.assessor_signature[0].path 
-              : currentRecord.assessor_signature_path;
+          const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
           updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET diagnosis = ?, 

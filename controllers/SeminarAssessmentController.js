@@ -5,9 +5,9 @@ const upload = require('../middleware/multerConfig');
 const createSeminarAssessment = async (req, res) => {
     try {
         const { role } = req;
+        supervisor_id=req.user.userId;
         const {
             resident_id, 
-            supervisor_id, 
             resident_fellow_name, 
             date_of_presentation,
             topic,
@@ -28,7 +28,7 @@ const createSeminarAssessment = async (req, res) => {
         }
 
         // Only assessor signature allowed on creation
-        const assessor_signature_path = req.files?.assessor_signature ? req.files.assessor_signature[0].path : null;
+        const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
 
         await db.execute(
             `INSERT INTO seminar_assessment 
@@ -80,9 +80,7 @@ const updateSeminarAssessment = async (req, res) => {
             }
 
             // Residents can only update their name and signature
-            const resident_signature_path = req.files?.resident_signature 
-                ? req.files.resident_signature[0].path 
-                : currentRecord.resident_signature_path;
+            const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
 
             updateQuery = `UPDATE seminar_assessment 
                            SET resident_fellow_name = ?, resident_signature_path = ? 
@@ -95,9 +93,7 @@ const updateSeminarAssessment = async (req, res) => {
 
         } else if ([1, 3, 4, 5].includes(role)) {  // Admin or supervisor roles
             // Supervisors can update all fields except resident signature and name
-            const assessor_signature_path = req.files?.assessor_signature 
-                ? req.files.assessor_signature[0].path 
-                : currentRecord.assessor_signature_path;
+            const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
             updateQuery = `UPDATE seminar_assessment 
                            SET topic = ?,

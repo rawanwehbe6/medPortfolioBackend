@@ -45,25 +45,11 @@ router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
 // Mortality & Morbidity Review Assessment Form Routes
-router.post(
-  '/mortality-morbidity',
-  authMiddleware,
-  upload.fields([
-      { name: 'resident_signature', maxCount: 1 },
-      { name: 'assessor_signature', maxCount: 1 }
-  ]),
-  mortalityMorbidityController.createMortalityMorbidityForm
-);
+router.post('/mortality-morbidity',authMiddleware,uploadPNG,
+  mortalityMorbidityController.createMortalityMorbidityForm);
 
-router.put(
-  '/mortality-morbidity/:id',
-  authMiddleware,
-  upload.fields([
-      { name: 'resident_signature', maxCount: 1 },
-      { name: 'assessor_signature', maxCount: 1 }
-  ]),
-  mortalityMorbidityController.updateMortalityMorbidityForm
-);
+router.put('/mortality-morbidity/:id',authMiddleware,handleFileUpload,
+  mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
   '/mortality-morbidity/:id',
@@ -78,25 +64,11 @@ router.delete(
 );
 
 // Seminar Assessment Form Routes
-router.post(
-  '/seminar-assessment',
-  authMiddleware,
-  upload.fields([
-      { name: 'resident_signature', maxCount: 1 },
-      { name: 'assessor_signature', maxCount: 1 }
-  ]),
-  seminarAssessmentController.createSeminarAssessment
-);
+router.post('/seminar-assessment',authMiddleware,uploadPNG,
+  seminarAssessmentController.createSeminarAssessment);
 
-router.put(
-  '/seminar-assessment/:id',
-  authMiddleware,
-  upload.fields([
-      { name: 'resident_signature', maxCount: 1 },
-      { name: 'assessor_signature', maxCount: 1 }
-  ]),
-  seminarAssessmentController.updateSeminarAssessment
-);
+router.put('/seminar-assessment/:id',authMiddleware,handleFileUpload,
+  seminarAssessmentController.updateSeminarAssessment);
 
 router.get(
   '/seminar-assessment/:id',
