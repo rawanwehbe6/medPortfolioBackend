@@ -117,12 +117,12 @@ router.get('/fellow-resident/:id', auth, frp.getTupleById);
 router.delete('/fellow-resident/:id', auth, frp.deleteTupleById);
 
 // Journal Club Assessment Routes
-router.post("/journal-club/create",auth, upload.fields([
+router.post("journal-club/create",auth, upload.fields([
   { name: "resident_signature", maxCount: 1 },
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.createAssessment);
 
-router.put("/journal-club/update/:id",auth, upload.fields([
+router.put("/update/:id",auth, upload.fields([
   { name: "resident_signature", maxCount: 1 },
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.updateAssessment);

@@ -122,7 +122,7 @@ router.post("/journal-club/create",auth, upload.fields([
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.createAssessment);
 
-router.put("/journal-club/update/:id",auth, upload.fields([
+router.put("journal-club/update/:id",auth, upload.fields([
   { name: "resident_signature", maxCount: 1 },
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.updateAssessment);
