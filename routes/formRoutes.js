@@ -67,7 +67,7 @@ router.delete(
 router.post('/seminar-assessment',auth,uploadPNG,
   seminarAssessmentController.createSeminarAssessment);
 
-router.put('/seminar-assessment/:id',authMiddleware,handleFileUpload,
+router.put('/seminar-assessment/:id',auth,handleFileUpload,
   seminarAssessmentController.updateSeminarAssessment);
 
 router.get(

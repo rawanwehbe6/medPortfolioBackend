@@ -81,7 +81,6 @@ const updateMortalityMorbidityForm = async (req, res) => {
                          SET resident_signature_path = ? 
                          WHERE id = ?`;
           updateValues = [
-              req.body.resident_fellow_name || currentRecord.resident_fellow_name,
               resident_signature_path,
               id
           ];
@@ -140,29 +139,35 @@ const getMortalityMorbidityFormById = async (req, res) => {
 
         // Fetch form with resident name
         const [result] = await db.execute(
-            `SELECT 
-                mm.*,
-                u.Name AS resident_name
-             FROM mortality_morbidity_review_assessment mm
-             JOIN users u ON mm.resident_id = u.User_ID
-             WHERE mm.id = ?`,
-            [id]
-        );
+    `SELECT 
+        mm.resident_fellow_name AS resident_name,
+        mm.date_of_presentation,
+        mm.diagnosis,
+        mm.cause_of_death_morbidity,
+        mm.brief_introduction,
+        mm.patient_details,
+        mm.assessment_analysis,
+        mm.review_of_literature,
+        mm.recommendations,
+        mm.handling_questions,
+        mm.overall_performance,
+        mm.major_positive_feature,
+        mm.suggested_areas_for_improvement,
+        mm.resident_signature_path AS resident_signature,
+        mm.assessor_signature_path AS assessor_signature,
+        u_supervisor.Name AS supervisor_name
+     FROM mortality_morbidity_review_assessment mm
+     JOIN users u_resident ON mm.resident_id = u_resident.User_ID
+     JOIN users u_supervisor ON mm.supervisor_id = u_supervisor.User_ID
+     WHERE mm.id = ?`,
+    [id]
+);
+
 
         if (result.length === 0) {
             return res.status(404).json({ error: "Mortality & Morbidity form not found" });
         }
-
-        const form = result[0];
-
-        // Check permissions
-        if (role === 1 || // Admin can access any
-            (role === 2 && form.resident_id === userId) || // Resident can access their own
-            ([3,4,5].includes(role) && form.supervisor_id === userId)) { // Supervisor can access assigned
-            res.status(200).json(form);
-        } else {
-            res.status(403).json({ message: "Permission denied" });
-        }
+        res.status(200).json(result[0]);
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while fetching Mortality & Morbidity form" });

@@ -57,8 +57,9 @@ const createSeminarAssessment = async (req, res) => {
 // Update Seminar Assessment form
 const updateSeminarAssessment = async (req, res) => {
     try {
-        const { role, userId } = req;
-        const { id } = req.params;
+        role=req.user.role;
+    userId=req.user.userId; 
+      const { id } = req.params;
 
         const [existingRecord] = await db.execute(
             `SELECT * FROM seminar_assessment WHERE id = ?`,
@@ -83,10 +84,9 @@ const updateSeminarAssessment = async (req, res) => {
             const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
 
             updateQuery = `UPDATE seminar_assessment 
-                           SET resident_fellow_name = ?, resident_signature_path = ? 
+                           SET resident_signature_path = ? 
                            WHERE id = ?`;
             updateValues = [
-                req.body.resident_fellow_name || currentRecord.resident_fellow_name,
                 resident_signature_path,
                 id
             ];
@@ -143,29 +143,35 @@ const getSeminarAssessmentById = async (req, res) => {
 
         // Fetch form with resident name
         const [result] = await db.execute(
-            `SELECT 
-                sa.*,
-                u.Name AS resident_name
-             FROM seminar_assessment sa
-             JOIN users u ON sa.resident_id = u.User_ID
-             WHERE sa.id = ?`,
-            [id]
-        );
+    `SELECT 
+        sa.resident_fellow_name AS resident_name,
+        u_supervisor.Name AS supervisor_name,
+        sa.date_of_presentation,
+        sa.topic,
+        sa.content,
+        sa.presentation_skills,
+        sa.audio_visual_aids,
+        sa.communication,
+        sa.handling_questions,
+        sa.audience_management,
+        sa.references,
+        sa.major_positive_feature,
+        sa.suggested_areas_for_improvement,
+        sa.resident_signature_path AS resident_signature,
+        sa.assessor_signature_path AS assessor_signature
+     FROM seminar_assessment sa
+     JOIN users u_resident ON sa.resident_id = u_resident.User_ID
+     JOIN users u_supervisor ON sa.supervisor_id = u_supervisor.User_ID
+     WHERE sa.id = ?`,
+    [id]
+);
+
 
         if (result.length === 0) {
             return res.status(404).json({ error: "Seminar Assessment form not found" });
         }
-
-        const form = result[0];
-
-        // Check permissions
-        if (role === 1 || // Admin can access any
-            (role === 2 && form.resident_id === userId) || // Resident can access their own
-            ([3,4,5].includes(role) && form.supervisor_id === userId)) { // Supervisor can access assigned
-            res.status(200).json(form);
-        } else {
-            res.status(403).json({ message: "Permission denied" });
-        }
+        res.status(200).json(result[0]);
+        
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while fetching Seminar Assessment form" });

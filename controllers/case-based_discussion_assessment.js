@@ -93,12 +93,13 @@ const getTupleById = async (req, res) => {
         const { id } = req.params;
         const [result] = await pool.execute(
             `SELECT 
-                u.Name AS resident_name,
+                u.Name AS resident_name,u_a.Name AS supervisor_name,
                 cbd.date, cbd.diagnosis, cbd.case_complexity, cbd.investigation_referral, 
                 cbd.treatment, cbd.future_planning, cbd.history_taking, cbd.overall_clinical_care, 
-                cbd.assessor_comment, cbd.resident_comment, cbd.resident_signature, cbd.assessor_signature
+                cbd.assessor_comment AS supervisor_comment, cbd.resident_comment, cbd.resident_signature, cbd.assessor_signature AS supervisor_signature
              FROM case_based_discussion_assessment cbd
              JOIN users u ON cbd.resident_id = u.User_ID
+             JOIN users u_a ON cbd.supervisor_id = u_a.User_ID
              WHERE cbd.id = ?`,
             [id]
         );
