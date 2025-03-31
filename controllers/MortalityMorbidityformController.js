@@ -4,16 +4,18 @@ const upload = require('../middleware/multerConfig');
 // Create new Mortality & Morbidity form (only for supervisors/admins)
 const createMortalityMorbidityForm = async (req, res) => {
     try {
-        const { role } = req;
+         role = req.user.role;
         supervisor_id=req.user.userId;
         const {
-            resident_id,  resident_fellow_name, date_of_presentation,
+            resident_id, date_of_presentation,
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
             suggested_areas_for_improvement
         } = req.body;
-
+        const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
+        const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
+        console.log(resident_fellow_name);
         // Only admin/supervisors can create forms
         if (![1, 3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied" });
@@ -49,7 +51,8 @@ const createMortalityMorbidityForm = async (req, res) => {
 // Update Mortality & Morbidity form
 const updateMortalityMorbidityForm = async (req, res) => {
   try {
-      const { role, userId } = req;
+    role=req.user.role;
+    userId=req.user.userId; 
       const { id } = req.params;
 
       // Get existing record first
@@ -75,7 +78,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
           // Residents can only update their name and signature
           const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
           updateQuery = `UPDATE mortality_morbidity_review_assessment 
-                         SET resident_fellow_name = ?, resident_signature_path = ? 
+                         SET resident_signature_path = ? 
                          WHERE id = ?`;
           updateValues = [
               req.body.resident_fellow_name || currentRecord.resident_fellow_name,

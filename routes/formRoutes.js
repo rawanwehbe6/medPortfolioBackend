@@ -45,10 +45,10 @@ router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
 // Mortality & Morbidity Review Assessment Form Routes
-router.post('/mortality-morbidity',authMiddleware,uploadPNG,
+router.post('/mortality-morbidity',auth,uploadPNG,
   mortalityMorbidityController.createMortalityMorbidityForm);
 
-router.put('/mortality-morbidity/:id',authMiddleware,handleFileUpload,
+router.put('/mortality-morbidity/:id',auth,handleFileUpload,
   mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
@@ -64,7 +64,7 @@ router.delete(
 );
 
 // Seminar Assessment Form Routes
-router.post('/seminar-assessment',authMiddleware,uploadPNG,
+router.post('/seminar-assessment',auth,uploadPNG,
   seminarAssessmentController.createSeminarAssessment);
 
 router.put('/seminar-assessment/:id',authMiddleware,handleFileUpload,

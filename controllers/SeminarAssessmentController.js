@@ -4,11 +4,10 @@ const upload = require('../middleware/multerConfig');
 // Create new Seminar Assessment form (only for supervisors/admins)
 const createSeminarAssessment = async (req, res) => {
     try {
-        const { role } = req;
+        role  = req.user.role;
         supervisor_id=req.user.userId;
         const {
             resident_id, 
-            resident_fellow_name, 
             date_of_presentation,
             topic,
             content,
@@ -21,7 +20,8 @@ const createSeminarAssessment = async (req, res) => {
             major_positive_feature,
             suggested_areas_for_improvement
         } = req.body;
-
+        const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
+        const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
         // Only admin/supervisors can create forms
         if (![1, 3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied" });
