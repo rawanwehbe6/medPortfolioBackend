@@ -342,15 +342,15 @@ const resetPasswordWithToken = async (req, res) => {
 //Contact Us
 const contactUs = async (req, res) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, message } = req.body;
 
-    if (!name || !email || !message) {
+    if (!name  || !message) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     await pool.execute(
-      "INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)",
-      [name, email, message] 
+      "INSERT INTO contact_messages (name, message) VALUES (?, ?, ?)",
+      [name, message] 
     );
 
     res.status(201).json({ message: "Message sent successfully." });

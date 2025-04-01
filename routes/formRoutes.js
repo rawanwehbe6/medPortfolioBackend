@@ -45,84 +45,64 @@ router.get('/cbda/:id', auth, cbda.getTupleById);
 router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
-// Mortality or Morbidity Review Assessment Form Routes
-router.post(
-  '/mortality-morbidity', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  mortalityMorbidityController.addMortalityMorbidityReviewAssessment
-);
+// Mortality & Morbidity Review Assessment Form Routes
+router.post('/mortality-morbidity',auth,uploadPNG,
+  mortalityMorbidityController.createMortalityMorbidityForm);
+
+router.put('/mortality-morbidity/:id',auth,handleFileUpload,
+  mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
-  '/mortality-morbidity', 
+  '/mortality-morbidity/:id',
   authMiddleware,
-  mortalityMorbidityController.getMortalityMorbidityReviewAssessmentsByUserId
-);
-
-router.put(
-  '/mortality-morbidity/:id', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  mortalityMorbidityController.updateMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.getMortalityMorbidityFormById
 );
 
 router.delete(
-  '/mortality-morbidity/:id', 
+  '/mortality-morbidity/:id',
   authMiddleware,
-  mortalityMorbidityController.deleteMortalityMorbidityReviewAssessment
+  mortalityMorbidityController.deleteMortalityMorbidityForm
 );
 
 // Seminar Assessment Form Routes
-router.post(
-  '/seminar-assessment', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  seminarAssessmentController.addSeminarAssessment
-);
+router.post('/seminar-assessment',auth,uploadPNG,
+  seminarAssessmentController.createSeminarAssessment);
+
+router.put('/seminar-assessment/:id',auth,handleFileUpload,
+  seminarAssessmentController.updateSeminarAssessment);
 
 router.get(
-  '/seminar-assessment', 
+  '/seminar-assessment/:id',
   authMiddleware,
-  seminarAssessmentController.getSeminarAssessmentsByUserId
-);
-
-router.put(
-  '/seminar-assessment/:id', 
-  authMiddleware,
-  upload.fields([
-    { name: 'resident_signature', maxCount: 1 },
-    { name: 'assessor_signature', maxCount: 1 },
-  ]),
-  seminarAssessmentController.updateSeminarAssessment
+  seminarAssessmentController.getSeminarAssessmentById
 );
 
 router.delete(
-  '/seminar-assessment/:id', 
+  '/seminar-assessment/:id',
   authMiddleware,
   seminarAssessmentController.deleteSeminarAssessment
 );
 
 //fellow resident form routes
-router.post('/fellow-eval', auth, frp.createForm);
-router.put('/fellow-eval/:id', auth, frp.updateForm);
-router.get('/fellow-eval/:id', auth, frp.getTupleById);
-router.delete('/fellow-eval/:id', auth, frp.deleteTupleById);
+router.post("/fellow-resident/create", auth, upload.single("instructor_signature"), frp.createForm);
+router.put('/fellow-resident/update/:id', auth, upload.single("instructor_signature"), frp.updateForm);
+router.get('/fellow-resident/:id', auth, frp.getTupleById);
+router.delete('/fellow-resident/:id', auth, frp.deleteTupleById);
 
 // Journal Club Assessment Routes
-router.post('/journal-club', auth, uploadPNG, journalClubController.createAssessment);
-router.put('/journal-club/:id', auth, handleFileUpload, journalClubController.updateAssessment);
+router.post("/journal-club/create",auth, upload.fields([
+  { name: "resident_signature", maxCount: 1 },
+  { name: "assessor_signature", maxCount: 1 }
+]), journalClubController.createAssessment);
+
+router.put("/journal-club/update/:id",auth, upload.fields([
+  { name: "resident_signature", maxCount: 1 },
+  { name: "assessor_signature", maxCount: 1 }
+]), journalClubController.updateAssessment);
 router.get('/journal-club/:id', auth, journalClubController.getAssessmentById);
 router.delete('/journal-club/:id', auth, journalClubController.deleteAssessmentById);
-module.exports = router;
+
+
 
 // Mini-CEX Routes
 router.post('/mini-cex', auth, uploadPNG, miniCexController.createMiniCEX);
@@ -132,4 +112,4 @@ router.post('/mini-cex/:formId/send', auth, miniCexController.sendMiniCEXToTrain
 router.get('/mini-cex/:id', auth, miniCexController.getMiniCEXById);
 router.delete('/mini-cex/:id', auth, miniCexController.deleteMiniCEXById);
 
-
+module.exports = router;

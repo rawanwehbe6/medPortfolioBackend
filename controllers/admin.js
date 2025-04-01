@@ -23,7 +23,7 @@ const addSupervisorSuperviseeRelation = async (req, res) => {
             return res.status(403).json({ message: "Invalid roles. Supervisor must be role 3, and supervisee must be role 2." });
         }
 
-        // ✅ Check if the relationship already exists
+        // Check if the relationship already exists
         const [existingRelation] = await pool.execute(
             "SELECT * FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
             [supervisorId, superviseeId]
@@ -47,7 +47,7 @@ const addSupervisorSuperviseeRelation = async (req, res) => {
     }
 };
 
-// ✅ Update Supervisor-Supervisee Relationship
+// Update Supervisor-Supervisee Relationship
 const updateSupervisorSuperviseeRelation = async (req, res) => {
     try {
         const { superviseeId, newSupervisorId } = req.body;
@@ -75,7 +75,7 @@ const updateSupervisorSuperviseeRelation = async (req, res) => {
             return res.status(403).json({ message: "Invalid supervisor. Supervisor must have role 3." });
         }
 
-        // ✅ Update the supervisor assignment
+        // Update the supervisor assignment
         await pool.execute(
             "UPDATE supervisor_supervisee SET SupervisorID = ? WHERE SuperviseeID = ?",
             [newSupervisorId, superviseeId]
@@ -88,7 +88,7 @@ const updateSupervisorSuperviseeRelation = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message });
     }
 };
-// ✅ Delete Supervisor-Supervisee Relationship
+// Delete Supervisor-Supervisee Relationship
 const deleteSupervisorSuperviseeRelation = async (req, res) => {
     try {
         const { supervisorId, superviseeId } = req.body;
@@ -106,7 +106,7 @@ const deleteSupervisorSuperviseeRelation = async (req, res) => {
             return res.status(404).json({ message: "Supervisor-supervisee relationship not found." });
         }
 
-        // ✅ Delete the relationship
+        // Delete the relationship
         await pool.execute(
             "DELETE FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
             [supervisorId, superviseeId]
@@ -120,8 +120,84 @@ const deleteSupervisorSuperviseeRelation = async (req, res) => {
     }
 };
 
+//get all contact messages
+const getAllContactMessages = async (req, res) => {
+    try {
+        // Verify the user is admin (role 1)
+        if (req.user.role !== 1) {
+            return res.status(403).json({ 
+                success: false,
+                message: 'Forbidden: Admin access required' 
+            });
+        }
+
+        // Query the database for all contact messages
+        const [messages] = await pool.execute(
+            "SELECT id, name, message, created_at FROM contact_messages ORDER BY created_at DESC"
+        );
+
+        res.status(200).json({
+            success: true,
+            count: messages.length,
+            data: messages
+        });
+    } catch (error) {
+        console.error("Error fetching contact messages:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+//get total number of users
+const getUserCountsByRole = async (req, res) => {
+    try {
+        // Verify the user is admin (role 1)
+        if (req.user.role !== 1) {
+            return res.status(403).json({ 
+                success: false,
+                message: 'Forbidden: Admin access required' 
+            });
+        }
+
+        // Get counts for specific roles and total count
+        const [roleCounts] = await pool.execute(
+            `SELECT 
+                COUNT(*) AS total_users,
+                SUM(CASE WHEN Role = 2 THEN 1 ELSE 0 END) AS trainee,
+                SUM(CASE WHEN Role = 3 THEN 1 ELSE 0 END) AS educational_supervisor,
+                SUM(CASE WHEN Role = 4 THEN 1 ELSE 0 END) AS clinical_supervisor,
+                SUM(CASE WHEN Role > 4 THEN 1 ELSE 0 END) AS others
+             FROM users`
+        );
+
+        // Format the response
+        res.status(200).json({
+            success: true,
+            counts: {
+                total_users: roleCounts[0].total_users,
+                trainee: roleCounts[0].trainee,
+                educational_supervisor: roleCounts[0].educational_supervisor,
+                clinical_supervisor: roleCounts[0].clinical_supervisor,
+                others: roleCounts[0].others
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching user counts:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
 module.exports = { 
     addSupervisorSuperviseeRelation,
     updateSupervisorSuperviseeRelation,
-    deleteSupervisorSuperviseeRelation
+    deleteSupervisorSuperviseeRelation,
+    getAllContactMessages,
+    getUserCountsByRole
 };
