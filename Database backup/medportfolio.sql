@@ -355,6 +355,54 @@ INSERT INTO `messages` (`id`, `subject`, `message`, `trainee_id`, `supervisor_id
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `mini_cex`
+--
+
+CREATE TABLE `mini_cex` (
+  `id` int(11) NOT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_name` varchar(255) DEFAULT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `trainee_name` varchar(255) DEFAULT NULL,
+  `resident_level` enum('R-1/F-1','R-2/F-2','R-3/F-3') NOT NULL,
+  `evaluation_date` date NOT NULL,
+  `setting` enum('Ambulatory','In-patient','ED','Other') NOT NULL,
+  `patient_problem` varchar(255) DEFAULT NULL,
+  `patient_age` int(11) DEFAULT NULL,
+  `patient_sex` enum('Male','Female') NOT NULL,
+  `patient_type` enum('New','Follow-up') DEFAULT NULL,
+  `complexity` enum('Low','Moderate','High') DEFAULT NULL,
+  `focus` enum('Data Gathering','Diagnosis','Therapy','Counseling') DEFAULT NULL,
+  `medical_interviewing` int(11) DEFAULT NULL CHECK (`medical_interviewing` between 0 and 9),
+  `physical_exam` int(11) DEFAULT NULL CHECK (`physical_exam` between 0 and 9),
+  `professionalism` int(11) DEFAULT NULL CHECK (`professionalism` between 0 and 9),
+  `clinical_judgment` int(11) DEFAULT NULL CHECK (`clinical_judgment` between 0 and 9),
+  `counseling_skills` int(11) DEFAULT NULL CHECK (`counseling_skills` between 0 and 9),
+  `efficiency` int(11) DEFAULT NULL CHECK (`efficiency` between 0 and 9),
+  `overall_competence` int(11) DEFAULT NULL CHECK (`overall_competence` between 0 and 9),
+  `observer_time` int(11) DEFAULT NULL,
+  `feedback_time` int(11) DEFAULT NULL,
+  `evaluator_satisfaction` int(11) DEFAULT NULL CHECK (`evaluator_satisfaction` between 1 and 9),
+  `resident_satisfaction` int(11) DEFAULT NULL CHECK (`resident_satisfaction` between 1 and 9),
+  `comments` text DEFAULT NULL,
+  `evaluator_signature_path` varchar(255) DEFAULT NULL,
+  `trainee_signature_path` varchar(255) DEFAULT NULL,
+  `is_signed_by_trainee` tinyint(1) DEFAULT 0,
+  `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
+  `is_draft` tinyint(1) DEFAULT 1,
+  `sent_to_trainee` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `mini_cex`
+--
+
+INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `sent_to_trainee`) VALUES
+(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mortality_morbidity_review_assessment`
 --
 
@@ -387,6 +435,33 @@ INSERT INTO `mortality_morbidity_review_assessment` (`id`, `resident_id`, `super
 (1, 22, 1, 'Aaa', '0000-00-00', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743425629215.png'),
 (2, 22, 1, 'Aaa', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743423365481.jpg'),
 (3, 22, 1, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743426406850.jpg');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `sender_id` int(11) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`, `created_at`) VALUES
+(1, 26, 30, 'Your Mini-CEX form has been sent to you for review.', 0, '2025-03-30 23:04:31'),
+(2, 30, 26, 'Your trainee has signed the Mini-CEX form.', 0, '2025-03-31 00:44:25'),
+(3, 26, 30, 'Your supervisor has signed the Mini-CEX form.', 0, '2025-03-31 00:52:55'),
+(4, 26, 30, 'Your Mini-CEX form has been sent to you for review.', 0, '2025-04-01 00:03:39'),
+(5, 30, 26, 'Your trainee has signed the Mini-CEX form.', 0, '2025-04-01 00:18:14'),
+(6, 26, 30, 'Your supervisor has signed the Mini-CEX form.', 0, '2025-04-01 00:34:58');
 
 -- --------------------------------------------------------
 
@@ -542,6 +617,7 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 (27, 'Lorence', 'lorence@example.com', 2, '$2b$10$rfV993WXptxQMcmEJjyQk.fWjt09wGlr.AXBwu7W5S79asUGc1yOC', NULL, NULL),
 (28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
 (29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL);
+(30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -691,6 +767,20 @@ ALTER TABLE `grand_round_presentation_assessment`
   ADD PRIMARY KEY (`id`),
   ADD KEY `resident_id` (`resident_id`),
   ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
+-- Indexes for table `mini_cex`
+--
+ALTER TABLE `mini_cex`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `sender_id` (`sender_id`);
 
 --
 -- Indexes for table `journal_club_assessment`
@@ -918,6 +1008,18 @@ ALTER TABLE `usertypes`
 --
 ALTER TABLE `user_skills`
   MODIFY `Skill_ID` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `mini_cex`
+--
+ALTER TABLE `mini_cex`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
