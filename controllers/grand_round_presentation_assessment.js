@@ -1,12 +1,12 @@
 const pool = require("../config/db");
-
+const form_helper = require('../middleware/form_helper');
 const createForm = async (req, res) => {
     try {
         const { role } = req.user;
         supervisor_id=req.user.userId;
         const {
             resident_id,  diagnosis, case_complexity, history_taking,
-            physical_examination, provisional_diagnosis, treatment, future_planning, assessor_comment
+            physical_examination, provisional_diagnosis, treatment, future_planning, assessor_comment,draft_send
         } = req.body;
 
         if (![1, 3, 4, 5].includes(role)) {
@@ -16,19 +16,25 @@ const createForm = async (req, res) => {
         const assessor_signature = req.files?.signature ? req.files.signature[0].path : null;
         console.log(assessor_signature);
 
-        await pool.execute(
-            `INSERT INTO grand_round_presentation_assessment 
-            (resident_id, supervisor_id, diagnosis, case_complexity, history_taking, 
-            physical_examination, provisional_diagnosis, treatment, future_planning, 
-            assessor_comment, assessor_signature) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                resident_id, supervisor_id, diagnosis, case_complexity, history_taking,
-                physical_examination, provisional_diagnosis, treatment, future_planning,
-                assessor_comment, assessor_signature
-            ]
-        );
+        const [insertResult] = await pool.execute(
+        `INSERT INTO grand_round_presentation_assessment 
+        (resident_id, supervisor_id, diagnosis, case_complexity, history_taking, 
+        physical_examination, provisional_diagnosis, treatment, future_planning, 
+        assessor_comment, assessor_signature, sent) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            resident_id, supervisor_id, diagnosis, case_complexity, history_taking,
+            physical_examination, provisional_diagnosis, treatment, future_planning,
+            assessor_comment, assessor_signature, draft_send
+        ]);
 
+        const formId = insertResult.insertId; // Get the newly inserted form ID
+        console.log(draft_send);
+        if (Number(draft_send) === 1) {
+          console.log("sending");
+            await form_helper.sendFormToTrainee(supervisor_id, "grand_round_presentation_assessment",formId);
+        }
+        
         res.status(201).json({ message: "Form created successfully" });
     } catch (err) {
         console.error("Database Error:", err);
@@ -45,7 +51,7 @@ const updateForm = async (req, res) => {
         // Extract form fields from request body
         const {
             diagnosis, case_complexity, history_taking, physical_examination,
-            provisional_diagnosis, treatment, future_planning, assessor_comment, resident_comment
+            provisional_diagnosis, treatment, future_planning, assessor_comment, resident_comment ,draft_send
         } = req.body;
 
         const [existingRecord] = await pool.execute(
@@ -68,29 +74,57 @@ const updateForm = async (req, res) => {
 
             let residentSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
 
+
+            const [old_send] =await pool.execute(
+            `SELECT resident_signature FROM grand_round_presentation_assessment WHERE id = ?`,
+            [id]
+            ); 
+            
+
             updateQuery = `UPDATE grand_round_presentation_assessment 
-                           SET resident_comment = ?, resident_signature = ? 
+                           SET resident_comment = ?, resident_signature = ? ,completed = ?
                            WHERE id = ?`;
-            updateValues = [resident_comment, residentSignature, id];
+            updateValues = [resident_comment, residentSignature, 1 , id];
+
+
+            if(old_send[0].resident_signature===null)
+            await form_helper.sendSignatureToSupervisor(userId, "grand_round_presentation_assessment",id);
+            
+
 
         } else if ([1, 3, 4, 5].includes(role)) {  
             // 🟢 Supervisor can update all fields EXCEPT resident_comment and resident_signature
             let assessorSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
+
+            const [old_send] =await pool.execute(
+            `SELECT sent FROM grand_round_presentation_assessment WHERE id = ?`,
+            [id]
+        ); 
+
+
             updateQuery = `UPDATE grand_round_presentation_assessment 
                            SET diagnosis = ?, case_complexity = ?, history_taking = ?, 
                                physical_examination = ?, provisional_diagnosis = ?, 
                                treatment = ?, future_planning = ?, assessor_comment = ?, 
-                               assessor_signature = ?
+                               assessor_signature = ?, sent = ?
                            WHERE id = ?`;
             updateValues = [
                 diagnosis, case_complexity, history_taking, physical_examination,
                 provisional_diagnosis, treatment, future_planning, assessor_comment,
-                assessorSignature, id
+                assessorSignature, draft_send, id 
             ];
-        } else {
+
+
+            if (Number(draft_send) === 1&& Number(old_send[0].sent)=== 0) {
+
+              await form_helper.sendFormToTrainee(userId, "grand_round_presentation_assessment",id);
+            }
+
+
+            } else {
             return res.status(403).json({ message: "Permission denied" });
-        }
+            }
 
         await pool.execute(updateQuery, updateValues);
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 31, 2025 at 03:09 PM
+-- Generation Time: Apr 02, 2025 at 01:46 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -82,17 +82,21 @@ CREATE TABLE `case_based_discussion_assessment` (
   `assessor_comment` varchar(4096) DEFAULT NULL,
   `resident_comment` varchar(4096) DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
-  `assessor_signature` varchar(255) DEFAULT NULL
+  `assessor_signature` varchar(255) DEFAULT NULL,
+  `sent` tinyint(1) NOT NULL DEFAULT 0,
+  `completed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `case_based_discussion_assessment`
 --
 
-INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `Investigation_Referral`, `treatment`, `future_planning`, `history_taking`, `overall_clinical_care`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`) VALUES
-(2, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289787224.png'),
-(3, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289824406.png'),
-(4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png');
+INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `Investigation_Referral`, `treatment`, `future_planning`, `history_taking`, `overall_clinical_care`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`, `sent`, `completed`) VALUES
+(2, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289787224.png', 0, 0),
+(3, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289824406.png', 0, 0),
+(4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png', 0, 0),
+(5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1743549430849.png', 'uploads\\1743549471199.jpg', 1, 1),
+(6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -263,7 +267,9 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('delete_user', 3),
 ('viewMaterial', 4),
 ('completeMaterial', 5),
-('get_elearning_progress', 6);
+('get_elearning_progress', 6),
+('add_portfolio_image', 7),
+('remove_portfolio_image', 8);
 
 -- --------------------------------------------------------
 
@@ -286,16 +292,18 @@ CREATE TABLE `grand_round_presentation_assessment` (
   `assessor_comment` varchar(4096) DEFAULT NULL,
   `resident_comment` varchar(4096) DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
-  `assessor_signature` varchar(255) DEFAULT NULL
+  `assessor_signature` varchar(255) DEFAULT NULL,
+  `sent` tinyint(1) NOT NULL DEFAULT 0,
+  `completed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `grand_round_presentation_assessment`
 --
 
-INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`) VALUES
-(2, 22, 28, '2025-03-23', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1742763784070.png'),
-(3, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292176217.jpg');
+INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`, `sent`, `completed`) VALUES
+(1, 22, 28, '2025-04-02', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', NULL, NULL, 'uploads\\1743542547183.png', 1, 0),
+(2, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1743542733333.jpg', 'uploads\\1743542642230.png', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -424,17 +432,22 @@ CREATE TABLE `mortality_morbidity_review_assessment` (
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
-  `assessor_signature_path` varchar(255) DEFAULT NULL
+  `assessor_signature_path` varchar(255) DEFAULT NULL,
+  `sent` tinyint(1) NOT NULL DEFAULT 0,
+  `completed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mortality_morbidity_review_assessment`
 --
 
-INSERT INTO `mortality_morbidity_review_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `diagnosis`, `cause_of_death_morbidity`, `brief_introduction`, `patient_details`, `assessment_analysis`, `review_of_literature`, `recommendations`, `handling_questions`, `overall_performance`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`) VALUES
-(1, 22, 1, 'Aaa', '0000-00-00', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743425629215.png'),
-(2, 22, 1, 'Aaa', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743423365481.jpg'),
-(3, 22, 1, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743426406850.jpg');
+INSERT INTO `mortality_morbidity_review_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `diagnosis`, `cause_of_death_morbidity`, `brief_introduction`, `patient_details`, `assessment_analysis`, `review_of_literature`, `recommendations`, `handling_questions`, `overall_performance`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `sent`, `completed`) VALUES
+(1, 22, 1, 'Aaa', '0000-00-00', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743550361695.png', 0, 0),
+(2, 22, 1, 'Aaa', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743423365481.jpg', 0, 0),
+(3, 22, 1, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743426406850.jpg', 0, 0),
+(4, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743550239405.png', 1, 0),
+(5, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743550270964.png', 1, 0),
+(6, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', 'uploads\\1743550428883.jpg', 'uploads\\1743550382117.png', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -461,7 +474,21 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (3, 26, 30, 'Your supervisor has signed the Mini-CEX form.', 0, '2025-03-31 00:52:55'),
 (4, 26, 30, 'Your Mini-CEX form has been sent to you for review.', 0, '2025-04-01 00:03:39'),
 (5, 30, 26, 'Your trainee has signed the Mini-CEX form.', 0, '2025-04-01 00:18:14'),
-(6, 26, 30, 'Your supervisor has signed the Mini-CEX form.', 0, '2025-04-01 00:34:58');
+(6, 26, 30, 'Your supervisor has signed the Mini-CEX form.', 0, '2025-04-01 00:34:58'),
+(7, 22, 28, 'Your grand round presentation assessment form has been sent to you for review.', 0, '2025-04-01 21:22:27'),
+(8, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 21:24:02'),
+(9, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-01 21:24:52'),
+(10, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-01 21:25:22'),
+(11, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-01 21:25:33'),
+(12, 22, 28, 'Your case based discussion assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:14:59'),
+(13, 22, 28, 'Your case based discussion assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:16:35'),
+(14, 28, 22, 'Your trainee test has signed the  case based discussion assessment form .', 0, '2025-04-01 23:17:10'),
+(15, 22, 28, 'Your mortality morbidity review assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:31:10'),
+(16, 22, 28, 'Your mortality morbidity review assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:33:02'),
+(17, 28, 22, 'Your trainee test has signed the  mortality morbidity review assessment form .', 0, '2025-04-01 23:33:48'),
+(18, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:39:32'),
+(19, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:40:57'),
+(20, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-04-01 23:41:19');
 
 -- --------------------------------------------------------
 
@@ -503,8 +530,19 @@ CREATE TABLE `seminar_assessment` (
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
-  `assessor_signature_path` varchar(255) DEFAULT NULL
+  `assessor_signature_path` varchar(255) DEFAULT NULL,
+  `sent` tinyint(1) NOT NULL DEFAULT 0,
+  `completed` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `seminar_assessment`
+--
+
+INSERT INTO `seminar_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `topic`, `content`, `presentation_skills`, `audio_visual_aids`, `communication`, `handling_questions`, `audience_management`, `references`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `sent`, `completed`) VALUES
+(1, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550730360.png', 0, 0),
+(2, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Proceduressdfgh', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examplesasd', 'Could improve time management and slide transitionsasdfgfds', 'uploads\\1743550879174.png', 'uploads\\1743550857039.png', 1, 1),
+(3, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550772289.png', 1, 0);
 
 -- --------------------------------------------------------
 
@@ -589,6 +627,19 @@ INSERT INTO `trainee_elearning_material_progress` (`id`, `trainee_id`, `material
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `trainee_portfolio_images`
+--
+
+CREATE TABLE `trainee_portfolio_images` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `image_path` varchar(255) NOT NULL,
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -665,7 +716,11 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (8, 3),
 (2, 4),
 (2, 5),
-(2, 6);
+(2, 6),
+(2, 7),
+(2, 8),
+(1, 7),
+(1, 8);
 
 -- --------------------------------------------------------
 
@@ -769,20 +824,6 @@ ALTER TABLE `grand_round_presentation_assessment`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
--- Indexes for table `mini_cex`
---
-ALTER TABLE `mini_cex`
-  ADD PRIMARY KEY (`id`);
-
---
--- Indexes for table `notifications`
---
-ALTER TABLE `notifications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `sender_id` (`sender_id`);
-
---
 -- Indexes for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
@@ -797,10 +838,24 @@ ALTER TABLE `messages`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
+-- Indexes for table `mini_cex`
+--
+ALTER TABLE `mini_cex`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`),
+  ADD KEY `sender_id` (`sender_id`);
 
 --
 -- Indexes for table `research`
@@ -843,6 +898,13 @@ ALTER TABLE `trainee_elearning_material_progress`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `trainee_id` (`trainee_id`,`material_id`),
   ADD KEY `material_id` (`material_id`);
+
+--
+-- Indexes for table `trainee_portfolio_images`
+--
+ALTER TABLE `trainee_portfolio_images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `users`
@@ -893,7 +955,7 @@ ALTER TABLE `bau`
 -- AUTO_INCREMENT for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -935,13 +997,13 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `journal_club_assessment`
@@ -956,10 +1018,22 @@ ALTER TABLE `messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `mini_cex`
+--
+ALTER TABLE `mini_cex`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `research`
@@ -971,7 +1045,7 @@ ALTER TABLE `research`
 -- AUTO_INCREMENT for table `seminar_assessment`
 --
 ALTER TABLE `seminar_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `surgical_experiences`
@@ -992,6 +1066,12 @@ ALTER TABLE `trainee_elearning_material_progress`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `trainee_portfolio_images`
+--
+ALTER TABLE `trainee_portfolio_images`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -1008,18 +1088,6 @@ ALTER TABLE `usertypes`
 --
 ALTER TABLE `user_skills`
   MODIFY `Skill_ID` int(25) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `mini_cex`
---
-ALTER TABLE `mini_cex`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT for table `notifications`
---
-ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- Constraints for dumped tables
@@ -1102,6 +1170,12 @@ ALTER TABLE `tasks`
 ALTER TABLE `trainee_elearning_material_progress`
   ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_2` FOREIGN KEY (`material_id`) REFERENCES `elearning_materials` (`id`);
+
+--
+-- Constraints for table `trainee_portfolio_images`
+--
+ALTER TABLE `trainee_portfolio_images`
+  ADD CONSTRAINT `trainee_portfolio_images_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `users`

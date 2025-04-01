@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const upload = require('../middleware/multerConfig');
-
+const form_helper = require('../middleware/form_helper');
 // Create new Mortality & Morbidity form (only for supervisors/admins)
 const createMortalityMorbidityForm = async (req, res) => {
     try {
@@ -11,11 +11,10 @@ const createMortalityMorbidityForm = async (req, res) => {
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
-            suggested_areas_for_improvement
+            suggested_areas_for_improvement,draft_send
         } = req.body;
         const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
         const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
-        console.log(resident_fellow_name);
         // Only admin/supervisors can create forms
         if (![1, 3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied" });
@@ -24,22 +23,26 @@ const createMortalityMorbidityForm = async (req, res) => {
         // Only assessor signature allowed on creation
         const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
 
-        await db.execute(
+        const [insertResult] = await db.execute(
             `INSERT INTO mortality_morbidity_review_assessment 
             (resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
-            suggested_areas_for_improvement, assessor_signature_path) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            suggested_areas_for_improvement, assessor_signature_path, sent) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
                 diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
                 assessment_analysis, review_of_literature, recommendations,
                 handling_questions, overall_performance, major_positive_feature,
-                suggested_areas_for_improvement, assessor_signature_path
+                suggested_areas_for_improvement, assessor_signature_path,draft_send
             ]
         );
+        const formId = insertResult.insertId; // Get the newly inserted form ID
+        if (Number(draft_send) === 1) {
+            await form_helper.sendFormToTrainee(supervisor_id, "mortality_morbidity_review_assessment",formId);
+        }
 
         res.status(201).json({ message: "Mortality & Morbidity form created successfully" });
     } catch (err) {
@@ -77,17 +80,31 @@ const updateMortalityMorbidityForm = async (req, res) => {
 
           // Residents can only update their name and signature
           const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
+
+          const [old_send] =await db.execute(
+            `SELECT resident_signature_path FROM mortality_morbidity_review_assessment WHERE id = ?`,
+            [id]
+            ); 
+
           updateQuery = `UPDATE mortality_morbidity_review_assessment 
-                         SET resident_signature_path = ? 
+                         SET resident_signature_path = ? ,completed = ?
                          WHERE id = ?`;
           updateValues = [
-              resident_signature_path,
+              resident_signature_path,1,
               id
           ];
+           if(old_send[0].resident_signature_path===null)
+            await form_helper.sendSignatureToSupervisor(userId, "mortality_morbidity_review_assessment",id);
 
       } else if ([1, 3, 4, 5].includes(role)) {  // Admin or supervisor roles
           // Supervisors can update all fields except resident signature and name
           const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
+
+        const [old_send] =await db.execute(
+            `SELECT sent FROM mortality_morbidity_review_assessment WHERE id = ?`,
+            [id]
+        ); 
+
 
           updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET diagnosis = ?, 
@@ -101,7 +118,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
                              overall_performance = ?,
                              major_positive_feature = ?,
                              suggested_areas_for_improvement = ?,
-                             assessor_signature_path = ?
+                             assessor_signature_path = ? ,sent = ?
                          WHERE id = ?`;
           updateValues = [
               req.body.diagnosis || currentRecord.diagnosis,
@@ -116,8 +133,15 @@ const updateMortalityMorbidityForm = async (req, res) => {
               req.body.major_positive_feature || currentRecord.major_positive_feature,
               req.body.suggested_areas_for_improvement || currentRecord.suggested_areas_for_improvement,
               assessor_signature_path,
+              req.body.draft_send || currentRecord.sent,
               id
           ];
+
+          if (Number(req.body.draft_send) === 1&& Number(old_send[0].sent)=== 0) {
+
+              await form_helper.sendFormToTrainee(userId, "mortality_morbidity_review_assessment",id);
+            }
+
       } else {
           return res.status(403).json({ message: "Permission denied" });
       }

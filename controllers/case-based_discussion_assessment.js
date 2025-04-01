@@ -1,12 +1,12 @@
 const pool = require("../config/db");
-
+const form_helper = require('../middleware/form_helper');
 const createForm = async (req, res) => {
     try {
         const { role } = req.user;
         supervisor_id=req.user.userId;
         const {
             resident_id, diagnosis, case_complexity, investigation_referral,
-            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment
+            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment,draft_send
         } = req.body;
         
         if (![1, 3, 4, 5].includes(role)) {
@@ -15,16 +15,20 @@ const createForm = async (req, res) => {
 
         const assessor_signature = req.files?.signature ? req.files.signature[0].path : null;
 
-        await pool.execute(
+        const [insertResult] = await pool.execute(
             `INSERT INTO case_based_discussion_assessment 
             (resident_id, supervisor_id, diagnosis, case_complexity, investigation_referral, 
-            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, assessor_signature) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, assessor_signature,sent) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 resident_id, supervisor_id, diagnosis, case_complexity, investigation_referral,
-                treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, assessor_signature
+                treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, assessor_signature,draft_send
             ]
         );
+         const formId = insertResult.insertId; // Get the newly inserted form ID
+        if (Number(draft_send) === 1) {
+            await form_helper.sendFormToTrainee(supervisor_id, "case_based_discussion_assessment",formId);
+        }
 
         res.status(201).json({ message: "Form created successfully" });
     } catch (err) {
@@ -41,7 +45,7 @@ const updateForm = async (req, res) => {
         const {
             diagnosis, case_complexity, investigation_referral, treatment, future_planning, 
             history_taking, overall_clinical_care, assessor_comment, resident_comment
-        } = req.body;
+        ,draft_send} = req.body;
 
         const [existingRecord] = await pool.execute(
             `SELECT * FROM case_based_discussion_assessment WHERE id = ?`,
@@ -60,21 +64,44 @@ const updateForm = async (req, res) => {
                 return res.status(403).json({ message: "Unauthorized access" });
             }
             let residentSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
+            
+            const [old_send] =await pool.execute(
+            `SELECT resident_signature FROM case_based_discussion_assessment WHERE id = ?`,
+            [id]
+            ); 
+
             updateQuery = `UPDATE case_based_discussion_assessment 
-                           SET resident_comment = ?, resident_signature = ? 
+                           SET resident_comment = ?, resident_signature = ?,completed = ? 
                            WHERE id = ?`;
-            updateValues = [resident_comment, residentSignature, id];
+            updateValues = [resident_comment, residentSignature, 1, id];
+
+             if(old_send[0].resident_signature===null)
+            await form_helper.sendSignatureToSupervisor(userId, "case_based_discussion_assessment",id);
+
         } else if ([1, 3, 4, 5].includes(role)) {
             let assessorSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
+            
+            const [old_send] =await pool.execute(
+            `SELECT sent FROM case_based_discussion_assessment WHERE id = ?`,
+            [id]
+        ); 
+            
             updateQuery = `UPDATE case_based_discussion_assessment 
                            SET diagnosis = ?, case_complexity = ?, investigation_referral = ?, 
                                treatment = ?, future_planning = ?, history_taking = ?, 
-                               overall_clinical_care = ?, assessor_comment = ?, assessor_signature = ?
+                               overall_clinical_care = ?, assessor_comment = ?, assessor_signature = ?, sent = ?
                            WHERE id = ?`;
             updateValues = [
                 diagnosis, case_complexity, investigation_referral, treatment, future_planning,
-                history_taking, overall_clinical_care, assessor_comment, assessorSignature, id
+                history_taking, overall_clinical_care, assessor_comment, assessorSignature,draft_send, id
             ];
+
+            if (Number(draft_send) === 1&& Number(old_send[0].sent)=== 0) {
+
+              await form_helper.sendFormToTrainee(userId, "case_based_discussion_assessment",id);
+            }
+
+
         } else {
             return res.status(403).json({ message: "Permission denied" });
         }
