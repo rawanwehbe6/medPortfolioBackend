@@ -294,6 +294,14 @@ const signMiniCEX = async (req, res) => {
                 [evaluator_signature_path, id]
             );
 
+            // 🔹 After Supervisor Signs, update is_draft to 0
+            await pool.execute(`
+                UPDATE mini_cex 
+                SET is_draft = 0 
+                WHERE id = ?`, 
+                [id]
+            );
+
             // Notify Trainee
             await pool.execute(`
                 INSERT INTO notifications (user_id, sender_id, message) 
