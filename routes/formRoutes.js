@@ -7,6 +7,7 @@ const grpa = require('../controllers/grand_round_presentation_assessment');
 const cbda = require('../controllers/case-based_discussion_assessment.js');
 const frp = require('../controllers/fellowResidentPerformance.js');
 const journalClubController = require('../controllers/journalClubForm.js');
+const miniCexController = require('../controllers/miniCexController'); 
 
 const auth = require('../middleware/verifyToken.js');
 const router = express.Router();
@@ -122,3 +123,13 @@ router.put('/journal-club/:id', auth, handleFileUpload, journalClubController.up
 router.get('/journal-club/:id', auth, journalClubController.getAssessmentById);
 router.delete('/journal-club/:id', auth, journalClubController.deleteAssessmentById);
 module.exports = router;
+
+// Mini-CEX Routes
+router.post('/mini-cex', auth, uploadPNG, miniCexController.createMiniCEX);
+router.put('/mini-cex/:id', auth, /*handleFileUpload,*/ miniCexController.updateMiniCEX);
+router.post('/mini-cex/:id/sign', auth, handleFileUpload, miniCexController.signMiniCEX);
+router.post('/mini-cex/:formId/send', auth, miniCexController.sendMiniCEXToTrainee);
+router.get('/mini-cex/:id', auth, miniCexController.getMiniCEXById);
+router.delete('/mini-cex/:id', auth, miniCexController.deleteMiniCEXById);
+
+
