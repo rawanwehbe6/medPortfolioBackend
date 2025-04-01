@@ -7,7 +7,8 @@ const grpa = require('../controllers/grand_round_presentation_assessment');
 const cbda = require('../controllers/case-based_discussion_assessment.js');
 const frp = require('../controllers/fellowResidentPerformance.js');
 const journalClubController = require('../controllers/journalClubForm.js');
-const miniCexController = require('../controllers/miniCexController'); 
+const miniCexController = require('../controllers/miniCexController');
+const dopsController = require('../controllers/dopsController.js'); 
 
 const auth = require('../middleware/verifyToken.js');
 const router = express.Router();
@@ -111,5 +112,15 @@ router.post('/mini-cex/:id/sign', auth, handleFileUpload, miniCexController.sign
 router.post('/mini-cex/:formId/send', auth, miniCexController.sendMiniCEXToTrainee);
 router.get('/mini-cex/:id', auth, miniCexController.getMiniCEXById);
 router.delete('/mini-cex/:id', auth, miniCexController.deleteMiniCEXById);
+
+
+// DOPS Routes
+router.post('/dops', auth, uploadPNG, dopsController.createDOPS);
+router.put('/dops/:id', auth, dopsController.updateDOPS);
+router.post('/dops/:id/sign', auth, handleFileUpload, dopsController.signDOPS);
+router.post('/dops/:formId/send', auth, dopsController.sendDOPSToTrainee);
+router.get('/dops/:id', auth, dopsController.getDOPSById);
+router.delete('/dops/:id', auth, dopsController.deleteDOPSById);
+
 
 module.exports = router;
