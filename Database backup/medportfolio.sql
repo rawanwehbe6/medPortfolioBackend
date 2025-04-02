@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 01:46 AM
+-- Generation Time: Apr 02, 2025 at 02:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,9 +40,6 @@ CREATE TABLE `accomplishments` (
 --
 
 INSERT INTO `accomplishments` (`id`, `title`, `description`, `file_path`, `User_ID`) VALUES
-(3, 'test2', 'test', '/uploads/1741390401930.jpg', 22),
-(3, 'test2', 'test', '/uploads/1741390401930.jpg', 22),
-(3, 'test2', 'test', '/uploads/1741390401930.jpg', 22),
 (3, 'test2', 'test', '/uploads/1741390401930.jpg', 22);
 
 -- --------------------------------------------------------
@@ -75,14 +72,14 @@ CREATE TABLE `case_based_discussion_assessment` (
   `resident_id` int(9) NOT NULL,
   `supervisor_id` int(9) NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp(),
-  `diagnosis` varchar(512) NOT NULL,
-  `case_complexity` enum('Low','Moderate','High') NOT NULL,
-  `Investigation_Referral` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `overall_clinical_care` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `assessor_comment` varchar(4096) NOT NULL,
+  `diagnosis` varchar(512) DEFAULT NULL,
+  `case_complexity` enum('Low','Moderate','High') DEFAULT NULL,
+  `Investigation_Referral` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `overall_clinical_care` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `assessor_comment` varchar(4096) DEFAULT NULL,
   `resident_comment` varchar(4096) DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
   `assessor_signature` varchar(255) DEFAULT NULL,
@@ -110,7 +107,6 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -119,8 +115,8 @@ CREATE TABLE `contact_messages` (
 -- Dumping data for table `contact_messages`
 --
 
-INSERT INTO `contact_messages` (`id`, `name`, `email`, `message`, `created_at`) VALUES
-(1, 'Lorence', 'lorence@gmail.com', 'This is a test message.', '2025-03-11 15:18:45');
+INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
+(1, 'Lorence', 'This is a test message.', '2025-03-11 15:18:45');
 
 -- --------------------------------------------------------
 
@@ -200,6 +196,7 @@ INSERT INTO `eduactconferences` (`id`, `user_id`, `title`, `date`, `host`, `desc
 (1, 26, 'conference1', '0000-00-00', 'host1', 'description1', NULL),
 (3, 26, 'conference2', '2025-03-08', 'host2', 'description2', NULL),
 (4, 26, 'conference', '2024-05-09', 'host', 'description', '1741544068694.PNG'),
+(5, 26, 'conference', '2024-05-09', 'host', 'description', '1741544068694.PNG'),
 (6, 26, 'new', '2025-03-08', 'update', 'new', '1741862709259.PNG'),
 (7, 1, 'test', '2025-02-04', 'testhost', 'testdescription', NULL);
 
@@ -262,16 +259,21 @@ CREATE TABLE `elearning_materials` (
   `category` enum('medical_course','books_articles','workshops_activities') NOT NULL,
   `description` text DEFAULT NULL,
   `resource_url` text NOT NULL,
-  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `Host` varchar(64) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `elearning_materials`
 --
 
-INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`) VALUES
-(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08'),
-(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58');
+INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`, `Host`) VALUES
+(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08', NULL),
+(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58', NULL),
+(3, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:01:45', NULL),
+(4, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:02:22', NULL),
+(7, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:24', 'jad'),
+(8, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:32', NULL);
 
 -- --------------------------------------------------------
 
@@ -338,14 +340,14 @@ CREATE TABLE `grand_round_presentation_assessment` (
   `resident_id` int(9) NOT NULL,
   `supervisor_id` int(9) NOT NULL,
   `date` date NOT NULL DEFAULT current_timestamp(),
-  `diagnosis` varchar(512) NOT NULL,
-  `case_complexity` enum('Low','Moderate','High') NOT NULL,
-  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `physical_examination` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `provisional_diagnosis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') NOT NULL,
-  `assessor_comment` varchar(4096) NOT NULL,
+  `diagnosis` varchar(512) DEFAULT NULL,
+  `case_complexity` enum('Low','Moderate','High') DEFAULT NULL,
+  `history_taking` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `physical_examination` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `provisional_diagnosis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `treatment` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `future_planning` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `assessor_comment` varchar(4096) DEFAULT NULL,
   `resident_comment` varchar(4096) DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
   `assessor_signature` varchar(255) DEFAULT NULL,
@@ -471,26 +473,26 @@ INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, 
 --
 
 CREATE TABLE `mortality_morbidity_review_assessment` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `id` int(9) NOT NULL,
+  `resident_id` int(9) NOT NULL,
+  `supervisor_id` int(9) NOT NULL,
   `resident_fellow_name` varchar(255) NOT NULL,
-  `date_of_presentation` date NOT NULL,
+  `date_of_presentation` date NOT NULL DEFAULT current_timestamp(),
   `diagnosis` text NOT NULL,
-  `cause_of_death_morbidity` text NOT NULL,
-  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
-  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/A') NOT NULL,
+  `cause_of_death_morbidity` text DEFAULT NULL,
+  `brief_introduction` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `patient_details` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `assessment_analysis` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `review_of_literature` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `recommendations` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
   `major_positive_feature` text DEFAULT NULL,
   `suggested_areas_for_improvement` text DEFAULT NULL,
   `resident_signature_path` varchar(255) DEFAULT NULL,
   `assessor_signature_path` varchar(255) DEFAULT NULL,
   `sent` tinyint(1) NOT NULL DEFAULT 0,
   `completed` tinyint(1) NOT NULL DEFAULT 0
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -616,7 +618,6 @@ CREATE TABLE `supervisor_supervisee` (
 --
 
 INSERT INTO `supervisor_supervisee` (`SupervisorID`, `SuperviseeID`) VALUES
-(28, 22),
 (28, 22);
 
 -- --------------------------------------------------------
@@ -719,8 +720,12 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 (17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL, NULL),
 (18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL, NULL),
 (19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL, NULL),
+(22, 'test', 'test@example.com', 2, '$2b$10$FvNsjO4K8iMXMRdmBiGiV.CRgKZ0xjfnmaaf4NjQJgX7UCJBaZlsW', NULL, NULL),
 (23, 'trainee1', 'trainee@example.com', 2, '$2b$10$X8UNE6qMYCnOmLkNCgWXEO.799dmU4Z29AaZZhLdhdQO3UQtwx/6u', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyYWluZWVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDE0NDgyNjcsImV4cCI6MTc0MTQ1MTg2N30.VREFtakw77mANcTS5VkIck9xQqNBcwFHXZmhEWgepCI'),
 (26, 'rima test', 'rimashbaro02@gmail.com', 2, '$2b$10$G7S8x0jKHZy67NtzXjVu/.nFcJ/oGXwLx1GmDQ1VMWhHXraDEWF7q', NULL, NULL),
+(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$rfV993WXptxQMcmEJjyQk.fWjt09wGlr.AXBwu7W5S79asUGc1yOC', NULL, NULL),
+(28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
+(29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL),
 (30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL);
 
 -- --------------------------------------------------------
@@ -812,14 +817,18 @@ CREATE TABLE `user_skills` (
 INSERT INTO `user_skills` (`User_ID`, `Skill_Name`, `Skill_ID`) VALUES
 (22, 'Test', 1),
 (22, 'Testsssssss', 6),
-(22, 'Testsssssssss', 7),
-(22, 'Test', 1),
-(22, 'Testsssssss', 6),
 (22, 'Testsssssssss', 7);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `accomplishments`
+--
+ALTER TABLE `accomplishments`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_user` (`User_ID`);
 
 --
 -- Indexes for table `bau`
@@ -874,6 +883,13 @@ ALTER TABLE `eduactworkshops`
 --
 ALTER TABLE `elearning_materials`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fellow_id` (`fellow_id`);
 
 --
 -- Indexes for table `functions`
@@ -939,8 +955,7 @@ ALTER TABLE `seminar_assessment`
 -- Indexes for table `supervisor_supervisee`
 --
 ALTER TABLE `supervisor_supervisee`
-  ADD PRIMARY KEY (`SupervisorID`,`SuperviseeID`),
-  ADD KEY `SuperviseeID` (`SuperviseeID`);
+  ADD PRIMARY KEY (`SupervisorID`,`SuperviseeID`);
 
 --
 -- Indexes for table `surgical_experiences`
@@ -995,8 +1010,21 @@ ALTER TABLE `usertype_functions`
   ADD KEY `usertype_functions_ibfk_2` (`UsertypeId`);
 
 --
+-- Indexes for table `user_skills`
+--
+ALTER TABLE `user_skills`
+  ADD PRIMARY KEY (`Skill_ID`),
+  ADD KEY `UserID` (`User_ID`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
+
+--
+-- AUTO_INCREMENT for table `accomplishments`
+--
+ALTER TABLE `accomplishments`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `bau`
@@ -1044,7 +1072,13 @@ ALTER TABLE `eduactworkshops`
 -- AUTO_INCREMENT for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `functions`
@@ -1053,15 +1087,13 @@ ALTER TABLE `functions`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
--- AUTO_INCREMENT for table `mini_cex`
+-- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
   MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-ALTER TABLE `mini_cex`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
--- AUTO_INCREMENT for table `notifications`
+-- AUTO_INCREMENT for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
@@ -1113,8 +1145,6 @@ ALTER TABLE `surgical_experiences`
 --
 ALTER TABLE `tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
@@ -1151,10 +1181,55 @@ ALTER TABLE `user_skills`
 --
 
 --
+-- Constraints for table `accomplishments`
+--
+ALTER TABLE `accomplishments`
+  ADD CONSTRAINT `fk_user` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `case_based_discussion_assessment`
+--
+ALTER TABLE `case_based_discussion_assessment`
+  ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
 -- Constraints for table `eduactconferences`
 --
 ALTER TABLE `eduactconferences`
   ADD CONSTRAINT `eduactconferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `eduactcourses`
+--
+ALTER TABLE `eduactcourses`
+  ADD CONSTRAINT `eduactcourses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `eduactworkshops`
+--
+ALTER TABLE `eduactworkshops`
+  ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `fellow_resident_evaluation`
+--
+ALTER TABLE `fellow_resident_evaluation`
+  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `grand_round_presentation_assessment`
+--
+ALTER TABLE `grand_round_presentation_assessment`
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `messages`
+--
+ALTER TABLE `messages`
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `notifications`
@@ -1162,6 +1237,26 @@ ALTER TABLE `eduactconferences`
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `supervisor_supervisee`
+--
+ALTER TABLE `supervisor_supervisee`
+  ADD CONSTRAINT `supervisor_supervisee_ibfk_1` FOREIGN KEY (`SuperviseeID`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `supervisor_supervisee_ibfk_2` FOREIGN KEY (`SupervisorID`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `surgical_experiences`
+--
+ALTER TABLE `surgical_experiences`
+  ADD CONSTRAINT `surgical_experiences_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `tasks`
+--
+ALTER TABLE `tasks`
+  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
@@ -1189,6 +1284,12 @@ ALTER TABLE `users`
 ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `user_skills`
+--
+ALTER TABLE `user_skills`
+  ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
