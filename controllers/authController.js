@@ -6,8 +6,8 @@ require("dotenv").config();
 
 // Register new users (Only Admins Can Add Users)
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
- console.log("Received Data:", { name, email, password, role });
+  const { name, email, password, role, BAU_ID } = req.body;
+ console.log("Received Data:", { name, email, password, role , BAU_ID});
   try {
     // Check if user already exists
     const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
@@ -19,9 +19,10 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Insert new user
-    await pool.execute("INSERT INTO USERS (Name, Email, Password, Role) VALUES (?, ?, ?, ?)", [
-      name, email, hashedPassword, role,
-    ]);
+    await pool.execute(
+      "INSERT INTO USERS (Name, Email, Password, Role, BAU_ID) VALUES (?, ?, ?, ?, ?)",
+      [name, email, hashedPassword, role, BAU_ID || null]
+    );
 
     res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
