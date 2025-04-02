@@ -227,8 +227,8 @@ const signMiniCEX = async (req, res) => {
         }
 
         // Fetch user names for notifications
-        const [[supervisor]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form.supervisor_id]);
-        const [[trainee]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form.trainee_id]);
+        const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.supervisor_id]);
+        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.trainee_id]);
 
         if (!supervisor || !trainee) {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });

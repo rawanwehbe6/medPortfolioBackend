@@ -1,117 +1,100 @@
 const pool = require("../config/db");
-
-//Ensure date is in the format mm/dd/yyyy
-const isValidDate = (date) => {
-    const regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/; // MM/DD/YYYY format
-    if (!regex.test(date)) return "Invalid date format. Expected MM/DD/YYYY.";
-
-    const [month, day, year] = date.split('/').map(Number); // Convert to numbers
-
-    if (month < 1 || month > 12) return "Invalid month. Must be between 01 and 12.";
-    if (day < 1 || day > 31) return "Invalid day. Must be between 01 and 31.";
-
-    // Check valid days in months
-    const daysInMonth = {
-        1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30,
-        7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31
-    };
-
-    // Leap year check for February
-    if (month === 2 && ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0)) {
-        daysInMonth[2] = 29; // Leap year February has 29 days
-    }
-
-    if (day > daysInMonth[month]) return `Invalid day for the given month. ${month} has a maximum of ${daysInMonth[month]} days.`;
-
-    return null; // Date is valid
-};
-
-const formatDateToDatabaseFormat = (date) => {
-    const [month, day, year] = date.split('/').map(Number); // Split and convert to numbers
-    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`; // Format as YYYY-MM-DD
-};
-
+const moment = require("moment");
 
 const createDOPS = async (req, res) => {
     try {
         const { role, userId } = req.user;
         const {
-            trainee_id, assessment_date, hospital, indications, consent, preparation, analgesia, asepsis,
-            technical_aspects, unexpected_events, documentation, communication, professionalism, global_summary,
-            procedure_name, previous_attempts, procedure_type, simulated, simulation_details, difficulty, feedback
+            trainee_id, indications, indications_comment, consent, consent_comment, 
+            preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
+            asepsis_comment, technical_aspects, technical_aspects_comment, 
+            unexpected_events, unexpected_events_comment, documentation, documentation_comment,
+            communication, communication_comment, professionalism, professionalism_comment,
+            global_summary, feedback, strengths, developmental_needs, recommended_actions,
+            
         } = req.body;
 
         if (![3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied: Only supervisors can create this form" });
         }
 
-        const [[supervisor]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [userId]);
-        const [[trainee]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [trainee_id]);
+        // Fetch supervisor and trainee names
+        const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [userId]);
+        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [trainee_id]);
 
         if (!supervisor || !trainee) {
             return res.status(400).json({ message: "Invalid assessor or trainee ID" });
         }
-
-        const dateValidationResult = isValidDate(assessment_date);
-        if (dateValidationResult) {
-            return res.status(400).json({ message: dateValidationResult });
-        }
-    
-        // Step 2: Format the date to YYYY-MM-DD for database insertion
-        const formattedDate = formatDateToDatabaseFormat(assessment_date);
-
-        const assessor_signature = req.files?.signature ? req.files.signature[0].path : null;
-
-        await pool.execute(
+        
+        // insert new dops form into database
+        const [result] = await pool.execute(
             `INSERT INTO dops 
-            (supervisor_id, supervisor_name, trainee_id, trainee_name, assessment_date, hospital, indications, consent, 
-            preparation, analgesia, asepsis, technical_aspects, unexpected_events, documentation, communication, professionalism, 
-            global_summary, procedure_name, previous_attempts, procedure_type, simulated, simulation_details, difficulty, 
-            feedback, assessor_signature, is_signed_by_assessor, is_signed_by_trainee) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, TRUE, FALSE)`,
+            (supervisor_id, supervisor_name, trainee_id, trainee_name, indications, 
+            indications_comment, consent, consent_comment, 
+            preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
+            asepsis_comment, technical_aspects, technical_aspects_comment, 
+            unexpected_events, unexpected_events_comment, documentation, documentation_comment,
+            communication, communication_comment, professionalism, professionalism_comment,
+            global_summary, feedback, strengths, developmental_needs, recommended_actions, is_draft, is_sent_to_trainee
+            ) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)`,
             [
-                userId, supervisor.Name, trainee_id, trainee.Name, formattedDate, hospital, indications, consent,
-                preparation, analgesia, asepsis, technical_aspects, unexpected_events, documentation, communication,
-                professionalism, global_summary, procedure_name, previous_attempts, procedure_type, simulated,
-                simulation_details, difficulty, feedback, assessor_signature
+                userId, supervisor.Name, trainee_id, trainee.Name, indications, indications_comment, consent, consent_comment, 
+                preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
+                asepsis_comment, technical_aspects, technical_aspects_comment, 
+                unexpected_events, unexpected_events_comment, documentation, documentation_comment,
+                communication, communication_comment, professionalism, professionalism_comment,
+                global_summary, feedback, strengths, developmental_needs, recommended_actions, is_draft, is_sent_to_trainee
             ]
         );
 
-        const [[traineeEmail]] = await pool.execute("SELECT email FROM users WHERE User_ID = ?", [trainee_id]);
-        if (traineeEmail?.email) {
-            await sendEmailNotification(traineeEmail.email);  // Send email to trainee
-        }
-
-        res.status(201).json({ message: "DOPS form created and signed by supervisor" });
+        res.status(201).json({ message: "DOPS form created successfully", formId: result.insertId});
     } catch (err) {
         console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while creating DOPS form" });
+        res.status(500).json({ error: "Server error while creating DOPS form"});
     }
 };
 
-const nodemailer = require("nodemailer");
+const sendDOPSToTrainee = async (req, res) => {
+    try{
+        const { role, userId } = req.user;
+        const { formId } = req.params;
 
-const sendEmailNotification = async (traineeEmail) => {
-    const transporter = nodemailer.createTransport({
-        service: "gmail", // or another email service you prefer
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+        // Ensure both formId and userId are valid
+        if (!formId || !userId) {
+            return res.status(400).json({ message: "Missing required parameters: formId or userId." });
+        }
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER, // sender address
-        to: traineeEmail, // recipient
-        subject: "Your DOPS Form Has Been Filled and Signed",
-        text: "Hello, your supervisor has filled and signed your DOPS form. Please review and complete your part.",
-    };
+        if (![3, 4, 5].includes(role)) {
+            return res.status(403).json({ message: "Permission denied: Only supervisors can send forms to trainees" });
+        }
 
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log("Email sent to trainee successfully.");
-    } catch (err) {
-        console.error("Error sending email:", err);
+        // Check if form exists and belongs to the supervisor
+        const [[form]] = await pool.execute("SELECT trainee_id FROM dops WHERE id = ? AND supervisor_id = ?", [formId, userId]);
+
+        if (!form) {
+            return res.status(404).json({ message: "Form not found or permission denied" });
+        }
+
+        // Ensure form.trainee_id and userId are not undefined before proceeding
+        if (form.trainee_id === undefined || userId === undefined) {
+            return res.status(400).json({ message: "Missing required parameters: trainee_id or userId." });
+        }
+
+        // Update the form to mark it as sent
+        await pool.execute("UPDATE dops SET is_sent_to_trainee = 1 WHERE id = ?", [formId]);
+
+        // Send in-app notification to the trainee
+        await pool.execute(
+            "INSERT INTO notifications (user_id, sender_id, message) VALUES (?, ?, ?)",
+            [form.trainee_id, userId, "Your DOPS form has been sent to you for review."]
+        );
+
+        res.status(200).json({ message: "Form sent to trainee successfully" });
+
+    }catch (err) {
+        console.error("Database Error:", err);
+        res.status(500).json({ error: "Server error while sending Mini-CEX form to trainee" });
     }
 };
 
@@ -120,108 +103,227 @@ const updateDOPS = async (req, res) => {
         const { role, userId } = req.user;
         const { id } = req.params;
         const {
-            trainee_reflection, strengths, developmental_needs, recommended_actions,
-            assessment_date, hospital, indications, consent, preparation, analgesia, asepsis,
-            technical_aspects, unexpected_events, documentation, communication, professionalism,
+            assessment_date, hospital, indications, indications_comment, consent, consent_comment, 
+            preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
+            asepsis_comment, technical_aspects, technical_aspects_comment, 
+            unexpected_events, unexpected_events_comment, documentation, documentation_comment,
+            communication, communication_comment, professionalism, professionalism_comment,
             global_summary, procedure_name, previous_attempts, procedure_type, simulated,
-            simulation_details, difficulty, feedback
+            simulation_details, difficulty, feedback, strengths, developmental_needs, 
+            recommended_actions, trainee_reflection
         } = req.body;
 
-        // Fetch the DOPS record
-        const [records] = await pool.execute("SELECT * FROM dops WHERE id = ?", [id]);
-        if (records.length === 0) return res.status(404).json({ error: "DOPS record not found" });
+        const safeValue = (value) => value === undefined ? null : value;
 
-        const record = records[0];
+        // Fetch form data to check the current signature status
+        const [[form]] = await pool.execute("SELECT * FROM dops WHERE id = ?", [id]);
 
-        // Fetch Trainee and Supervisor Names
-        const [[supervisor]] = await pool.execute("SELECT Name, Email FROM users WHERE User_ID = ?", [userId]);
-        const [[trainee]] = await pool.execute("SELECT Name, Email FROM users WHERE User_ID = ?", [record.trainee_id]);
-
-        if (!trainee) return res.status(404).json({ message: "Trainee not found" });
-        if (!supervisor) return res.status(404).json({ message: "Supervisor not found" });
-
-        let traineeSignature = record.trainee_signature;
-        let assessorSignature = record.assessor_signature;
-
-        // Supervisors can edit everything until they sign
-        if ([3, 4, 5].includes(role)) {
-            if (record.is_signed_by_assessor) {
-                return res.status(400).json({ message: "Supervisor has already signed this form and cannot update it" });
-            }
-
-            // If the supervisor provides a signature in the update, mark as signed
-            if (req.files?.signature) {
-                assessorSignature = req.files.signature[0].path;
-            }
-
-            await pool.execute(
-                `UPDATE dops 
-                 SET trainee_reflection = ?, strengths = ?, developmental_needs = ?, recommended_actions = ?, 
-                     assessment_date = ?, hospital = ?, indications = ?, consent = ?, preparation = ?, analgesia = ?, 
-                     asepsis = ?, technical_aspects = ?, unexpected_events = ?, documentation = ?, communication = ?, 
-                     professionalism = ?, global_summary = ?, procedure_name = ?, previous_attempts = ?, procedure_type = ?, 
-                     simulated = ?, simulation_details = ?, difficulty = ?, feedback = ?, 
-                     assessor_signature = ?, is_signed_by_assessor = ?
-                 WHERE id = ?`,
-                [
-                    trainee_reflection, strengths, developmental_needs, recommended_actions,
-                    assessment_date, hospital, indications, consent, preparation, analgesia,
-                    asepsis, technical_aspects, unexpected_events, documentation, communication,
-                    professionalism, global_summary, procedure_name, previous_attempts, procedure_type,
-                    simulated, simulation_details, difficulty, feedback,
-                    assessorSignature, assessorSignature ? true : record.is_signed_by_assessor,
-                    id
-                ]
-            );
-
-            // Notify trainee when supervisor signs
-            if (assessorSignature) {
-                await sendEmailNotification(trainee.Email, "DOPS Form Signed by Supervisor", 
-                    `Dear ${trainee.Name}, your supervisor ${supervisor.Name} has signed the DOPS form.`);
-            }
-
-            return res.status(200).json({ message: "DOPS form updated successfully by supervisor" });
+        if (!form) {
+            return res.status(404).json({ message: "Form not found" });
         }
 
-        // Trainee can only update specific fields
+        // Fetch user names for notifications
+        const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.supervisor_id]);
+        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.trainee_id]);
+
+        if (!supervisor || !trainee) {
+            return res.status(404).json({ message: "Trainee or Supervisor not found" });
+        }
+
+      // Supervisor Updates (Roles 3, 4, 5)
+      if ([3, 4, 5].includes(role)) {
+        if (form.is_signed_by_supervisor) {
+            return res.status(400).json({ message: "You have already signed this form and cannot edit." });
+        }
+
+        const updateQuery = `
+            UPDATE dops 
+            SET 
+                indications = ?, indications_comment = ?, consent = ?, consent_comment = ?, 
+                preparation = ?, preparation_comment = ?, analgesia = ?, analgesia_comment = ?, asepsis = ?,
+                asepsis_comment = ?, technical_aspects = ?, technical_aspects_comment = ?, 
+                unexpected_events = ?, unexpected_events_comment = ?, documentation = ?, documentation_comment = ?,
+                communication = ?, communication_comment = ?, professionalism =? , professionalism_comment = ?,
+                global_summary = ?, feedback = ?, strengths = ?, developmental_needs = ?, recommended_actions = ?
+            WHERE id = ?`;
+
+        const updateValues = [
+            safeValue(indications), safeValue(indications_comment), safeValue(consent), safeValue(consent_comment),
+            safeValue(preparation), safeValue(preparation_comment), safeValue(analgesia), safeValue(analgesia_comment),
+            safeValue(asepsis), safeValue(asepsis_comment), safeValue(technical_aspects), safeValue(technical_aspects_comment),
+            safeValue(unexpected_events), safeValue(unexpected_events_comment), safeValue(documentation),
+            safeValue(documentation_comment), safeValue(communication), safeValue(communication_comment), safeValue(professionalism),
+            safeValue(professionalism_comment), safeValue(global_summary), safeValue(feedback), safeValue(strengths), 
+            safeValue(developmental_needs), safeValue(recommended_actions), id
+        ];
+
+
+        await pool.execute(updateQuery, updateValues);
+        return res.status(200).json({ message: "DOPS form updated successfully" });
+    }
+    
+    
+        // Trainee Updates (Role 2)
         if (role === 2) {
-            if (!record.is_signed_by_assessor) {
-                return res.status(400).json({ message: "You cannot update this form until the supervisor has signed it" });
+            
+            // Ensure the current logged-in trainee is the one assigned to the form
+            if (form.trainee_id !== userId) {
+                return res.status(403).json({ message: "You are not the assigned trainee for this form." });
             }
 
-            // If the trainee provides a signature in the update, mark as signed
-            if (req.files?.signature) {
-                traineeSignature = req.files.signature[0].path;
+            if (form.is_sent_to_trainee !== 1) {
+                return res.status(403).json({ error: "Form has not been sent to the trainee yet." });
             }
 
-            await pool.execute(
-                `UPDATE dops 
-                 SET trainee_reflection = ?, strengths = ?, developmental_needs = ?, recommended_actions = ?, 
-                     trainee_signature = ?, is_signed_by_trainee = ?
-                 WHERE id = ?`,
-                [
-                    trainee_reflection, strengths, developmental_needs, recommended_actions,
-                    traineeSignature, traineeSignature ? true : record.is_signed_by_trainee,
-                    id
-                ]
-            );
-
-            // Notify supervisor when trainee signs
-            if (traineeSignature) {
-                await sendEmailNotification(supervisor.Email, "DOPS Form Signed by Trainee", 
-                    `Dear ${supervisor.Name}, the trainee ${trainee.Name} has signed the DOPS form.`);
+            if (form.is_signed_by_trainee) {
+                return res.status(400).json({ message: "You have already signed this form and cannot edit." });
             }
+            
+            // Check if evaluation_date exists and is valid
+            let formattedDate = null;
+            if (req.body.evaluation_date) {
+                const parsedDate = moment(req.body.evaluation_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+    
+                if (parsedDate.isValid()) {
+                formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                } else {
+                    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                }
+            }
+        
 
-            return res.status(200).json({ message: "DOPS form updated successfully by trainee" });
+            const updateQuery = `
+                UPDATE dops 
+                SET 
+                    assessment_date = ?, hospital = ?, procedure_name = ?, previous_attempts = ?, procedure_type = ?, simulated = ?,
+                    simulation_details = ?, difficulty = ?, trainee_reflection = ?
+                WHERE id = ?`;
+
+            const updateValues = [
+                formattedDate, safeValue(hospital),
+                safeValue(procedure_name), safeValue(previous_attempts), safeValue(procedure_type), 
+                safeValue(simulated), safeValue(simulation_details), safeValue(difficulty), 
+                safeValue(trainee_reflection), id
+            ];
+
+
+        
+            await pool.execute(updateQuery, updateValues);
+            return res.status(200).json({ message: "DOPS form updated successfully" });
         }
 
-        return res.status(403).json({ message: "Permission denied" });
+        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
+
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while updating DOPS form" });
     }
 };
 
+const signDOPS = async (req, res) => {
+    try {
+        const { role, userId } = req.user;
+        const { id } = req.params;
+
+        // Fetch form data
+        const [[form]] = await pool.execute("SELECT * FROM dops WHERE id = ?", [id]);
+
+        if (!form) {
+            return res.status(404).json({ message: "Form not found" });
+        }
+
+        // Fetch user names for notifications
+        const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.supervisor_id]);
+        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.trainee_id]);
+
+        if (!supervisor || !trainee) {
+            return res.status(404).json({ message: "Trainee or Supervisor not found" });
+        }
+
+        // 🔹 Trainee Signs First
+        if (role === 2) {
+            if (form.is_signed_by_trainee) {
+                return res.status(400).json({ message: "You have already signed this form." });
+            }
+
+            
+            // Ensure signature is uploaded before processing
+            if (!req.files || !req.files.signature || req.files.signature.length === 0) {
+                return res.status(400).json({ message: "Signature file is required for trainee." });
+            }
+
+            // Get the signature file path
+            const trainee_signature = req.files.signature[0].path;
+
+            await pool.execute(`
+                UPDATE dops 
+                SET trainee_signature = ?, is_signed_by_trainee = TRUE 
+                WHERE id = ?`, 
+                [trainee_signature, id]
+            );
+
+            // Notify Supervisor
+            await pool.execute(`
+                INSERT INTO notifications (user_id, sender_id, message) 
+                VALUES (?, ?, ?)`, 
+                [form.supervisor_id, userId, "Your trainee has signed the DOPS form."]
+            );
+
+            return res.status(200).json({ message: "DOPS form signed by trainee." });
+        }
+
+        // 🔹 Supervisor Signs Last
+        if ([3, 4, 5].includes(role)) {
+            if (!form.is_signed_by_trainee) {
+                return res.status(400).json({ message: "The trainee must sign before you can sign." });
+            }
+
+            if (form.is_signed_by_supervisor) {
+                return res.status(400).json({ message: "You have already signed this form." });
+            }
+
+            //const evaluator_signature_path = req.file ? req.files.path : null;
+
+            // Ensure supervisor signature is uploaded
+            if (!req.files || !req.files.signature || req.files.signature.length === 0) {
+                return res.status(400).json({ message: "Signature file is required for supervisor." });
+            }
+
+            // Get the supervisor's signature file path
+            const supervisor_signature = req.files.signature[0].path;
+            
+            await pool.execute(`
+                UPDATE dops 
+                SET supervisor_signature = ?, is_signed_by_supervisor = TRUE 
+                WHERE id = ?`, 
+                [supervisor_signature, id]
+            );
+
+            // 🔹 After Supervisor Signs, update is_draft to 0
+            await pool.execute(`
+                UPDATE dops 
+                SET is_draft = 0 
+                WHERE id = ?`, 
+                [id]
+            );
+
+            // Notify Trainee
+            await pool.execute(`
+                INSERT INTO notifications (user_id, sender_id, message) 
+                VALUES (?, ?, ?)`, 
+                [form.trainee_id, userId, "Your supervisor has signed the DOPS form."]
+            );
+
+            return res.status(200).json({ message: "DOPS form signed by supervisor." });
+        }
+
+        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
+
+    } catch (err) {
+        console.error("Database Error:", err);
+        res.status(500).json({ error: "Server error while signing DOPS form." });
+    }
+};
 
 const getDOPSById = async (req, res) => {
     try {
@@ -229,10 +331,10 @@ const getDOPSById = async (req, res) => {
         const { role, userId } = req.user;
 
         const [result] = await pool.execute(
-            `SELECT d.*, u1.Name AS trainee_name, u2.Name AS assessor_name
+            `SELECT d.*, u1.Name AS trainee_name, u2.Name AS supervisor_name
              FROM dops d
              JOIN users u1 ON d.trainee_id = u1.id
-             JOIN users u2 ON d.assessor_id = u2.id
+             JOIN users u2 ON d.supervisor_id = u2.id
              WHERE d.id = ?`, 
             [id]
         );
@@ -243,7 +345,7 @@ const getDOPSById = async (req, res) => {
 
         const form = result[0];
 
-        if (role !== 1 && form.trainee_id !== userId && form.assessor_id !== userId) {
+        if (role !== 1 && form.trainee_id !== userId && form.supervisor_id !== userId) {
             return res.status(403).json({ message: "Permission denied: You are not authorized to view this DOPS record" });
         }
 
@@ -267,7 +369,7 @@ const deleteDOPSById = async (req, res) => {
 
         const record = rows[0]; 
 
-        if (record.assessor_id !== userId && role !== 1) {
+        if (record.supervisor_id !== userId && role !== 1) {
             return res.status(403).json({ message: "Permission denied: Only the assessor or an admin can delete this DOPS record" });
         }
 
@@ -280,4 +382,4 @@ const deleteDOPSById = async (req, res) => {
     }
 };
 
-module.exports = { createDOPS, updateDOPS, getDOPSById, deleteDOPSById };
+module.exports = { createDOPS, sendDOPSToTrainee, updateDOPS, signDOPS, getDOPSById, deleteDOPSById };
