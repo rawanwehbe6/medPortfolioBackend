@@ -7,7 +7,7 @@ const addAccomplishment = async (req, res) => {
     }
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const userId = req.user ? req.user.userId : null; // Ensure this is correctly set
+    const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
     if (!userId || !title || !description) {
@@ -45,7 +45,7 @@ const updateAccomplishment = async (req, res) => {
     const { id } = req.params; // Get the accomplishment ID from the request parameters
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const userId = req.user ? req.user.userId : null; // Ensure this is correctly set
+    const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
     if (!userId || !id) {
@@ -86,7 +86,7 @@ const deleteAccomplishment = async (req, res) => {
     }
 
     const { id } = req.params; // Get the accomplishment ID from the request parameters
-    const userId = req.user ? req.user.userId : null; // Ensure this is correctly set
+    const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
     if (!userId || !id) {

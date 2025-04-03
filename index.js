@@ -17,6 +17,8 @@ const formRoutes = require('./routes/formRoutes');
 const messagesRoutes = require('./routes/messagesRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
+const portfolioRoutes = require('./routes/portfolioRoutes');
+
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -50,6 +52,7 @@ app.use('/api/forms', formRoutes);
 //Mount trainee portfolio image upload
 app.use('/api/portfolio', portfolioImageRoutes);
 
+app.use('/api/portfolio', portfolioRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 

@@ -1,4 +1,4 @@
-const pool = require('../config/db'); // Assuming you have your MySQL connection configured
+const pool = require('../config/db');
 const fs = require('fs');
 const path = require('path');
 
