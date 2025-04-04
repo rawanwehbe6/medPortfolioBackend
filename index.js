@@ -1,5 +1,6 @@
 require('dotenv').config(); // Load environment variables
 const express = require("express");
+const cors = require("cors");
 const pool = require('./config/db');
 const app = express();
 const authRoutes = require('./routes/authRoutes');
@@ -23,6 +24,7 @@ const portfolioRoutes = require('./routes/portfolioRoutes');
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
 app.use(bodyParser.json());
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // Mount the authentication routes
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
@@ -57,6 +59,7 @@ app.use('/api/portfolio', portfolioRoutes);
 const PORT = process.env.PORT || 3000;
 
 app.get('/tdb', testConnection);
+
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

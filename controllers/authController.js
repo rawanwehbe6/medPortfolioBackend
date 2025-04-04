@@ -34,47 +34,41 @@ const registerUser = async (req, res) => {
 // Login function
 async function login(req, res) {
   const { email, password } = req.body;
-  console.log('Email:', email, 'Password:', password);
+  console.log("Email:", email, "Password:", password);
 
   try {
     // Execute query to fetch user by email
-    const result = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    const [rows] = await pool.execute("SELECT * FROM USERS WHERE Email = ?", [email]);
 
-    // Log the entire result to inspect its structure
-    console.log('Raw DB result:', result);
-
-    // Check if result is not empty and is an array
-    if (!result || !Array.isArray(result)) {
-      return res.status(500).json({ error: 'Unexpected database query result' });
-    }
-
-    // Destructure the result (first element should be rows, second element should be fields)
-    const [rows, fields] = result;
-    console.log('Rows:', rows);    // This should contain the user data
-    console.log('Fields:', fields);  // This should contain the metadata (optional for now)
+    console.log("Rows:", rows); // This should contain the user data
 
     // Check if user exists
     if (rows.length === 0) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(400).json({ message: "User not found" });
     }
 
-    // Continue with password verification
-    console.log('First row:', rows[0]);  // Log the first user's details
+    const user = rows[0]; // Get first user row
 
-    const validPassword = await bcrypt.compare(password, rows[0].Password);
+    // Validate password
+    const validPassword = await bcrypt.compare(password, user.Password);
     if (!validPassword) {
-      return res.status(400).json({ message: 'Invalid password' });
+      return res.status(400).json({ message: "Invalid password" });
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: rows[0].User_ID, role: rows[0].Role }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    const token = jwt.sign(
+      { userId: user.User_ID, role: user.Role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
 
-    res.json({ message: 'Login successful', token });
+    res.json({ message: "Login successful", token, role: user.Role });
   } catch (err) {
-    console.error('Error during login:', err);
-    res.status(500).json({ error: 'Server error during login', details: err.message });
+    console.error("Error during login:", err);
+    res.status(500).json({ error: "Server error during login", details: err.message });
   }
 }
+
 
 // Reset Password
 const resetPassword = async (req, res) => {
