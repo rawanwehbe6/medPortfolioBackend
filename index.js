@@ -19,7 +19,7 @@ const messagesRoutes = require('./routes/messagesRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
 const portfolioRoutes = require('./routes/portfolioRoutes');
-
+const logbookRoutes = require('./routes/logbookRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -55,6 +55,10 @@ app.use('/api/forms', formRoutes);
 app.use('/api/portfolio', portfolioImageRoutes);
 
 app.use('/api/portfolio', portfolioRoutes);
+
+// Mount logbook routes
+app.use("/api", logbookRoutes);
+
 // Start the server
 const PORT = process.env.PORT || 3000;
 
