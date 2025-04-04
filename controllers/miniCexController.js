@@ -107,7 +107,7 @@ const updateMiniCEX = async (req, res) => {
         const { role, userId } = req.user;
         const { id } = req.params;
         const {
-            resident_level, evaluation_date, setting, patient_problem, patient_age, patient_sex, patient_type, complexity,
+            residentFellow, resident_level, evaluation_date, setting, patient_problem, patient_age, patient_sex, patient_type, complexity,
             medical_interviewing, physical_exam, professionalism, clinical_judgment,
             counseling_skills, efficiency, overall_competence, observer_time, feedback_time,
             evaluator_satisfaction, resident_satisfaction, comments, focus
@@ -187,13 +187,13 @@ if (req.body.evaluation_date) {
             const updateQuery = `
                 UPDATE mini_cex 
                 SET 
-                    resident_level = ?, evaluation_date = ?, setting = ?, patient_problem = ?, 
+                    residentFellow = ?, resident_level = ?, evaluation_date = ?, setting = ?, patient_problem = ?, 
                     patient_age = ?, patient_sex = ?, patient_type = ?, complexity = ?,
                     resident_satisfaction = ?, comments = ?, focus = ?
                 WHERE id = ?`;
 
             const updateValues = [
-                safeValue(resident_level), formattedDate, safeValue(setting),
+                safeValue(residentFellow), safeValue(resident_level), formattedDate, safeValue(setting),
                 safeValue(patient_problem), safeValue(patient_age), safeValue(patient_sex), 
                 safeValue(patient_type), safeValue(complexity), safeValue(resident_satisfaction), 
                 safeValue(comments), safeValue(focus), id

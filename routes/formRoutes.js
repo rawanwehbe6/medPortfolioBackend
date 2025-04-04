@@ -107,7 +107,7 @@ router.delete('/journal-club/:id', auth, journalClubController.deleteAssessmentB
 
 // Mini-CEX Routes
 router.post('/mini-cex', auth, uploadPNG, miniCexController.createMiniCEX);
-router.put('/mini-cex/:id', auth, /*handleFileUpload,*/ miniCexController.updateMiniCEX);
+router.put('/mini-cex/:id', auth,  miniCexController.updateMiniCEX);
 router.post('/mini-cex/:id/sign', auth, handleFileUpload, miniCexController.signMiniCEX);
 router.post('/mini-cex/:formId/send', auth, miniCexController.sendMiniCEXToTrainee);
 router.get('/mini-cex/:id', auth, miniCexController.getMiniCEXById);
