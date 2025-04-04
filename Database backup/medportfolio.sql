@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 04, 2025 at 06:19 PM
+-- Generation Time: Apr 04, 2025 at 11:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -394,6 +394,30 @@ CREATE TABLE `journal_club_assessment` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `logbook_profile_info`
+--
+
+CREATE TABLE `logbook_profile_info` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `resident_name` varchar(255) DEFAULT NULL,
+  `academic_year` varchar(100) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `mobile_no` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `logbook_profile_info`
+--
+
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
+(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
 
 -- --------------------------------------------------------
 
@@ -913,6 +937,13 @@ ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
+
+--
 -- Indexes for table `messages`
 --
 ALTER TABLE `messages`
@@ -1101,6 +1132,12 @@ ALTER TABLE `journal_club_assessment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
@@ -1225,6 +1262,12 @@ ALTER TABLE `fellow_resident_evaluation`
 ALTER TABLE `grand_round_presentation_assessment`
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `messages`
