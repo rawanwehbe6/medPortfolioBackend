@@ -116,4 +116,28 @@ const deleteAccomplishment = async (req, res) => {
   }
 };
 
-module.exports = { addAccomplishment ,updateAccomplishment,deleteAccomplishment};
+const getAccomplishments = async (req, res) => {
+  try {
+    if (req.user.role !== 2) {
+      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
+    }
+
+    const userId = req.user ? req.user.userId : null;
+
+    if (!userId) {
+      return res.status(400).json({ error: "Missing user ID" });
+    }
+
+    const [accomplishments] = await pool.execute(
+      "SELECT * FROM accomplishments WHERE User_ID = ? ORDER BY id DESC",
+      [userId]
+    );
+
+    res.status(200).json({ accomplishments });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching accomplishments" });
+  }
+};
+
+module.exports = { addAccomplishment ,updateAccomplishment,deleteAccomplishment, getAccomplishments};

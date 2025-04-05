@@ -110,10 +110,30 @@ const deleteResearch = async (req, res) => {
       res.status(500).json({ error: "Server error during research deletion" });
     }
   };
-  
+// Get all research papers for the logged-in user
+const getResearch = async (req, res) => {
+  try {
+    const userId = req.user ? req.user.userId : null; 
+
+    if (!userId) {
+      return res.status(403).json({ error: "Unauthorized access." });
+    }
+
+    const [researches] = await pool.execute(
+      "SELECT Research_ID, Title, Date, Description, File_Path FROM research WHERE User_ID = ?",
+      [userId]
+    );
+
+    res.status(200).json({ researches });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while retrieving research papers" });
+  }
+};
 
 module.exports = {
   createResearch,
   updateResearch,
   deleteResearch,
+  getResearch,
 };

@@ -8,5 +8,6 @@ const router = express.Router();
 router.post('/create', auth, multer.single('file'), acc.addAccomplishment);
 router.put('/update/:id', auth, multer.single('file'), acc.updateAccomplishment);
 router.delete('/delete/:id', auth, acc.deleteAccomplishment);
+router.get('/all', auth, acc.getAccomplishments);
 
 module.exports = router;

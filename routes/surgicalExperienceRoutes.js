@@ -7,5 +7,6 @@ const router = express.Router();
 router.post('/create', verifyToken, surgicalExperienceController.addSurgicalExperience);
 router.put('/update/:id', verifyToken, surgicalExperienceController.updateSurgicalExperience);
 router.delete('/delete/:id', verifyToken, surgicalExperienceController.deleteSurgicalExperience);
+router.get('/all', verifyToken, surgicalExperienceController.getSurgicalExperiences);
 
 module.exports = router;

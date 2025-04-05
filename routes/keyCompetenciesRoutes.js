@@ -6,5 +6,5 @@ const router = express.Router();
 router.post('/create',auth, key.createSkill);
 router.put('/update/:id',auth, key.updateSkill);
 router.delete('/delete/:id',auth, key.deleteSkill);
-
+router.get('/all', auth, key.getSkills);
 module.exports = router;

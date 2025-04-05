@@ -93,8 +93,28 @@ const deleteSkill = async (req, res) => {
   }
 };
 
+// Get all skills for the logged-in trainee
+const getSkills = async (req, res) => {
+  if (req.user.role !== 2) {
+    return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
+  }
+
+  try {
+    const [skills] = await pool.execute(
+      "SELECT Skill_ID, Skill_Name FROM user_skills WHERE User_ID = ?",
+      [req.user.userId]
+    );
+
+    res.status(200).json({ skills });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error while retrieving skills" });
+  }
+};
+
 module.exports = {
   createSkill,
   updateSkill,
   deleteSkill,
+  getSkills,
 };

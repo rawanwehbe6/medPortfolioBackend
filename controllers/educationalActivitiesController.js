@@ -276,6 +276,41 @@ const deleteConference = async (req, res) => {
     }
 };
 
+// Get All Courses for Logged-in Trainee
+const getCourses = async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const [rows] = await db.query("SELECT * FROM eduactcourses WHERE user_id = ?", [user_id]);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error in getCourses:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Get All Workshops for Logged-in Trainee
+const getWorkshops = async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const [rows] = await db.query("SELECT * FROM eduactworkshops WHERE user_id = ?", [user_id]);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error in getWorkshops:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Get All Conferences for Logged-in Trainee
+const getConferences = async (req, res) => {
+  try {
+    const user_id = req.userId;
+    const [rows] = await db.query("SELECT * FROM eduactconferences WHERE User_ID = ?", [user_id]);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error("Error in getConferences:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
 
 module.exports = {
     addCourse,
@@ -286,5 +321,8 @@ module.exports = {
     deleteWorkshop,
     addConference,
     updateConference,
-    deleteConference
+    deleteConference,
+    getCourses,
+    getWorkshops,
+    getConferences
   };

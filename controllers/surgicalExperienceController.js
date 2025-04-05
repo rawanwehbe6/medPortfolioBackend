@@ -111,6 +111,26 @@ const updateSurgicalExperience = async (req, res) => {
       res.status(500).json({ error: "Server error during surgical experience deletion" });
     }
   };
-  
+  //get all surgical experiences for logged in user
+  const getSurgicalExperiences = async (req, res) => {
+  try {
+    const userId = req.user ? req.user.userId : null;
 
-module.exports = { addSurgicalExperience, updateSurgicalExperience, deleteSurgicalExperience };
+    if (!userId) {
+      return res.status(400).json({ error: "Missing user ID." });
+    }
+
+    const [experiences] = await pool.execute(
+      "SELECT * FROM surgical_experiences WHERE User_ID = ?",
+      [userId]
+    );
+
+    res.status(200).json({ surgicalExperiences: experiences });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching surgical experiences." });
+  }
+};
+
+
+module.exports = { addSurgicalExperience, updateSurgicalExperience, deleteSurgicalExperience, getSurgicalExperiences };
