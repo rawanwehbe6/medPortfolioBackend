@@ -18,7 +18,6 @@ const formRoutes = require('./routes/formRoutes');
 const messagesRoutes = require('./routes/messagesRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
-const portfolioRoutes = require('./routes/portfolioRoutes');
 const logbookRoutes = require('./routes/logbookRoutes');
 
 // Use express.json() to parse incoming JSON requests
@@ -53,8 +52,6 @@ app.use('/api/forms', formRoutes);
 
 //Mount trainee portfolio image upload
 app.use('/api/portfolio', portfolioImageRoutes);
-
-app.use('/api/portfolio', portfolioRoutes);
 
 // Mount logbook routes
 app.use("/api", logbookRoutes);
