@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 02, 2025 at 02:35 AM
+-- Generation Time: Apr 04, 2025 at 11:50 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -398,6 +398,30 @@ CREATE TABLE `journal_club_assessment` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `logbook_profile_info`
+--
+
+CREATE TABLE `logbook_profile_info` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `resident_name` varchar(255) DEFAULT NULL,
+  `academic_year` varchar(100) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `mobile_no` varchar(50) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `logbook_profile_info`
+--
+
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
+(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `messages`
 --
 
@@ -456,15 +480,16 @@ CREATE TABLE `mini_cex` (
   `is_signed_by_trainee` tinyint(1) DEFAULT 0,
   `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
-  `sent_to_trainee` tinyint(1) DEFAULT 0
+  `sent_to_trainee` tinyint(1) DEFAULT 0,
+  `residentFellow` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mini_cex`
 --
 
-INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `sent_to_trainee`) VALUES
-(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, 1);
+INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `sent_to_trainee`, `residentFellow`) VALUES
+(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -912,6 +937,13 @@ ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
+
+--
 -- Indexes for table `messages`
 --
 ALTER TABLE `messages`
@@ -955,7 +987,8 @@ ALTER TABLE `seminar_assessment`
 -- Indexes for table `supervisor_supervisee`
 --
 ALTER TABLE `supervisor_supervisee`
-  ADD PRIMARY KEY (`SupervisorID`,`SuperviseeID`);
+  ADD PRIMARY KEY (`SupervisorID`,`SuperviseeID`),
+  ADD KEY `supervisor_supervisee_ibfk_1` (`SuperviseeID`);
 
 --
 -- Indexes for table `surgical_experiences`
@@ -1099,6 +1132,12 @@ ALTER TABLE `journal_club_assessment`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
@@ -1223,6 +1262,12 @@ ALTER TABLE `fellow_resident_evaluation`
 ALTER TABLE `grand_round_presentation_assessment`
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `logbook_profile_info`
+--
+ALTER TABLE `logbook_profile_info`
+  ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `messages`

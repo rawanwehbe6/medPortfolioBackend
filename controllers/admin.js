@@ -163,27 +163,39 @@ const getUserCountsByRole = async (req, res) => {
         }
 
         // Get counts for specific roles and total count
+       const [userTypes] = await pool.execute(
+            `SELECT id, name FROM usertypes ORDER BY id`
+        );
+        
+        // Build a dynamic SQL query based on the user types, escaping column names with backticks
+        let caseStatements = userTypes.map(type => {
+            const columnAlias = type.name.toLowerCase().replace(/\s+/g, '_');
+            return `SUM(CASE WHEN Role = ${type.id} THEN 1 ELSE 0 END) AS \`${columnAlias}\``;
+        }).join(',\n                ');
+        
+        // Execute the query to get counts
         const [roleCounts] = await pool.execute(
             `SELECT 
                 COUNT(*) AS total_users,
-                SUM(CASE WHEN Role = 2 THEN 1 ELSE 0 END) AS trainee,
-                SUM(CASE WHEN Role = 3 THEN 1 ELSE 0 END) AS educational_supervisor,
-                SUM(CASE WHEN Role = 4 THEN 1 ELSE 0 END) AS clinical_supervisor,
-                SUM(CASE WHEN Role > 4 THEN 1 ELSE 0 END) AS others
+                ${caseStatements}
              FROM users`
         );
-
+        
         // Format the response
-        res.status(200).json({
-            success: true,
-            counts: {
-                total_users: roleCounts[0].total_users,
-                trainee: roleCounts[0].trainee,
-                educational_supervisor: roleCounts[0].educational_supervisor,
-                clinical_supervisor: roleCounts[0].clinical_supervisor,
-                others: roleCounts[0].others
-            }
+        const counts = {
+            total_users: roleCounts[0].total_users
+        };
+        
+        // Add each user type count to the response
+        userTypes.forEach(type => {
+            const fieldName = type.name.toLowerCase().replace(/\s+/g, '_');
+            counts[fieldName] = roleCounts[0][fieldName];
         });
+        
+        res.status(200).json({
+            counts: counts
+        });
+        
     } catch (error) {
         console.error("Error fetching user counts:", error);
         res.status(500).json({
@@ -193,7 +205,6 @@ const getUserCountsByRole = async (req, res) => {
         });
     }
 };
-
 
 
 module.exports = { 
