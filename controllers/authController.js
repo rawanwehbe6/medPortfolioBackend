@@ -17,11 +17,12 @@ const registerUser = async (req, res) => {
 
     // Hash the password for security
     const hashedPassword = await bcrypt.hash(password, 10);
+    const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
 
     // Insert new user
     await pool.execute(
       "INSERT INTO USERS (Name, Email, Password, Role, BAU_ID) VALUES (?, ?, ?, ?, ?)",
-      [name, email, hashedPassword, role, BAU_ID || null]
+      [name, email, hashedPassword, roles[0].id, BAU_ID || null]
     );
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -127,9 +128,9 @@ const resetPassword = async (req, res) => {
 
 //Update user
 const updateUser = async (req, res) => {
-  const { newEmail, name, password, role } = req.body;
+  const { newEmail, name, password, role,BAU_ID } = req.body;
   const { id } = req.params; // Get user ID from URL parameter
-
+  console.log(req.body);
   try {
     // Check if user exists by ID
     const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
@@ -140,7 +141,8 @@ const updateUser = async (req, res) => {
     // If changing email, check if new email is already taken
     if (newEmail) {
       const [emailCheck] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [newEmail]);
-      if (emailCheck.length > 0) {
+      console.log(emailCheck);
+      if (emailCheck.length > 0 && emailCheck[0].User_ID!=id) {
         return res.status(400).json({ message: 'Email already in use' });
       }
     }
@@ -169,9 +171,13 @@ const updateUser = async (req, res) => {
     }
     if (role) {
       updates.push('Role = ?');
-      values.push(role);
+      const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
+      values.push(roles[0].id);
     }
-
+    if (BAU_ID) {
+      updates.push('BAU_ID = ?');
+      values.push(BAU_ID);
+    }
     // Ensure at least one field is updated
     if (updates.length === 0) {
       return res.status(400).json({ message: 'No valid fields to update' });
@@ -182,6 +188,7 @@ const updateUser = async (req, res) => {
     const query = `UPDATE USERS SET ${updates.join(', ')} WHERE User_ID = ?`;
 
     await pool.execute(query, values);
+    console.log(query, values);
 
     res.json({ message: 'User updated successfully' });
   } catch (err) {
