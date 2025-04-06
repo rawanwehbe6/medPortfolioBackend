@@ -17,4 +17,5 @@ router.post('/forgot-password', forgotPassword);
 router.post("/resetPassWithToken", resetPasswordWithToken);
 router.post("/contactUs", authController.contactUs);
 
+
 module.exports = router;
