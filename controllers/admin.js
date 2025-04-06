@@ -18,19 +18,8 @@ const addSupervisorSuperviseeRelation = async (req, res) => {
         if (supervisor.length === 0 || supervisee.length === 0) {
             return res.status(404).json({ message: "Supervisor or supervisee not found." });
         }
-
-        if (supervisor[0].role !== 3 || supervisee[0].role !== 2) {
+        if (supervisor[0].role !== 4 &&supervisor[0].role !== 3 && supervisee[0].role !== 2) {
             return res.status(403).json({ message: "Invalid roles. Supervisor must be role 3, and supervisee must be role 2." });
-        }
-
-        // Check if the relationship already exists
-        const [existingRelation] = await pool.execute(
-            "SELECT * FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
-            [supervisorId, superviseeId]
-        );
-
-        if (existingRelation.length > 0) {
-            return res.status(409).json({ message: "This supervisor-supervisee relationship already exists." });
         }
 
         // Insert into supervisor-supervisee table
@@ -206,11 +195,118 @@ const getUserCountsByRole = async (req, res) => {
     }
 };
 
+const getEducationalSupervisors = async (req, res) => {
+    try {
+        if (req.user.role !== 1) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden: Admin access required'
+            });
+        }
+
+        const [rows] = await pool.execute(
+            `SELECT User_ID, name FROM users WHERE role = (
+                SELECT id FROM usertypes WHERE name = 'educational_supervisor'
+            )`
+        );
+
+        res.status(200).json({
+            educational_supervisors: rows
+        });
+
+    } catch (error) {
+        console.error("Error fetching educational supervisors:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+const getClinicalSupervisorsOrClinics = async (req, res) => {
+    try {
+        if (req.user.role !== 1) {
+            return res.status(403).json({
+                success: false,
+                message: 'Forbidden: Admin access required'
+            });
+        }
+
+        const [rows] = await pool.execute(
+            `SELECT User_ID, name FROM users WHERE role IN (
+                SELECT id FROM usertypes WHERE name IN ('clinical_supervisor', 'clinic')
+            )`
+        );
+
+        res.status(200).json({
+            clinical_supervisors_or_clinics: rows
+        });
+
+    } catch (error) {
+        console.error("Error fetching clinical supervisors or clinics:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+            error: error.message
+        });
+    }
+};
+
+const getAllUsersWithRoles = async (req, res) => {
+  try {
+    const [users] = await pool.execute(`
+      SELECT 
+        users.User_ID,
+        users.name,
+        usertypes.name AS role,
+        users.email,
+        users.BAU_ID
+      FROM users
+      JOIN usertypes ON users.Role = usertypes.id
+    `);
+
+    res.status(200).json({
+      users: users
+    });
+  } catch (error) {
+    console.error("Error fetching users with roles:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
+const getAllRoles = async (req, res) => {
+  try {
+    const [roles] = await pool.execute(`
+      SELECT id, name FROM usertypes
+    `);
+
+    res.status(200).json({
+      roles: roles
+    });
+  } catch (error) {
+    console.error("Error fetching roles:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+};
+
 
 module.exports = { 
     addSupervisorSuperviseeRelation,
     updateSupervisorSuperviseeRelation,
     deleteSupervisorSuperviseeRelation,
     getAllContactMessages,
-    getUserCountsByRole
+    getUserCountsByRole,
+    getEducationalSupervisors,
+    getClinicalSupervisorsOrClinics,
+    getAllUsersWithRoles,
+    getAllRoles 
 };

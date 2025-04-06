@@ -9,5 +9,8 @@ router.put('/updatesupervisor-superviseeRelation', auth("updateSupervisorSupervi
 router.delete('/deletesupervisor-superviseeRelation', auth("deleteSupervisorSuperviseeRelation"), admin.deleteSupervisorSuperviseeRelation);
 router.get('/contact-messages', verifyToken, admin.getAllContactMessages);
 router.get('/user-counts', verifyToken, admin.getUserCountsByRole);
-
+router.get('/educational-supervisors', verifyToken, admin.getEducationalSupervisors);
+router.get('/clinical-supervisors-or-clinics', verifyToken, admin.getClinicalSupervisorsOrClinics);
+router.get('/users', verifyToken, admin.getAllUsersWithRoles);
+router.get('/roles', verifyToken, admin.getAllRoles);
 module.exports = router;

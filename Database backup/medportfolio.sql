@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 04, 2025 at 11:50 PM
+-- Generation Time: Apr 05, 2025 at 10:55 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -409,15 +409,19 @@ CREATE TABLE `logbook_profile_info` (
   `email` varchar(255) DEFAULT NULL,
   `mobile_no` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `certificate_id` int(11) DEFAULT NULL,
+  `trainee_signature` varchar(255) DEFAULT NULL,
+  `hospital_signature` varchar(255) DEFAULT NULL,
+  `hospital_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `logbook_profile_info`
 --
 
-INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
-(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`, `certificate_id`, `trainee_signature`, `hospital_signature`, `hospital_id`) VALUES
+(3, 26, 'rima Doe', '2024-2025', 'john.doe@example.com', '1234567890', '2025-04-05 18:40:00', '2025-04-05 20:54:03', 3, 'uploads\\1743884160601.PNG', 'uploads\\1743886443323.PNG', 30);
 
 -- --------------------------------------------------------
 
@@ -941,7 +945,9 @@ ALTER TABLE `journal_club_assessment`
 --
 ALTER TABLE `logbook_profile_info`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `trainee_id` (`trainee_id`);
+  ADD UNIQUE KEY `certificate_id` (`certificate_id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `fk_hospital` (`hospital_id`);
 
 --
 -- Indexes for table `messages`
@@ -1135,7 +1141,7 @@ ALTER TABLE `journal_club_assessment`
 -- AUTO_INCREMENT for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `messages`
@@ -1267,6 +1273,7 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
+  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
   ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
