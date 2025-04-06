@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 05, 2025 at 10:55 PM
+-- Generation Time: Apr 06, 2025 at 11:48 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -106,7 +106,7 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 
 CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -116,7 +116,9 @@ CREATE TABLE `contact_messages` (
 --
 
 INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
-(1, 'Lorence', 'This is a test message.', '2025-03-11 15:18:45');
+(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13'),
+(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27'),
+(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14');
 
 -- --------------------------------------------------------
 
@@ -409,19 +411,15 @@ CREATE TABLE `logbook_profile_info` (
   `email` varchar(255) DEFAULT NULL,
   `mobile_no` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `certificate_id` int(11) DEFAULT NULL,
-  `trainee_signature` varchar(255) DEFAULT NULL,
-  `hospital_signature` varchar(255) DEFAULT NULL,
-  `hospital_id` int(11) DEFAULT NULL
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `logbook_profile_info`
 --
 
-INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`, `certificate_id`, `trainee_signature`, `hospital_signature`, `hospital_id`) VALUES
-(3, 26, 'rima Doe', '2024-2025', 'john.doe@example.com', '1234567890', '2025-04-05 18:40:00', '2025-04-05 20:54:03', 3, 'uploads\\1743884160601.PNG', 'uploads\\1743886443323.PNG', 30);
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
+(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
 
 -- --------------------------------------------------------
 
@@ -576,6 +574,27 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (18, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:39:32'),
 (19, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:40:57'),
 (20, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-04-01 23:41:19');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `prelogin_contact_messages`
+--
+
+CREATE TABLE `prelogin_contact_messages` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `prelogin_contact_messages`
+--
+
+INSERT INTO `prelogin_contact_messages` (`id`, `name`, `email`, `message`, `created_at`) VALUES
+(1, 'Lorence', 'lorence@example.com', 'I can\'t log in to my account.', '2025-04-06 09:47:13');
 
 -- --------------------------------------------------------
 
@@ -752,7 +771,7 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 (22, 'test', 'test@example.com', 2, '$2b$10$FvNsjO4K8iMXMRdmBiGiV.CRgKZ0xjfnmaaf4NjQJgX7UCJBaZlsW', NULL, NULL),
 (23, 'trainee1', 'trainee@example.com', 2, '$2b$10$X8UNE6qMYCnOmLkNCgWXEO.799dmU4Z29AaZZhLdhdQO3UQtwx/6u', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyYWluZWVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDE0NDgyNjcsImV4cCI6MTc0MTQ1MTg2N30.VREFtakw77mANcTS5VkIck9xQqNBcwFHXZmhEWgepCI'),
 (26, 'rima test', 'rimashbaro02@gmail.com', 2, '$2b$10$G7S8x0jKHZy67NtzXjVu/.nFcJ/oGXwLx1GmDQ1VMWhHXraDEWF7q', NULL, NULL),
-(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$rfV993WXptxQMcmEJjyQk.fWjt09wGlr.AXBwu7W5S79asUGc1yOC', NULL, NULL),
+(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$aHvyVbXstnglnQQjAxPNY.6N/lqDNLDsANPh7SIarBZE2M3Ceh6u6', NULL, NULL),
 (28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
 (29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL),
 (30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL);
@@ -945,9 +964,7 @@ ALTER TABLE `journal_club_assessment`
 --
 ALTER TABLE `logbook_profile_info`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `certificate_id` (`certificate_id`),
-  ADD KEY `trainee_id` (`trainee_id`),
-  ADD KEY `fk_hospital` (`hospital_id`);
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `messages`
@@ -976,6 +993,12 @@ ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `sender_id` (`sender_id`);
+
+--
+-- Indexes for table `prelogin_contact_messages`
+--
+ALTER TABLE `prelogin_contact_messages`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `research`
@@ -1081,7 +1104,7 @@ ALTER TABLE `case_based_discussion_assessment`
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `dops`
@@ -1141,7 +1164,7 @@ ALTER TABLE `journal_club_assessment`
 -- AUTO_INCREMENT for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `messages`
@@ -1166,6 +1189,12 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT for table `prelogin_contact_messages`
+--
+ALTER TABLE `prelogin_contact_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `research`
@@ -1273,7 +1302,6 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
   ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
