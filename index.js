@@ -18,13 +18,12 @@ const formRoutes = require('./routes/formRoutes');
 const messagesRoutes = require('./routes/messagesRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
-const portfolioRoutes = require('./routes/portfolioRoutes');
 const logbookRoutes = require('./routes/logbookRoutes');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
 app.use(bodyParser.json());
-app.use(cors({ origin: "http://localhost:5173", credentials: true }));
+app.use(cors({ origin: "http://localhost:5178", credentials: true }));
 
 // Mount the authentication routes
 app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
@@ -53,8 +52,6 @@ app.use('/api/forms', formRoutes);
 
 //Mount trainee portfolio image upload
 app.use('/api/portfolio', portfolioImageRoutes);
-
-app.use('/api/portfolio', portfolioRoutes);
 
 // Mount logbook routes
 app.use("/api", logbookRoutes);
