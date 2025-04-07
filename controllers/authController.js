@@ -341,24 +341,59 @@ const resetPasswordWithToken = async (req, res) => {
   }
 };
 
-//Contact Us
+//Contact us (when the user is logged in):
 const contactUs = async (req, res) => {
   try {
     const { name, message } = req.body;
 
-    if (!name  || !message) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!name || !message) {
+      return res.status(400).json({ 
+        message: "Both name and message are required." 
+      });
     }
 
     await pool.execute(
-      "INSERT INTO contact_messages (name, message) VALUES (?, ?, ?)",
-      [name, message] 
+      "INSERT INTO contact_messages (name, message) VALUES (?, ?)",
+      [name, message]
     );
 
-    res.status(201).json({ message: "Message sent successfully." });
+    res.status(201).json({ 
+      message: "Your message has been sent successfully!" 
+    });
+
   } catch (error) {
-    console.error("Error in contactUs:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("Contact Us Error:", error);
+    res.status(500).json({ 
+      message: "Server error. Please try again later." 
+    });
+  }
+};
+
+const preLoginContact = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ 
+        message: "Name, email, and message are required." 
+      });
+    }
+
+    // Insert into pre-login table
+    await pool.execute(
+      "INSERT INTO prelogin_contact_messages (name, email, message) VALUES (?, ?, ?)",
+      [name, email, message]
+    );
+
+    res.status(201).json({ 
+      message: "Thank you! We've received your message." 
+    });
+
+  } catch (error) {
+    console.error("Pre-Login Contact Error:", error);
+    res.status(500).json({ 
+      message: "Server error. Please try again later." 
+    });
   }
 };
 
@@ -373,4 +408,5 @@ module.exports = {
   forgotPassword,
   resetPasswordWithToken,
   contactUs,
+  preLoginContact
 };
