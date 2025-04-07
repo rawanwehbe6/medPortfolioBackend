@@ -4,7 +4,6 @@ const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
 const auth = require('../middleware/verifyToken.js');
 const logbookController = require("../controllers/logbookController");
-const academicsAController = require("../controllers/academicsA");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
@@ -24,11 +23,5 @@ router.post("/logbook/certificate", auth, uploadPNG, logbookController.signLogbo
 router.post("/logbook/certificate/:trainee_id", auth, uploadPNG, logbookController.signLogbookCertificate);
 router.get("/logbook/certificate/sign/:certificate_id", auth, logbookController.getCertificateSignature);
 router.delete("/logbook/certificate/delete/:certificate_id",auth, logbookController.deleteLogbookCertificate);
-
-// Case Presentation Routes
-router.post("/case-presentations", auth, academicsAController.createCasePresentation);
-router.get("/case-presentations", auth, academicsAController.getCasePresentations);
-router.delete("/case-presentations/:id", auth, academicsAController.deleteCasePresentation);
-router.put("/case-presentations/sign/:id", auth, uploadPNG, academicsAController.signModerator);
 
 module.exports = router;
