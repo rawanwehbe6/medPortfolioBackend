@@ -42,7 +42,7 @@ router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerato
 //teaching routes
 router.post("/teaching", teachingController.createTeaching);
 router.get("/teaching", teachingController.getTeachings);
-router.delete("/teaching/:id", teachingController.deleteTeaching);
-router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
+router.delete("teaching//:id", authenticate, teachingController.deleteTeaching);
+router.put("teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
 
 module.exports = router;

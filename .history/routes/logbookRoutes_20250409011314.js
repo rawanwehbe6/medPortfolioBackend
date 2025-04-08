@@ -6,7 +6,7 @@ const auth = require('../middleware/verifyToken.js');
 const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
 const seminarController = require("../controllers/academicsB");
-const teachingController = require("../controllers/teaching");
+const teachingController = require("../controllers/teachingController");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
@@ -39,10 +39,9 @@ router.get("/seminars", auth, seminarController.getSeminars);
 router.delete("/seminars/:id", auth, seminarController.deleteSeminar);
 router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerator);
 
-//teaching routes
-router.post("/teaching", teachingController.createTeaching);
-router.get("/teaching", teachingController.getTeachings);
-router.delete("/teaching/:id", teachingController.deleteTeaching);
-router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
+router.post("/", teachingController.createTeaching);
+router.get("/", teachingController.getTeachings);
+router.delete("/:id", authenticate, teachingController.deleteTeaching);
+router.put("/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
 
 module.exports = router;
