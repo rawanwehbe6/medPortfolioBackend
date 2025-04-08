@@ -5,7 +5,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 const auth = require('../middleware/verifyToken.js');
 const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
-const seminarController = require("../controllers/academicsB");
+const seminarController = require("../controllers/seminarController");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
