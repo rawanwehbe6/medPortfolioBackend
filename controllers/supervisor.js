@@ -2,13 +2,6 @@ const pool = require('../config/db');
 
 const getUsersBySupervisor = async (req, res) => {
     try {
-        // Check if the user is an admin (role 1)
-        if (req.user.role !== 1 &&req.user.role !== 3 &&req.user.role !== 4 &&req.user.role !== 5 ) {
-            return res.status(403).json({
-                success: false,
-                message: 'Forbidden: Admin or Supervisor access required'
-            });
-        }
 
         const supervisorID=req.user.userId;
         // Validate the input

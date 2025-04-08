@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 06, 2025 at 11:48 AM
+-- Generation Time: Apr 08, 2025 at 10:23 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -97,6 +97,21 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 (4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png', 0, 0),
 (5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1743549430849.png', 'uploads\\1743549471199.jpg', 1, 1),
 (6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `case_presentations`
+--
+
+CREATE TABLE `case_presentations` (
+  `id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `diagnosis_problem` text DEFAULT NULL,
+  `presented_attended` enum('P','A') DEFAULT NULL,
+  `moderator_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -329,7 +344,8 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('completeMaterial', 5),
 ('get_elearning_progress', 6),
 ('add_portfolio_image', 7),
-('remove_portfolio_image', 8);
+('remove_portfolio_image', 8),
+('supervisor_get_trainees', 9);
 
 -- --------------------------------------------------------
 
@@ -616,6 +632,21 @@ CREATE TABLE `research` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `seminars`
+--
+
+CREATE TABLE `seminars` (
+  `id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `topic` varchar(255) NOT NULL,
+  `presented_attended` enum('P','A') NOT NULL,
+  `moderator_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `seminar_assessment`
 --
 
@@ -817,34 +848,17 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
-(6, 1),
-(7, 2),
-(8, 3),
 (2, 4),
 (2, 5),
 (2, 6),
 (2, 7),
 (2, 8),
-(1, 7),
-(1, 8),
+(3, 9),
+(4, 9),
+(5, 9),
 (6, 1),
 (7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(6, 1),
-(7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(6, 1),
-(7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6);
+(8, 3);
 
 -- --------------------------------------------------------
 
@@ -892,6 +906,13 @@ ALTER TABLE `case_based_discussion_assessment`
   ADD PRIMARY KEY (`id`),
   ADD KEY `resident_id` (`resident_id`),
   ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
+-- Indexes for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `contact_messages`
@@ -1007,6 +1028,13 @@ ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
 
 --
+-- Indexes for table `seminars`
+--
+ALTER TABLE `seminars`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `seminar_assessment`
 --
 ALTER TABLE `seminar_assessment`
@@ -1068,8 +1096,8 @@ ALTER TABLE `usertypes`
 -- Indexes for table `usertype_functions`
 --
 ALTER TABLE `usertype_functions`
-  ADD KEY `usertype_functions_ibfk_1` (`FunctionsId`),
-  ADD KEY `usertype_functions_ibfk_2` (`UsertypeId`);
+  ADD PRIMARY KEY (`UsertypeId`,`FunctionsId`),
+  ADD KEY `FunctionsId` (`FunctionsId`);
 
 --
 -- Indexes for table `user_skills`
@@ -1099,6 +1127,12 @@ ALTER TABLE `bau`
 --
 ALTER TABLE `case_based_discussion_assessment`
   MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `contact_messages`
@@ -1146,7 +1180,7 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -1203,6 +1237,12 @@ ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `seminars`
+--
+ALTER TABLE `seminars`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `seminar_assessment`
 --
 ALTER TABLE `seminar_assessment`
@@ -1242,7 +1282,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `user_skills`
@@ -1266,6 +1306,12 @@ ALTER TABLE `accomplishments`
 ALTER TABLE `case_based_discussion_assessment`
   ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  ADD CONSTRAINT `case_presentations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `eduactconferences`
@@ -1319,6 +1365,12 @@ ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
 
 --
+-- Constraints for table `seminars`
+--
+ALTER TABLE `seminars`
+  ADD CONSTRAINT `seminars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `supervisor_supervisee`
 --
 ALTER TABLE `supervisor_supervisee`
@@ -1362,106 +1414,14 @@ ALTER TABLE `users`
 -- Constraints for table `usertype_functions`
 --
 ALTER TABLE `usertype_functions`
-  ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`),
+  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`);
 
 --
 -- Constraints for table `user_skills`
 --
 ALTER TABLE `user_skills`
   ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
-COMMIT;
-
-
---
--- Table structure for table `case_presentations`
---
-
-CREATE TABLE `case_presentations` (
-  `id` int(11) NOT NULL,
-  `date` date DEFAULT NULL,
-  `diagnosis_problem` text DEFAULT NULL,
-  `presented_attended` enum('P','A') DEFAULT NULL,
-  `moderator_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `case_presentations`
---
-ALTER TABLE `case_presentations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `case_presentations`
---
-ALTER TABLE `case_presentations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `case_presentations`
---
-ALTER TABLE `case_presentations`
-  ADD CONSTRAINT `case_presentations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
-
---
--- Table structure for table `seminars`
---
-
-CREATE TABLE `seminars` (
-  `id` int(11) NOT NULL,
-  `date` date NOT NULL,
-  `topic` varchar(255) NOT NULL,
-  `presented_attended` enum('P','A') NOT NULL,
-  `moderator_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `seminars`
---
-ALTER TABLE `seminars`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `seminars`
---
-ALTER TABLE `seminars`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `seminars`
---
-ALTER TABLE `seminars`
-  ADD CONSTRAINT `seminars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
