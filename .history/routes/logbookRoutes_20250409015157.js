@@ -7,7 +7,7 @@ const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
 const seminarController = require("../controllers/academicsB");
 const teachingController = require("../controllers/teaching");
-const researchpublicationsController = require("../controllers/researchPublications");
+const researchController = require("../controllers/researchController");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
@@ -46,13 +46,4 @@ router.get("/teaching", teachingController.getTeachings);
 router.delete("/teaching/:id", teachingController.deleteTeaching);
 router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
 
-//research publications routes
-router.post("/research-publications", researchpublicationsController.createResearchEntry);
-router.get("/research-publications", researchpublicationsController.getResearchEntries);
-router.delete("/research-publications/:id", researchpublicationsController.deleteResearchEntry);
-router.put(
-  "/research-publications/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
-  researchpublicationsController.signFaculty
-);
 module.exports = router;

@@ -7,7 +7,7 @@ const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
 const seminarController = require("../controllers/academicsB");
 const teachingController = require("../controllers/teaching");
-const researchpublicationsController = require("../controllers/researchPublications");
+const researchpublicationsController = require("../controllers/researchController");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
