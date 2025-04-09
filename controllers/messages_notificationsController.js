@@ -45,9 +45,28 @@ const getMessagesByTrainee = async (req, res) => {
     res.status(500).json({ error: "Server error while fetching messages for trainee" });
   }
 };
+const getNotifications = async (req, res) => {
+  const userId = req.user.userId;
+
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
+
+    res.status(200).json({ success: true, notifications: rows });
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ success: false, message: 'Server error fetching notifications' });
+  }
+};
+
+module.exports = { getNotifications };
+
 
 module.exports = {
   getMessagesByTrainee,
   createMessage,
+  getNotifications,
 };
 
