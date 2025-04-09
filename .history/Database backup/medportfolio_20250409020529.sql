@@ -1510,52 +1510,6 @@ ALTER TABLE `research_publications`
   ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 COMMIT;
 
-
---
--- Table structure for table `departmental_activities`
---
-
-CREATE TABLE `departmental_activities` (
-  `id` int(11) NOT NULL,
-  `activity_category` enum('Community Health Activities','Conferences/Workshops','Others') NOT NULL,
-  `details` text NOT NULL,
-  `date` date NOT NULL,
-  `faculty_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

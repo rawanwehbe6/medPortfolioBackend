@@ -7,8 +7,6 @@ const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
 const seminarController = require("../controllers/academicsB");
 const teachingController = require("../controllers/teaching");
-const researchpublicationsController = require("../controllers/researchPublications");
-const departmentalActivities = require("../controllers/departmentalActivities");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
@@ -44,27 +42,7 @@ router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerato
 //teaching routes
 router.post("/teaching", teachingController.createTeaching);
 router.get("/teaching", teachingController.getTeachings);
-router.delete("/teaching/:id", teachingController.deleteTeaching);
-router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
-
-//research publications routes
-router.post("/research-publications", researchpublicationsController.createResearchEntry);
-router.get("/research-publications", researchpublicationsController.getResearchEntries);
-router.delete("/research-publications/:id", researchpublicationsController.deleteResearchEntry);
-router.put(
-  "/research-publications/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
-  researchpublicationsController.signFaculty
-);
-
-//departmental activities routes
-router.post("/departmental-Activities", departmentalActivities.createActivityEntry);
-router.get("/departmental-Activities", departmentalActivities.getActivityEntries);
-router.delete("/departmental-Activities/:id", departmentalActivities.deleteActivityEntry);
-router.put(
-  "/departmental-Activities/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
-  departmentalActivities.signActivityFaculty
-);
+router.delete("teaching/:id", authenticate, teachingController.deleteTeaching);
+router.put("teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
 
 module.exports = router;
