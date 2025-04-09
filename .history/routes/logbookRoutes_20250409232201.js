@@ -68,14 +68,4 @@ router.put(
   departmentalActivities.signActivityFaculty
 );
 
-//miscellaneous activities routes
-router.post("/miscellaneous-Activities", miscellaneousActivities.createMiscActivity);
-router.get("/miscellaneous-Activities", miscellaneousActivities.getAllMiscActivities);
-router.delete("/miscellaneous-Activities/:id", miscellaneousActivities.deleteMiscActivity);
-router.put(
-  "/miscellaneous-Activities/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
-  miscellaneousActivities.signMiscActivityFaculty
-);
-router.get("/miscellaneous-Activities/:id", miscellaneousActivities.getMiscActivityById);
 module.exports = router;

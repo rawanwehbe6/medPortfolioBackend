@@ -77,5 +77,5 @@ router.put(
   upload.fields([{ name: "signature", maxCount: 1 }]),
   miscellaneousActivities.signMiscActivityFaculty
 );
-router.get("/miscellaneous-Activities/:id", miscellaneousActivities.getMiscActivityById);
+
 module.exports = router;
