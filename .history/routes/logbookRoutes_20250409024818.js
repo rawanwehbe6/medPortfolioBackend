@@ -60,7 +60,7 @@ router.put(
 //departmental activities routes
 router.post("/departmental-Activities", departmentalActivities.createActivityEntry);
 router.get("/departmental-Activities", departmentalActivities.getActivityEntries);
-router.delete("/departmental-Activities/:id", departmentalActivities.deleteActivityEntry);
+router.delete("/departmental-Activities/:id", departmentalActivities.createActivityEntry);
 router.put(
   "/departmental-Activities/:id/sign",
   upload.fields([{ name: "signature", maxCount: 1 }]),

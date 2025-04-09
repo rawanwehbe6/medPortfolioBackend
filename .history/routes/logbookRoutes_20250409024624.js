@@ -56,15 +56,4 @@ router.put(
   upload.fields([{ name: "signature", maxCount: 1 }]),
   researchpublicationsController.signFaculty
 );
-
-//departmental activities routes
-router.post("/departmental-Activities", departmentalActivities.createActivityEntry);
-router.get("/departmental-Activities", departmentalActivities.getActivityEntries);
-router.delete("/departmental-Activities/:id", departmentalActivities.deleteActivityEntry);
-router.put(
-  "/departmental-Activities/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
-  departmentalActivities.signActivityFaculty
-);
-
 module.exports = router;
