@@ -15,18 +15,19 @@ const {
     getWorkshops,
     getConferences
   } = require("../controllers/educationalActivitiesController");
-const auth = require("../middleware/authMiddleware");
+const authenticate = require("../middleware/authMiddleware");
+const auth = require("../middleware/auth");
 
-router.post("/addCourse", auth, upload.single('certificate'), addCourse);
-router.put("/updateCourse/:id", auth, upload.single('certificate'), updateCourse);
-router.delete("/deleteCourse/:id", auth, deleteCourse);
-router.post("/addWorkshop", auth, upload.single('certificate'), addWorkshop);
-router.put("/updateWorkshop/:id", auth, upload.single('certificate'), updateWorkshop);
-router.delete("/deleteWorkshop/:id", auth, deleteWorkshop);
-router.post("/addConference", auth, upload.single('certificate'), addConference);
-router.put("/updateConference/:id", auth, upload.single("certificate"), updateConference);
-router.delete("/deleteConference/:id", auth, deleteConference);
-router.get("/getCourses", auth, getCourses);
-router.get("/getWorkshops", auth, getWorkshops);
-router.get("/getConferences", auth, getConferences);
+router.post("/addCourse", auth("trainee_add_course"), upload.single('certificate'), addCourse);
+router.put("/updateCourse/:id", authenticate, upload.single('certificate'), updateCourse);
+router.delete("/deleteCourse/:id", authenticate, deleteCourse);
+router.post("/addWorkshop", authenticate, upload.single('certificate'), addWorkshop);
+router.put("/updateWorkshop/:id", authenticate, upload.single('certificate'), updateWorkshop);
+router.delete("/deleteWorkshop/:id", authenticate, deleteWorkshop);
+router.post("/addConference", authenticate, upload.single('certificate'), addConference);
+router.put("/updateConference/:id", authenticate, upload.single("certificate"), updateConference);
+router.delete("/deleteConference/:id", authenticate, deleteConference);
+router.get("/getCourses", authenticate, getCourses);
+router.get("/getWorkshops", authenticate, getWorkshops);
+router.get("/getConferences", authenticate, getConferences);
 module.exports = router;

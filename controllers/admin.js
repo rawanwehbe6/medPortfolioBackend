@@ -113,13 +113,6 @@ const deleteSupervisorSuperviseeRelation = async (req, res) => {
 const getAllContactMessages = async (req, res) => {
     try {
         // Verify the user is admin (role 1)
-        if (req.user.role !== 1) {
-            return res.status(403).json({ 
-                success: false,
-                message: 'Forbidden: Admin access required' 
-            });
-        }
-
         // Query the database for all contact messages
         const [messages] = await pool.execute(
             "SELECT id, name, message, created_at FROM contact_messages ORDER BY created_at DESC"
