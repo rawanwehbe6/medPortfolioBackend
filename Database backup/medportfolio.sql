@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 10, 2025 at 09:06 PM
+-- Generation Time: Apr 10, 2025 at 09:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -253,7 +253,8 @@ CREATE TABLE `eduactcourses` (
 --
 
 INSERT INTO `eduactcourses` (`id`, `user_id`, `title`, `date`, `institution`, `description`, `certificate`) VALUES
-(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg');
+(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg'),
+(8, 27, 'Advanced Medicine', '2025-12-31', 'BAU', 'A course on advanced medical practices.', NULL);
 
 -- --------------------------------------------------------
 
@@ -909,6 +910,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 6),
 (2, 7),
 (2, 8),
+(2, 11),
 (3, 9),
 (4, 9),
 (5, 9),
@@ -1246,7 +1248,7 @@ ALTER TABLE `eduactconferences`
 -- AUTO_INCREMENT for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `eduactworkshops`
