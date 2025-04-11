@@ -3,11 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
-<<<<<<< HEAD
 -- Generation Time: Apr 11, 2025 at 11:42 PM
-=======
--- Generation Time: Apr 10, 2025 at 09:22 PM
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -470,15 +466,19 @@ CREATE TABLE `logbook_profile_info` (
   `email` varchar(255) DEFAULT NULL,
   `mobile_no` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `certificate_id` int(11) DEFAULT NULL,
+  `trainee_signature` varchar(255) DEFAULT NULL,
+  `hospital_signature` varchar(255) DEFAULT NULL,
+  `hospital_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `logbook_profile_info`
 --
 
-INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
-(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`, `certificate_id`, `trainee_signature`, `hospital_signature`, `hospital_id`) VALUES
+(3, 26, 'rima Doe', '2024-2025', 'john.doe@example.com', '1234567890', '2025-04-05 18:40:00', '2025-04-05 20:54:03', 3, 'uploads\\1743884160601.PNG', 'uploads\\1743886443323.PNG', 30);
 
 -- --------------------------------------------------------
 
@@ -673,7 +673,6 @@ INSERT INTO `prelogin_contact_messages` (`id`, `name`, `email`, `message`, `crea
 -- --------------------------------------------------------
 
 --
-<<<<<<< HEAD
 -- Table structure for table `procedures`
 --
 
@@ -737,8 +736,6 @@ INSERT INTO `procedure_summary_logs` (`id`, `serial_no`, `trainee_id`, `date`, `
 
 -- --------------------------------------------------------
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Table structure for table `research`
 --
 
@@ -772,7 +769,6 @@ CREATE TABLE `research_publications` (
 -- --------------------------------------------------------
 
 --
-<<<<<<< HEAD
 -- Table structure for table `rotation_1st_year_config`
 --
 
@@ -839,8 +835,6 @@ CREATE TABLE `second_year_rotations` (
 -- --------------------------------------------------------
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Table structure for table `seminars`
 --
 
@@ -968,7 +962,6 @@ CREATE TABLE `teaching` (
 -- --------------------------------------------------------
 
 --
-<<<<<<< HEAD
 -- Table structure for table `third_year_rotations`
 --
 
@@ -999,8 +992,6 @@ INSERT INTO `third_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `t
 -- --------------------------------------------------------
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Table structure for table `trainee_elearning_material_progress`
 --
 
@@ -1011,6 +1002,13 @@ CREATE TABLE `trainee_elearning_material_progress` (
   `status` enum('in_progress','completed') DEFAULT 'in_progress',
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `trainee_elearning_material_progress`
+--
+
+INSERT INTO `trainee_elearning_material_progress` (`id`, `trainee_id`, `material_id`, `status`, `completed_at`) VALUES
+(1, 23, 1, 'completed', '2025-02-28 11:44:29');
 
 -- --------------------------------------------------------
 
@@ -1111,7 +1109,6 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (6, 1),
 (7, 2),
 (8, 3);
-<<<<<<< HEAD
 
 -- --------------------------------------------------------
 
@@ -1133,8 +1130,6 @@ CREATE TABLE `user_procedure_logs` (
 
 INSERT INTO `user_procedure_logs` (`id`, `trainee_id`, `procedure_id`, `num_performed`, `num_observed`) VALUES
 (1, 26, 2, 4, 2);
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 
 -- --------------------------------------------------------
 
@@ -1268,14 +1263,9 @@ ALTER TABLE `journal_club_assessment`
 --
 ALTER TABLE `logbook_profile_info`
   ADD PRIMARY KEY (`id`),
-<<<<<<< HEAD
   ADD UNIQUE KEY `certificate_id` (`certificate_id`),
   ADD KEY `trainee_id` (`trainee_id`),
   ADD KEY `fk_hospital` (`hospital_id`);
-=======
-  ADD KEY `trainee_id` (`trainee_id`);
-
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 --
 -- Indexes for table `messages`
 --
@@ -1312,7 +1302,6 @@ ALTER TABLE `notifications`
   ADD KEY `sender_id` (`sender_id`);
 
 --
-<<<<<<< HEAD
 -- Indexes for table `procedures`
 --
 ALTER TABLE `procedures`
@@ -1327,8 +1316,6 @@ ALTER TABLE `procedure_summary_logs`
   ADD KEY `trainee_id` (`trainee_id`);
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Indexes for table `prelogin_contact_messages`
 --
 ALTER TABLE `prelogin_contact_messages`
@@ -1341,15 +1328,12 @@ ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
 
 --
-<<<<<<< HEAD
 -- Indexes for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
   ADD PRIMARY KEY (`id`);
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Indexes for table `research_publications`
 --
 ALTER TABLE `research_publications`
@@ -1399,7 +1383,6 @@ ALTER TABLE `teaching`
   ADD KEY `user_id` (`user_id`);
 
 --
-<<<<<<< HEAD
 -- Indexes for table `third_year_rotations`
 --
 ALTER TABLE `third_year_rotations`
@@ -1408,8 +1391,6 @@ ALTER TABLE `third_year_rotations`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Indexes for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -1445,7 +1426,6 @@ ALTER TABLE `usertypes`
 ALTER TABLE `usertype_functions`
   ADD PRIMARY KEY (`UsertypeId`,`FunctionsId`),
   ADD KEY `FunctionsId` (`FunctionsId`);
-<<<<<<< HEAD
 
 --
 -- Indexes for table `user_procedure_logs`
@@ -1455,8 +1435,6 @@ ALTER TABLE `user_procedure_logs`
   ADD UNIQUE KEY `trainee_id` (`trainee_id`,`procedure_id`),
   ADD UNIQUE KEY `trainee_id_2` (`trainee_id`,`procedure_id`),
   ADD KEY `procedure_id` (`procedure_id`);
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 
 --
 -- Indexes for table `user_skills`
@@ -1563,7 +1541,7 @@ ALTER TABLE `journal_club_assessment`
 -- AUTO_INCREMENT for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `messages`
@@ -1602,7 +1580,6 @@ ALTER TABLE `prelogin_contact_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
-<<<<<<< HEAD
 -- AUTO_INCREMENT for table `procedures`
 --
 ALTER TABLE `procedures`
@@ -1615,8 +1592,6 @@ ALTER TABLE `procedure_summary_logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
@@ -1629,15 +1604,12 @@ ALTER TABLE `research_publications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
-<<<<<<< HEAD
 -- AUTO_INCREMENT for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- AUTO_INCREMENT for table `seminars`
 --
 ALTER TABLE `seminars`
@@ -1668,15 +1640,12 @@ ALTER TABLE `teaching`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
-<<<<<<< HEAD
 -- AUTO_INCREMENT for table `third_year_rotations`
 --
 ALTER TABLE `third_year_rotations`
   MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -1699,15 +1668,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `usertypes`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-<<<<<<< HEAD
 
 --
 -- AUTO_INCREMENT for table `user_procedure_logs`
 --
 ALTER TABLE `user_procedure_logs`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 
 --
 -- AUTO_INCREMENT for table `user_skills`
@@ -1779,6 +1745,7 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
+  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
   ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
@@ -1802,15 +1769,12 @@ ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
 
 --
-<<<<<<< HEAD
 -- Constraints for table `procedure_summary_logs`
 --
 ALTER TABLE `procedure_summary_logs`
   ADD CONSTRAINT `procedure_summary_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Constraints for table `research_publications`
 --
 ALTER TABLE `research_publications`
@@ -1849,7 +1813,6 @@ ALTER TABLE `teaching`
   ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
-<<<<<<< HEAD
 -- Constraints for table `third_year_rotations`
 --
 ALTER TABLE `third_year_rotations`
@@ -1857,8 +1820,6 @@ ALTER TABLE `third_year_rotations`
   ADD CONSTRAINT `third_year_rotations_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
 
 --
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 -- Constraints for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -1884,7 +1845,6 @@ ALTER TABLE `users`
 ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`),
   ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`);
-<<<<<<< HEAD
 
 --
 -- Constraints for table `user_procedure_logs`
@@ -1892,8 +1852,6 @@ ALTER TABLE `usertype_functions`
 ALTER TABLE `user_procedure_logs`
   ADD CONSTRAINT `user_procedure_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `user_procedure_logs_ibfk_2` FOREIGN KEY (`procedure_id`) REFERENCES `procedures` (`id`);
-=======
->>>>>>> c96722c2bc39de715a55a9d85bea6d6628c75646
 
 --
 -- Constraints for table `user_skills`
