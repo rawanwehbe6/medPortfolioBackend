@@ -133,29 +133,17 @@ const getAllContactMessages = async (req, res) => {
     }
 };
 
-//get total number of users
 const getUserCountsByRole = async (req, res) => {
     try {
-        // Verify the user is admin (role 1)
-        if (req.user.role !== 1) {
-            return res.status(403).json({ 
-                success: false,
-                message: 'Forbidden: Admin access required' 
-            });
-        }
-
-        // Get counts for specific roles and total count
-       const [userTypes] = await pool.execute(
+        const [userTypes] = await pool.execute(
             `SELECT id, name FROM usertypes ORDER BY id`
         );
-        
-        // Build a dynamic SQL query based on the user types, escaping column names with backticks
+
         let caseStatements = userTypes.map(type => {
             const columnAlias = type.name.toLowerCase().replace(/\s+/g, '_');
             return `SUM(CASE WHEN Role = ${type.id} THEN 1 ELSE 0 END) AS \`${columnAlias}\``;
         }).join(',\n                ');
         
-        // Execute the query to get counts
         const [roleCounts] = await pool.execute(
             `SELECT 
                 COUNT(*) AS total_users,
@@ -163,16 +151,13 @@ const getUserCountsByRole = async (req, res) => {
              FROM users`
         );
         
-        // Format the response
         const counts = {
-            total_users: roleCounts[0].total_users
+            total_users: roleCounts[0].total_users,
+            admin: roleCounts[0].admin || '0',
+            trainee: roleCounts[0].trainee || '0',
+            educational_supervisor: roleCounts[0].educational_supervisor || '0',
+            clinical_supervisor: roleCounts[0].clinical_supervisor || '0'
         };
-        
-        // Add each user type count to the response
-        userTypes.forEach(type => {
-            const fieldName = type.name.toLowerCase().replace(/\s+/g, '_');
-            counts[fieldName] = roleCounts[0][fieldName];
-        });
         
         res.status(200).json({
             counts: counts
