@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 10, 2025 at 09:22 PM
+-- Generation Time: Apr 12, 2025 at 12:43 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -40,7 +40,8 @@ CREATE TABLE `accomplishments` (
 --
 
 INSERT INTO `accomplishments` (`id`, `title`, `description`, `file_path`, `User_ID`) VALUES
-(3, 'test2', 'test', '/uploads/1741390401930.jpg', 22);
+(3, 'test2', 'test', '/uploads/1741390401930.jpg', 22),
+(6, 'test', 'test', NULL, 31);
 
 -- --------------------------------------------------------
 
@@ -92,11 +93,11 @@ CREATE TABLE `case_based_discussion_assessment` (
 --
 
 INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `Investigation_Referral`, `treatment`, `future_planning`, `history_taking`, `overall_clinical_care`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`, `sent`, `completed`) VALUES
-(2, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289787224.png', 0, 0),
 (3, 22, 28, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743289824406.png', 0, 0),
 (4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png', 0, 0),
-(5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1743549430849.png', 'uploads\\1743549471199.jpg', 1, 1),
-(6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0);
+(5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1744411343092.jpg', 'uploads\\1743549471199.jpg', 1, 1),
+(6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0),
+(8, 22, 31, '2025-04-12', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', NULL, NULL, NULL, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -301,11 +302,13 @@ CREATE TABLE `elearning_materials` (
 --
 
 INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`, `Host`) VALUES
-(2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58', NULL),
 (3, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:01:45', NULL),
 (4, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:02:22', NULL),
 (7, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:24', 'jad'),
-(8, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:32', NULL);
+(8, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:32', NULL),
+(9, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:15', NULL),
+(10, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:30', NULL),
+(11, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:36', 'jad');
 
 -- --------------------------------------------------------
 
@@ -343,26 +346,56 @@ CREATE TABLE `fellow_resident_evaluation` (
 --
 
 CREATE TABLE `functions` (
-  `Name` varchar(25) NOT NULL,
-  `Id` int(9) NOT NULL
+  `Name` varchar(50) NOT NULL,
+  `Id` int(9) NOT NULL,
+  `Admin` tinyint(1) NOT NULL DEFAULT 0,
+  `Trainee` tinyint(1) NOT NULL DEFAULT 0,
+  `Supervisor` tinyint(1) NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `functions`
 --
 
-INSERT INTO `functions` (`Name`, `Id`) VALUES
-('register_user', 1),
-('update_user', 2),
-('delete_user', 3),
-('viewMaterial', 4),
-('completeMaterial', 5),
-('get_elearning_progress', 6),
-('add_portfolio_image', 7),
-('remove_portfolio_image', 8),
-('supervisor_get_trainees', 9),
-('get_contact_messages', 10),
-('trainee_add_course', 11);
+INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
+('register_user', 1, 1, 0, 0),
+('update_user', 2, 1, 0, 0),
+('delete_user', 3, 1, 0, 0),
+('viewMaterial', 4, 0, 1, 0),
+('completeMaterial', 5, 0, 1, 0),
+('get_elearning_progress', 6, 0, 1, 0),
+('add_portfolio_image', 7, 0, 1, 0),
+('remove_portfolio_image', 8, 0, 1, 0),
+('supervisor_get_trainees', 9, 0, 0, 1),
+('get_contact_messages', 10, 1, 0, 0),
+('trainee_add_course', 11, 0, 1, 0),
+('get_Educational_Supervisors', 33, 1, 0, 0),
+('get_Clinical_Supervisors_Or_Clinics', 34, 1, 0, 0),
+('get_All_Users_With_Roles', 35, 1, 0, 0),
+('get_User_Types', 36, 1, 0, 0),
+('send_message', 37, 0, 0, 1),
+('get_messages_for_trainee', 38, 0, 1, 0),
+('get_message_forms', 39, 0, 1, 0),
+('send_task', 40, 0, 0, 1),
+('get_tasks_for_trainee', 41, 0, 1, 0),
+('add_elearning_material', 42, 0, 0, 1),
+('update_elearning_material', 43, 0, 0, 1),
+('delete_elearning_material', 44, 0, 0, 1),
+('get_medical_courses', 45, 0, 1, 1),
+('get_books_and_articles', 46, 0, 1, 1),
+('get_workshops_and_activities', 47, 0, 1, 1),
+('create_accomplishment', 48, 0, 1, 0),
+('update_accomplishment', 49, 0, 1, 0),
+('delete_accomplishment', 50, 0, 1, 0),
+('get_accomplishments', 51, 0, 1, 1),
+('create_grpa_form', 52, 0, 0, 1),
+('update_grpa_form', 53, 0, 1, 1),
+('get_grpa_form_by_id', 54, 0, 1, 1),
+('delete_grpa_form_by_id', 55, 0, 0, 1),
+('create_cbda_form', 56, 0, 0, 1),
+('update_cbda_form', 57, 0, 1, 1),
+('get_cbda_form_by_id', 58, 0, 1, 1),
+('delete_cbda_form_by_id', 59, 0, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -396,7 +429,8 @@ CREATE TABLE `grand_round_presentation_assessment` (
 
 INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`, `sent`, `completed`) VALUES
 (1, 22, 28, '2025-04-02', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', NULL, NULL, 'uploads\\1743542547183.png', 1, 0),
-(2, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1743542733333.jpg', 'uploads\\1743542642230.png', 1, 1);
+(2, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1744409038385.jpg', 'uploads\\1743542642230.png', 1, 1),
+(4, 22, 28, '2025-04-12', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1744410861909.jpg', NULL, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -475,7 +509,8 @@ CREATE TABLE `messages` (
 
 INSERT INTO `messages` (`id`, `subject`, `message`, `trainee_id`, `supervisor_id`, `date`) VALUES
 (2, 'Training Schedule', 'Your next training session is on Monday.', 23, 28, '2025-03-29 23:51:53'),
-(3, 'Training Schedule', 'Your next training session is on Monday.', 22, 28, '2025-03-29 23:54:53');
+(3, 'Training Schedule', 'Your next training session is on Monday.', 22, 28, '2025-03-29 23:54:53'),
+(4, 'Training Schedule', 'Your next training session is on Monday.', 22, 31, '2025-04-11 21:03:23');
 
 -- --------------------------------------------------------
 
@@ -621,7 +656,12 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (17, 28, 22, 'Your trainee test has signed the  mortality morbidity review assessment form .', 0, '2025-04-01 23:33:48'),
 (18, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:39:32'),
 (19, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-01 23:40:57'),
-(20, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-04-01 23:41:19');
+(20, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-04-01 23:41:19'),
+(21, 22, 31, 'Your case based discussion assessment form has been sent to you by TEST roles for review.', 0, '2025-04-11 21:47:11'),
+(22, 22, 31, 'Your grand round presentation assessment form has been sent to you by TEST roles for review.', 0, '2025-04-11 21:48:26'),
+(23, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-04-11 22:02:59'),
+(24, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-11 22:04:28'),
+(25, 22, 31, 'Your case based discussion assessment form has been sent to you by TEST roles for review.', 0, '2025-04-11 22:36:10');
 
 -- --------------------------------------------------------
 
@@ -786,7 +826,8 @@ CREATE TABLE `tasks` (
 
 INSERT INTO `tasks` (`id`, `name`, `deadline`, `description`, `trainee_id`, `supervisor_id`) VALUES
 (1, 'Task 1', '2025-04-01', 'Complete module 1', 23, 28),
-(2, 'Task 1', '2025-04-01', 'Complete module 1', 22, 28);
+(2, 'Task 1', '2025-04-01', 'Complete module 1', 22, 28),
+(3, 'Task 1', '2025-04-01', 'Complete module 1', 22, 31);
 
 -- --------------------------------------------------------
 
@@ -862,7 +903,8 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 (27, 'Lorence', 'lorence@example.com', 2, '$2b$10$aHvyVbXstnglnQQjAxPNY.6N/lqDNLDsANPh7SIarBZE2M3Ceh6u6', NULL, NULL),
 (28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
 (29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL),
-(30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL);
+(30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL),
+(31, 'TEST roles', 'testrole10@example.com', 10, '$2b$10$Hm5IDpFvZmic5sWEPALqr.CvBnWbnPs.IHqX8ZQd7q7ATid/tKAle', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -872,22 +914,24 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 
 CREATE TABLE `usertypes` (
   `Name` varchar(25) NOT NULL,
-  `Id` int(9) NOT NULL
+  `Id` int(9) NOT NULL,
+  `Type` enum('Admin','Supervisor','Trainee') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `usertypes`
 --
 
-INSERT INTO `usertypes` (`Name`, `Id`) VALUES
-('admin', 1),
-('trainee', 2),
-('educational_supervisor', 3),
-('clinical_supervisor', 4),
-('clinic', 5),
-('register', 6),
-('update', 7),
-('delete', 8);
+INSERT INTO `usertypes` (`Name`, `Id`, `Type`) VALUES
+('admin', 1, 'Admin'),
+('trainee', 2, 'Trainee'),
+('educational_supervisor', 3, 'Supervisor'),
+('clinical_supervisor', 4, 'Supervisor'),
+('clinic', 5, 'Supervisor'),
+('register', 6, 'Admin'),
+('update', 7, 'Admin'),
+('delete', 8, 'Admin'),
+('test', 10, 'Admin');
 
 -- --------------------------------------------------------
 
@@ -911,12 +955,95 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 7),
 (2, 8),
 (2, 11),
+(2, 33),
+(2, 34),
+(2, 35),
+(2, 36),
+(2, 38),
+(2, 39),
+(2, 41),
+(2, 45),
+(2, 46),
+(2, 47),
+(2, 48),
+(2, 49),
+(2, 50),
+(2, 51),
+(2, 53),
+(2, 55),
+(2, 57),
+(2, 59),
 (3, 9),
+(3, 37),
+(3, 39),
+(3, 40),
+(3, 42),
+(3, 43),
+(3, 44),
+(3, 45),
+(3, 46),
+(3, 47),
+(3, 51),
+(3, 52),
+(3, 53),
+(3, 54),
+(3, 55),
+(3, 56),
+(3, 57),
+(3, 58),
+(3, 59),
 (4, 9),
+(4, 37),
+(4, 39),
+(4, 40),
+(4, 51),
+(4, 52),
+(4, 53),
+(4, 54),
+(4, 55),
+(4, 56),
+(4, 57),
+(4, 58),
+(4, 59),
 (5, 9),
+(5, 37),
+(5, 39),
+(5, 40),
+(5, 51),
+(5, 52),
+(5, 53),
+(5, 54),
+(5, 55),
+(5, 56),
+(5, 57),
+(5, 58),
+(5, 59),
 (6, 1),
 (7, 2),
-(8, 3);
+(8, 3),
+(10, 37),
+(10, 38),
+(10, 39),
+(10, 40),
+(10, 41),
+(10, 42),
+(10, 43),
+(10, 44),
+(10, 45),
+(10, 46),
+(10, 47),
+(10, 48),
+(10, 49),
+(10, 50),
+(10, 51),
+(10, 52),
+(10, 53),
+(10, 54),
+(10, 55),
+(10, 56),
+(10, 57),
+(10, 58),
+(10, 59);
 
 -- --------------------------------------------------------
 
@@ -1200,7 +1327,7 @@ ALTER TABLE `user_skills`
 -- AUTO_INCREMENT for table `accomplishments`
 --
 ALTER TABLE `accomplishments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `bau`
@@ -1212,7 +1339,7 @@ ALTER TABLE `bau`
 -- AUTO_INCREMENT for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `case_presentations`
@@ -1260,7 +1387,7 @@ ALTER TABLE `eduactworkshops`
 -- AUTO_INCREMENT for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `fellow_resident_evaluation`
@@ -1272,13 +1399,13 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `journal_club_assessment`
@@ -1296,7 +1423,7 @@ ALTER TABLE `logbook_profile_info`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `mini_cex`
@@ -1320,7 +1447,7 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`
@@ -1362,7 +1489,7 @@ ALTER TABLE `surgical_experiences`
 -- AUTO_INCREMENT for table `tasks`
 --
 ALTER TABLE `tasks`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `teaching`
@@ -1386,13 +1513,13 @@ ALTER TABLE `trainee_portfolio_images`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `user_skills`
