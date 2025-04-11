@@ -175,12 +175,6 @@ const getUserCountsByRole = async (req, res) => {
 
 const getEducationalSupervisors = async (req, res) => {
     try {
-        if (req.user.role !== 1) {
-            return res.status(403).json({
-                success: false,
-                message: 'Forbidden: Admin access required'
-            });
-        }
 
         const [rows] = await pool.execute(
             `SELECT User_ID, name FROM users WHERE role = (
@@ -204,13 +198,6 @@ const getEducationalSupervisors = async (req, res) => {
 
 const getClinicalSupervisorsOrClinics = async (req, res) => {
     try {
-        if (req.user.role !== 1) {
-            return res.status(403).json({
-                success: false,
-                message: 'Forbidden: Admin access required'
-            });
-        }
-
         const [rows] = await pool.execute(
             `SELECT User_ID, name FROM users WHERE role IN (
                 SELECT id FROM usertypes WHERE name IN ('clinical_supervisor', 'clinic')

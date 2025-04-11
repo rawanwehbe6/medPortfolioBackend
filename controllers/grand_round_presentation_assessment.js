@@ -9,10 +9,6 @@ const createForm = async (req, res) => {
             physical_examination, provisional_diagnosis, treatment, future_planning, assessor_comment,draft_send
         } = req.body;
 
-        if (![1, 3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied" });
-        }
-
         const assessor_signature = req.files?.signature ? req.files.signature[0].path : null;
         console.log(assessor_signature);
 
@@ -65,8 +61,10 @@ const updateForm = async (req, res) => {
 
         let updateQuery = "";
         let updateValues = [];
-
-        if (role === 2) {  
+        console.log(req.user);
+        const hasAccess = await form_helper.auth('Trainee', 'update_grpa_form')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_grpa_form')(req, res);
+        if (hasAccess) {  
             // 🟢 Resident can ONLY update their comment and signature
             if (existingRecord[0].resident_id !== userId) {
                 return res.status(403).json({ message: "Unauthorized access" });
@@ -92,7 +90,7 @@ const updateForm = async (req, res) => {
             
 
 
-        } else if ([1, 3, 4, 5].includes(role)) {  
+        } else if (hasAccessS) {  
             // 🟢 Supervisor can update all fields EXCEPT resident_comment and resident_signature
             let assessorSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
