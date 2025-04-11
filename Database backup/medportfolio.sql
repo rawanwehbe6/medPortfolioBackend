@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 05, 2025 at 10:55 PM
+-- Generation Time: Apr 11, 2025 at 11:42 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -101,12 +101,27 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `case_presentations`
+--
+
+CREATE TABLE `case_presentations` (
+  `id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `diagnosis_problem` text DEFAULT NULL,
+  `presented_attended` enum('P','A') DEFAULT NULL,
+  `moderator_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `contact_messages`
 --
 
 CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(100) NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -116,7 +131,24 @@ CREATE TABLE `contact_messages` (
 --
 
 INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
-(1, 'Lorence', 'This is a test message.', '2025-03-11 15:18:45');
+(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13'),
+(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27'),
+(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `departmental_activities`
+--
+
+CREATE TABLE `departmental_activities` (
+  `id` int(11) NOT NULL,
+  `activity_category` enum('Community Health Activities','Conferences/Workshops','Others') NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -221,7 +253,8 @@ CREATE TABLE `eduactcourses` (
 --
 
 INSERT INTO `eduactcourses` (`id`, `user_id`, `title`, `date`, `institution`, `description`, `certificate`) VALUES
-(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg');
+(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg'),
+(8, 27, 'Advanced Medicine', '2025-12-31', 'BAU', 'A course on advanced medical practices.', NULL);
 
 -- --------------------------------------------------------
 
@@ -268,7 +301,6 @@ CREATE TABLE `elearning_materials` (
 --
 
 INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`, `Host`) VALUES
-(1, 'Example Material', 'books_articles', 'any description of example material', 'www.example.com', '2025-02-27 19:55:08', NULL),
 (2, 'example material 2', 'workshops_activities', 'descriptionnnn 2', 'www.example.com', '2025-02-27 20:15:58', NULL),
 (3, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:01:45', NULL),
 (4, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:02:22', NULL),
@@ -306,6 +338,28 @@ CREATE TABLE `fellow_resident_evaluation` (
 
 -- --------------------------------------------------------
 
+
+--
+-- Table structure for table `first_year_rotations`
+--
+
+CREATE TABLE `first_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
 --
 -- Table structure for table `functions`
 --
@@ -327,7 +381,10 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('completeMaterial', 5),
 ('get_elearning_progress', 6),
 ('add_portfolio_image', 7),
-('remove_portfolio_image', 8);
+('remove_portfolio_image', 8),
+('supervisor_get_trainees', 9),
+('get_contact_messages', 10),
+('trainee_add_course', 11);
 
 -- --------------------------------------------------------
 
@@ -498,6 +555,21 @@ INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `miscellaneous_activities`
+--
+
+CREATE TABLE `miscellaneous_activities` (
+  `id` int(11) NOT NULL,
+  `category` enum('Webinar','Training','Award') NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mortality_morbidity_review_assessment`
 --
 
@@ -580,6 +652,90 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `prelogin_contact_messages`
+--
+
+CREATE TABLE `prelogin_contact_messages` (
+  `id` int(11) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `message` text NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `prelogin_contact_messages`
+--
+
+INSERT INTO `prelogin_contact_messages` (`id`, `name`, `email`, `message`, `created_at`) VALUES
+(1, 'Lorence', 'lorence@example.com', 'I can\'t log in to my account.', '2025-04-06 09:47:13');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `procedures`
+--
+
+CREATE TABLE `procedures` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `minimum_required` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `procedures`
+--
+
+INSERT INTO `procedures` (`id`, `name`, `minimum_required`) VALUES
+(1, 'Central Venous Insertion', 2),
+(2, 'Resuscitation Skills', 2),
+(3, 'Endotracheal Intubations', 10),
+(4, 'Defibrillation', 2),
+(5, 'Lumbar puncture', 15),
+(6, 'Bone Marrow aspiration', 5),
+(7, 'Bone Marrow biopsy', 2),
+(8, 'Skin biopsy', 1),
+(9, 'Insertion of chest drain', 3),
+(10, 'Pleural aspiration', 3),
+(11, 'Pericardial aspiration', 1),
+(12, 'Peritoneal aspiration', 1),
+(13, 'Gastric Lavage', 5),
+(14, 'Urethral', 5),
+(15, 'Suprapubic', 5),
+(16, 'Exchange Transfusion', 2),
+(17, 'Injections (Intradermal)', 10),
+(18, 'Throat swab for Culture', 5),
+(19, 'Obtaining vesicular and pustular fluid', 3),
+(20, 'Using Growth Charts', 50),
+(21, 'Performing an ECG', 5),
+(22, 'Intraosseus', 0),
+(23, 'Others', 0);
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `procedure_summary_logs`
+--
+
+CREATE TABLE `procedure_summary_logs` (
+  `id` int(11) NOT NULL,
+  `serial_no` varchar(255) DEFAULT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `procedure_name` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `trainer_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `procedure_summary_logs`
+--
+
+INSERT INTO `procedure_summary_logs` (`id`, `serial_no`, `trainee_id`, `date`, `procedure_name`, `status`, `trainer_signature`, `is_signed`) VALUES
+(2, '2', 26, '2025-04-11', 'Surgical Procedures', 'Completed', 'rima', 1);
+
+-- --------------------------------------------------------
+--
 -- Table structure for table `research`
 --
 
@@ -592,6 +748,103 @@ CREATE TABLE `research` (
   `File_Path` varchar(255) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `research_publications`
+--
+
+CREATE TABLE `research_publications` (
+  `id` int(11) NOT NULL,
+  `activity` varchar(255) NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_1st_year_config`
+--
+
+CREATE TABLE `rotation_1st_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_2nd_year_config`
+--
+
+CREATE TABLE `rotation_2nd_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_3rd_year_config`
+--
+
+CREATE TABLE `rotation_3rd_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `second_year_rotations`
+--
+
+CREATE TABLE `second_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `seminars`
+--
+
+CREATE TABLE `seminars` (
+  `id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `topic` varchar(255) NOT NULL,
+  `presented_attended` enum('P','A') NOT NULL,
+  `moderator_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -693,6 +946,52 @@ INSERT INTO `tasks` (`id`, `name`, `deadline`, `description`, `trainee_id`, `sup
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `teaching`
+--
+
+CREATE TABLE `teaching` (
+  `id` int(11) NOT NULL,
+  `activity` enum('Undergraduates','Paramedical Staff','Parents/Patients'' Attendants') NOT NULL,
+  `date` date NOT NULL,
+  `topic` varchar(255) NOT NULL,
+  `rating` enum('B','M','E') NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `third_year_rotations`
+--
+
+CREATE TABLE `third_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `third_year_rotations`
+--
+
+INSERT INTO `third_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `to_date`, `total_duration`, `area_of_rotation`, `overall_performance`, `supervisor_id`, `supervisor_signature`, `is_signed`, `created_at`, `updated_at`) VALUES
+(1, 26, '2025-04-01', '2025-04-15', '14.0', 'Cardiology', 'B', 30, 'uploads\\1744248881116.PNG', 1, '2025-04-10 00:39:13', '2025-04-10 01:34:41'),
+(2, 26, '2025-04-01', '2025-04-15', '14', 'Cardiology', 'B', NULL, NULL, 0, '2025-04-10 01:40:56', '2025-04-10 01:40:56'),
+(3, 26, '2025-04-01', '2025-04-05', '5 days', 'Surgery', 'M', 30, 'rima', 1, '2025-04-10 13:01:51', '2025-04-10 13:03:28');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `trainee_elearning_material_progress`
 --
 
@@ -745,14 +1044,14 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `reset_token`) VALUES
-(1, 'Admin User', 'admin', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL, NULL),
+(1, 'Admin User', 'admin@example.com', 1, '$2b$10$DfWFKh2rvumR4bWkLuBvUuu0yTh1ConhRT6BRnFnQsbvhSMg8O7aC', NULL, NULL),
 (17, 'register', 'reg@example.com', 6, '$2b$10$pTvz5TVBaXaFjHRXT7NAhu2SL.98Owa9z3AL9dwVb8IfRJcoDj11W', NULL, NULL),
 (18, 'update', 'update@example.com', 7, '$2b$10$ugAzdOcovNnkBH/.NwdSMeFhSHQGHIP9/seZZmAoMjiZueFtO57va', NULL, NULL),
 (19, 'delete', 'del@example.com', 8, '$2b$10$kXR4C10cSLXQ3Kp8Nad5mOsvxRFXREjqxl7j.B9A2OB760OtPGthW', NULL, NULL),
 (22, 'test', 'test@example.com', 2, '$2b$10$FvNsjO4K8iMXMRdmBiGiV.CRgKZ0xjfnmaaf4NjQJgX7UCJBaZlsW', NULL, NULL),
 (23, 'trainee1', 'trainee@example.com', 2, '$2b$10$X8UNE6qMYCnOmLkNCgWXEO.799dmU4Z29AaZZhLdhdQO3UQtwx/6u', NULL, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRyYWluZWVAZXhhbXBsZS5jb20iLCJpYXQiOjE3NDE0NDgyNjcsImV4cCI6MTc0MTQ1MTg2N30.VREFtakw77mANcTS5VkIck9xQqNBcwFHXZmhEWgepCI'),
 (26, 'rima test', 'rimashbaro02@gmail.com', 2, '$2b$10$G7S8x0jKHZy67NtzXjVu/.nFcJ/oGXwLx1GmDQ1VMWhHXraDEWF7q', NULL, NULL),
-(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$rfV993WXptxQMcmEJjyQk.fWjt09wGlr.AXBwu7W5S79asUGc1yOC', NULL, NULL),
+(27, 'Lorence', 'lorence@example.com', 2, '$2b$10$aHvyVbXstnglnQQjAxPNY.6N/lqDNLDsANPh7SIarBZE2M3Ceh6u6', NULL, NULL),
 (28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
 (29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL),
 (30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL);
@@ -798,34 +1097,39 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
-(6, 1),
-(7, 2),
-(8, 3),
 (2, 4),
 (2, 5),
 (2, 6),
 (2, 7),
 (2, 8),
-(1, 7),
-(1, 8),
+(2, 11),
+(3, 9),
+(4, 9),
+(5, 9),
 (6, 1),
 (7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(6, 1),
-(7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6),
-(6, 1),
-(7, 2),
-(8, 3),
-(2, 4),
-(2, 5),
-(2, 6);
+(8, 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user_procedure_logs`
+--
+
+CREATE TABLE `user_procedure_logs` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `procedure_id` int(11) NOT NULL,
+  `num_performed` int(11) DEFAULT 0,
+  `num_observed` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_procedure_logs`
+--
+
+INSERT INTO `user_procedure_logs` (`id`, `trainee_id`, `procedure_id`, `num_performed`, `num_observed`) VALUES
+(1, 26, 2, 4, 2);
 
 -- --------------------------------------------------------
 
@@ -875,10 +1179,24 @@ ALTER TABLE `case_based_discussion_assessment`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
+-- Indexes for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `dops`
@@ -948,7 +1266,6 @@ ALTER TABLE `logbook_profile_info`
   ADD UNIQUE KEY `certificate_id` (`certificate_id`),
   ADD KEY `trainee_id` (`trainee_id`),
   ADD KEY `fk_hospital` (`hospital_id`);
-
 --
 -- Indexes for table `messages`
 --
@@ -962,6 +1279,13 @@ ALTER TABLE `messages`
 --
 ALTER TABLE `mini_cex`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `mortality_morbidity_review_assessment`
@@ -978,10 +1302,50 @@ ALTER TABLE `notifications`
   ADD KEY `sender_id` (`sender_id`);
 
 --
+-- Indexes for table `procedures`
+--
+ALTER TABLE `procedures`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Indexes for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
+
+--
+-- Indexes for table `prelogin_contact_messages`
+--
+ALTER TABLE `prelogin_contact_messages`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
+
+--
+-- Indexes for table `rotation_3rd_year_config`
+--
+ALTER TABLE `rotation_3rd_year_config`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `seminars`
+--
+ALTER TABLE `seminars`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `seminar_assessment`
@@ -1008,6 +1372,21 @@ ALTER TABLE `surgical_experiences`
 --
 ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
+-- Indexes for table `teaching`
+--
+ALTER TABLE `teaching`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`),
   ADD KEY `trainee_id` (`trainee_id`),
   ADD KEY `supervisor_id` (`supervisor_id`);
 
@@ -1045,8 +1424,17 @@ ALTER TABLE `usertypes`
 -- Indexes for table `usertype_functions`
 --
 ALTER TABLE `usertype_functions`
-  ADD KEY `usertype_functions_ibfk_1` (`FunctionsId`),
-  ADD KEY `usertype_functions_ibfk_2` (`UsertypeId`);
+  ADD PRIMARY KEY (`UsertypeId`,`FunctionsId`),
+  ADD KEY `FunctionsId` (`FunctionsId`);
+
+--
+-- Indexes for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `trainee_id` (`trainee_id`,`procedure_id`),
+  ADD UNIQUE KEY `trainee_id_2` (`trainee_id`,`procedure_id`),
+  ADD KEY `procedure_id` (`procedure_id`);
 
 --
 -- Indexes for table `user_skills`
@@ -1078,9 +1466,21 @@ ALTER TABLE `case_based_discussion_assessment`
   MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
+-- AUTO_INCREMENT for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
@@ -1099,7 +1499,7 @@ ALTER TABLE `eduactconferences`
 -- AUTO_INCREMENT for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `eduactworkshops`
@@ -1123,7 +1523,7 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -1156,6 +1556,12 @@ ALTER TABLE `mini_cex`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
@@ -1168,10 +1574,46 @@ ALTER TABLE `notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
+-- AUTO_INCREMENT for table `prelogin_contact_messages`
+--
+ALTER TABLE `prelogin_contact_messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `procedures`
+--
+ALTER TABLE `procedures`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `rotation_3rd_year_config`
+--
+ALTER TABLE `rotation_3rd_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `seminars`
+--
+ALTER TABLE `seminars`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `seminar_assessment`
@@ -1190,6 +1632,18 @@ ALTER TABLE `surgical_experiences`
 --
 ALTER TABLE `tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `teaching`
+--
+ALTER TABLE `teaching`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
@@ -1213,7 +1667,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `user_skills`
@@ -1237,6 +1697,18 @@ ALTER TABLE `accomplishments`
 ALTER TABLE `case_based_discussion_assessment`
   ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `case_presentations`
+--
+ALTER TABLE `case_presentations`
+  ADD CONSTRAINT `case_presentations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
+  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `eduactconferences`
@@ -1284,11 +1756,35 @@ ALTER TABLE `messages`
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  ADD CONSTRAINT `miscellaneous_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `notifications`
 --
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  ADD CONSTRAINT `procedure_summary_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `seminars`
+--
+ALTER TABLE `seminars`
+  ADD CONSTRAINT `seminars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `supervisor_supervisee`
@@ -1311,11 +1807,24 @@ ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `teaching`
+--
+ALTER TABLE `teaching`
+  ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  ADD CONSTRAINT `third_year_rotations_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `third_year_rotations_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+
+--
 -- Constraints for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
-  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
-  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_2` FOREIGN KEY (`material_id`) REFERENCES `elearning_materials` (`id`);
+  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `trainee_elearning_material_progress_ibfk_2` FOREIGN KEY (`material_id`) REFERENCES `elearning_materials` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `trainee_portfolio_images`
@@ -1334,8 +1843,15 @@ ALTER TABLE `users`
 -- Constraints for table `usertype_functions`
 --
 ALTER TABLE `usertype_functions`
-  ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`),
+  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`);
+
+--
+-- Constraints for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  ADD CONSTRAINT `user_procedure_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `user_procedure_logs_ibfk_2` FOREIGN KEY (`procedure_id`) REFERENCES `procedures` (`id`);
 
 --
 -- Constraints for table `user_skills`

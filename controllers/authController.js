@@ -18,7 +18,6 @@ const registerUser = async (req, res) => {
     // Hash the password for security
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert new user
     await pool.execute(
       "INSERT INTO USERS (Name, Email, Password, Role, BAU_ID) VALUES (?, ?, ?, ?, ?)",
       [name, email, hashedPassword, role, BAU_ID || null]
@@ -299,7 +298,7 @@ const forgotPassword = async (req, res) => {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset",
-      html: `<p>Click <a href="${process.env.FRONTEND_URL}/reset-password/${token}">here</a> to reset your password.</p>`,
+      html: `<p>Click <a href="${process.env.FRONTEND_URL}/forgotpass2?token=${token}">here</a> to reset your password.</p>`,
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
@@ -315,8 +314,9 @@ const forgotPassword = async (req, res) => {
 
 // Reset Password (Verify Token & Update Password)
 const resetPasswordWithToken = async (req, res) => {
-  const { token, newPassword } = req.body;
-  if (!token || !newPassword) return res.status(400).json({ message: "All fields required" });
+  const { token } = req.query.token;
+  const {  newPassword } = req.body;
+  if (!newPassword) return res.status(400).json({ message: "New password is required" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

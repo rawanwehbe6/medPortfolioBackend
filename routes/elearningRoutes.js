@@ -17,8 +17,13 @@ router.get('/progress', auth('get_elearning_progress'), elearningController.getP
 router.post("/add", auth2, elearningController.addLearningMaterial);
 
 // Get medical courses
-router.get("/medical-courses",auth2, elearningController.getMedicalCourses);
+//router.get("/medical-courses",auth2, elearningController.getMedicalCourses);
 
+router.get("/medical-courses", auth2, (req, res) => {
+    console.log('API Call received for medical courses');  // Add this line
+    elearningController.getMedicalCourses(req, res);
+  });
+  
 // Get books & articles
 router.get("/books-articles",auth2, elearningController.getBooksAndArticles);
 

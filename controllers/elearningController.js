@@ -37,6 +37,7 @@ const addLearningMaterial = async (req, res) => {
 
 const getMedicalCourses = async (req, res) => {
   try {
+    console.log("Request received for medical courses");
     const [materials] = await pool.execute(
       "SELECT title, description, resource_url FROM elearning_materials WHERE category = 'medical_course'"
     );
