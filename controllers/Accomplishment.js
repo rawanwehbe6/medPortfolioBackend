@@ -2,9 +2,6 @@ const pool = require("../config/db");
 
 const addAccomplishment = async (req, res) => {
   try {
-    if (req.user.role !== 2) {
-      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
-    }
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
     const userId = req.user ? req.user.userId : null; 
@@ -39,9 +36,7 @@ const addAccomplishment = async (req, res) => {
 
 const updateAccomplishment = async (req, res) => {
   try {
-   if (req.user.role !== 2) {
-      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
-    }
+   
     const { id } = req.params; // Get the accomplishment ID from the request parameters
     const { title, description } = req.body;
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -81,9 +76,6 @@ const updateAccomplishment = async (req, res) => {
 
 const deleteAccomplishment = async (req, res) => {
   try {
-    if (req.user.role !== 2) {
-      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
-    }
 
     const { id } = req.params; // Get the accomplishment ID from the request parameters
     const userId = req.user ? req.user.userId : null; 
@@ -118,9 +110,6 @@ const deleteAccomplishment = async (req, res) => {
 
 const getAccomplishments = async (req, res) => {
   try {
-    if (req.user.role !== 2) {
-      return res.status(403).json({ message: 'Permission denied: User is not a trainee' });
-    }
 
     const userId = req.user ? req.user.userId : null;
 

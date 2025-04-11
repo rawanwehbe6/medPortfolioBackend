@@ -1,6 +1,5 @@
 const express = require('express');
 const authController = require('../controllers/authController');
-const authenticate = require('../middleware/authMiddleware');
 const auth = require("../middleware/auth");
 const { forgotPassword, resetPasswordWithToken } = require("../controllers/authController");
 

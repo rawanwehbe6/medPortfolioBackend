@@ -55,4 +55,41 @@ const sendSignatureToSupervisor = async (userId, formType, formId) => {
         return { success: false, message: "Server error while sending form to trainee." };
     }
 };
-module.exports = {sendFormToTrainee,sendSignatureToSupervisor};
+const auth = (Type, requiredFunction) => {
+  return async (req, res) => {
+    try {
+      const user = req.user; // Already decoded from a previous middleware
+      if (!user || !user.role) {
+        return false;
+      }
+
+      // Admin (User_ID = 1) has access to all
+      if (user.role === 1) return true;
+
+      if (!requiredFunction) {
+        return false;
+      }
+
+      const [rows] = await pool.execute(
+        `SELECT COUNT(*) AS count
+         FROM users
+         JOIN usertypes ON users.Role = usertypes.Id
+         JOIN usertype_functions ON usertypes.Id = usertype_functions.UsertypeId
+         JOIN functions ON usertype_functions.FunctionsId = functions.Id
+         WHERE users.User_ID = ?
+           AND usertypes.Type = ?
+           AND functions.Name = ?`,
+        [user.userId, Type, requiredFunction] // user.role is actually the User_ID
+      );
+
+      return rows[0].count > 0;
+
+    } catch (error) {
+      console.error("Auth Error:", error);
+      return false;
+    }
+  };
+};
+
+
+module.exports = {sendFormToTrainee,sendSignatureToSupervisor,auth};

@@ -170,8 +170,7 @@ const updateUser = async (req, res) => {
     }
     if (role) {
       updates.push('Role = ?');
-      const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
-      values.push(roles[0].id);
+      values.push(role);
     }
     if (BAU_ID) {
       updates.push('BAU_ID = ?');
