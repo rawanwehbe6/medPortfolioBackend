@@ -36,7 +36,7 @@ const addCourse = async (req, res) => {
   try {
     const { title, date, institution, description } = req.body;
     const certificate = req.file ? req.file.filename : null;
-    const user_id = req.userId; // Assuming user is authenticated
+    const user_id = req.user.userId; // Assuming user is authenticated
 
     if (!title || !date || !institution || !description) {
       return res.status(400).json({ message: "All fields are required." });
@@ -112,7 +112,7 @@ const addWorkshop = async (req, res) => {
   try {
     const { title, date, organizer, description } = req.body;
     const certificate = req.file ? req.file.filename : null;
-    const user_id = req.userId; 
+    const user_id = req.user.userId; 
 
     if (!title || !date || !organizer || !description) {
       return res.status(400).json({ message: "All fields are required." });

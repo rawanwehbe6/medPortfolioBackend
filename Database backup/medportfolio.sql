@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 08, 2025 at 10:57 PM
+-- Generation Time: Apr 10, 2025 at 09:22 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -138,6 +138,21 @@ INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `departmental_activities`
+--
+
+CREATE TABLE `departmental_activities` (
+  `id` int(11) NOT NULL,
+  `activity_category` enum('Community Health Activities','Conferences/Workshops','Others') NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `dops`
 --
 
@@ -238,7 +253,8 @@ CREATE TABLE `eduactcourses` (
 --
 
 INSERT INTO `eduactcourses` (`id`, `user_id`, `title`, `date`, `institution`, `description`, `certificate`) VALUES
-(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg');
+(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg'),
+(8, 27, 'Advanced Medicine', '2025-12-31', 'BAU', 'A course on advanced medical practices.', NULL);
 
 -- --------------------------------------------------------
 
@@ -344,7 +360,9 @@ INSERT INTO `functions` (`Name`, `Id`) VALUES
 ('get_elearning_progress', 6),
 ('add_portfolio_image', 7),
 ('remove_portfolio_image', 8),
-('supervisor_get_trainees', 9);
+('supervisor_get_trainees', 9),
+('get_contact_messages', 10),
+('trainee_add_course', 11);
 
 -- --------------------------------------------------------
 
@@ -511,6 +529,21 @@ INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, 
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `miscellaneous_activities`
+--
+
+CREATE TABLE `miscellaneous_activities` (
+  `id` int(11) NOT NULL,
+  `category` enum('Webinar','Training','Award') NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `mortality_morbidity_review_assessment`
 --
 
@@ -631,6 +664,22 @@ CREATE TABLE `research` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `research_publications`
+--
+
+CREATE TABLE `research_publications` (
+  `id` int(11) NOT NULL,
+  `activity` varchar(255) NOT NULL,
+  `details` text NOT NULL,
+  `date` date NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `seminars`
 --
 
@@ -742,6 +791,22 @@ INSERT INTO `tasks` (`id`, `name`, `deadline`, `description`, `trainee_id`, `sup
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `teaching`
+--
+
+CREATE TABLE `teaching` (
+  `id` int(11) NOT NULL,
+  `activity` enum('Undergraduates','Paramedical Staff','Parents/Patients'' Attendants') NOT NULL,
+  `date` date NOT NULL,
+  `topic` varchar(255) NOT NULL,
+  `rating` enum('B','M','E') NOT NULL,
+  `faculty_signature` varchar(255) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `trainee_elearning_material_progress`
 --
 
@@ -845,6 +910,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 6),
 (2, 7),
 (2, 8),
+(2, 11),
 (3, 9),
 (4, 9),
 (5, 9),
@@ -911,6 +977,13 @@ ALTER TABLE `case_presentations`
 --
 ALTER TABLE `contact_messages`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `dops`
@@ -994,6 +1067,13 @@ ALTER TABLE `mini_cex`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
@@ -1018,6 +1098,13 @@ ALTER TABLE `prelogin_contact_messages`
 --
 ALTER TABLE `research`
   ADD PRIMARY KEY (`Research_ID`);
+
+--
+-- Indexes for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `seminars`
@@ -1053,6 +1140,13 @@ ALTER TABLE `tasks`
   ADD PRIMARY KEY (`id`),
   ADD KEY `trainee_id` (`trainee_id`),
   ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
+-- Indexes for table `teaching`
+--
+ALTER TABLE `teaching`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `trainee_elearning_material_progress`
@@ -1133,6 +1227,12 @@ ALTER TABLE `contact_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `dops`
 --
 ALTER TABLE `dops`
@@ -1148,7 +1248,7 @@ ALTER TABLE `eduactconferences`
 -- AUTO_INCREMENT for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `eduactworkshops`
@@ -1172,7 +1272,7 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -1205,6 +1305,12 @@ ALTER TABLE `mini_cex`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
@@ -1229,6 +1335,12 @@ ALTER TABLE `research`
   MODIFY `Research_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `seminars`
 --
 ALTER TABLE `seminars`
@@ -1251,6 +1363,12 @@ ALTER TABLE `surgical_experiences`
 --
 ALTER TABLE `tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `teaching`
+--
+ALTER TABLE `teaching`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
@@ -1306,6 +1424,12 @@ ALTER TABLE `case_presentations`
   ADD CONSTRAINT `case_presentations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `departmental_activities`
+--
+ALTER TABLE `departmental_activities`
+  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `eduactconferences`
 --
 ALTER TABLE `eduactconferences`
@@ -1350,11 +1474,23 @@ ALTER TABLE `messages`
   ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
+-- Constraints for table `miscellaneous_activities`
+--
+ALTER TABLE `miscellaneous_activities`
+  ADD CONSTRAINT `miscellaneous_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
 -- Constraints for table `notifications`
 --
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `research_publications`
+--
+ALTER TABLE `research_publications`
+  ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `seminars`
@@ -1381,6 +1517,12 @@ ALTER TABLE `surgical_experiences`
 ALTER TABLE `tasks`
   ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `teaching`
+--
+ALTER TABLE `teaching`
+  ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
@@ -1415,193 +1557,6 @@ ALTER TABLE `usertype_functions`
 ALTER TABLE `user_skills`
   ADD CONSTRAINT `user_skills_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
-
-
---
--- Table structure for table `teaching`
---
-
-CREATE TABLE `teaching` (
-  `id` int(11) NOT NULL,
-  `activity` enum('Undergraduates','Paramedical Staff','Parents/Patients'' Attendants') NOT NULL,
-  `date` date NOT NULL,
-  `topic` varchar(255) NOT NULL,
-  `rating` enum('B','M','E') NOT NULL,
-  `faculty_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `teaching`
---
-ALTER TABLE `teaching`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `teaching`
---
-ALTER TABLE `teaching`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `teaching`
---
-ALTER TABLE `teaching`
-  ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
-
---
--- Table structure for table `research_publications`
---
-
-CREATE TABLE `research_publications` (
-  `id` int(11) NOT NULL,
-  `activity` varchar(255) NOT NULL,
-  `details` text NOT NULL,
-  `date` date NOT NULL,
-  `faculty_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `research_publications`
---
-ALTER TABLE `research_publications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `research_publications`
---
-ALTER TABLE `research_publications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `research_publications`
---
-ALTER TABLE `research_publications`
-  ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
-
---
--- Table structure for table `departmental_activities`
---
-
-CREATE TABLE `departmental_activities` (
-  `id` int(11) NOT NULL,
-  `activity_category` enum('Community Health Activities','Conferences/Workshops','Others') NOT NULL,
-  `details` text NOT NULL,
-  `date` date NOT NULL,
-  `faculty_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `departmental_activities`
---
-ALTER TABLE `departmental_activities`
-  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
-
---
--- Table structure for table `miscellaneous_activities`
---
-
-CREATE TABLE `miscellaneous_activities` (
-  `id` int(11) NOT NULL,
-  `category` enum('Webinar','Training','Award') NOT NULL,
-  `details` text NOT NULL,
-  `date` date NOT NULL,
-  `faculty_signature` varchar(255) DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `miscellaneous_activities`
---
-ALTER TABLE `miscellaneous_activities`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `miscellaneous_activities`
---
-ALTER TABLE `miscellaneous_activities`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `miscellaneous_activities`
---
-ALTER TABLE `miscellaneous_activities`
-  ADD CONSTRAINT `miscellaneous_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
-COMMIT;
-
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
