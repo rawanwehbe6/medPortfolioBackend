@@ -4,6 +4,12 @@ const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
 const auth = require('../middleware/verifyToken.js');
 const logbookController = require("../controllers/logbookController");
+const academicsAController = require("../controllers/academicsA");
+const seminarController = require("../controllers/academicsB");
+const teachingController = require("../controllers/teaching");
+const researchpublicationsController = require("../controllers/researchPublications");
+const departmentalActivities = require("../controllers/departmentalActivities");
+const miscellaneousActivities = require("../controllers/miscellaneous");
 
 const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
@@ -71,4 +77,53 @@ router.post('/logbook/procedure-summary', auth, logbookController.addProcedureSu
 router.get("/logbook/procedure-summary", auth, logbookController.getProcedureSummaries);
 router.put("/logbook/procedure-summary/:id", auth, logbookController.updateProcedureSummary);
 router.delete("/logbook/procedure-summary/:id", auth, logbookController.deleteProcedureSummary);
+
+// Case Presentation Routes
+router.post("/case-presentations", auth, academicsAController.createCasePresentation);
+router.get("/case-presentations", auth, academicsAController.getCasePresentations);
+router.delete("/case-presentations/:id", auth, academicsAController.deleteCasePresentation);
+router.put("/case-presentations/sign/:id", auth, uploadPNG, academicsAController.signModerator);
+
+// Case seminar Routes
+router.post("/seminars", auth, seminarController.createSeminar);
+router.get("/seminars", auth, seminarController.getSeminars);
+router.delete("/seminars/:id", auth, seminarController.deleteSeminar);
+router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerator);
+
+//teaching routes
+router.post("/teaching", teachingController.createTeaching);
+router.get("/teaching", teachingController.getTeachings);
+router.delete("/teaching/:id", teachingController.deleteTeaching);
+router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
+
+//research publications routes
+router.post("/research-publications", researchpublicationsController.createResearchEntry);
+router.get("/research-publications", researchpublicationsController.getResearchEntries);
+router.delete("/research-publications/:id", researchpublicationsController.deleteResearchEntry);
+router.put(
+  "/research-publications/:id/sign",
+  upload.fields([{ name: "signature", maxCount: 1 }]),
+  researchpublicationsController.signFaculty
+);
+
+//departmental activities routes
+router.post("/departmental-Activities", departmentalActivities.createActivityEntry);
+router.get("/departmental-Activities", departmentalActivities.getActivityEntries);
+router.delete("/departmental-Activities/:id", departmentalActivities.deleteActivityEntry);
+router.put(
+  "/departmental-Activities/:id/sign",
+  upload.fields([{ name: "signature", maxCount: 1 }]),
+  departmentalActivities.signActivityFaculty
+);
+
+//miscellaneous activities routes
+router.post("/miscellaneous-Activities", miscellaneousActivities.createMiscActivity);
+router.get("/miscellaneous-Activities", miscellaneousActivities.getAllMiscActivities);
+router.delete("/miscellaneous-Activities/:id", miscellaneousActivities.deleteMiscActivity);
+router.put(
+  "/miscellaneous-Activities/:id/sign",
+  upload.fields([{ name: "signature", maxCount: 1 }]),
+  miscellaneousActivities.signMiscActivityFaculty
+);
+router.get("/miscellaneous-Activities/:id", miscellaneousActivities.getMiscActivityById);
 module.exports = router;

@@ -17,10 +17,11 @@ const registerUser = async (req, res) => {
 
     // Hash the password for security
     const hashedPassword = await bcrypt.hash(password, 10);
+    const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
 
     await pool.execute(
       "INSERT INTO USERS (Name, Email, Password, Role, BAU_ID) VALUES (?, ?, ?, ?, ?)",
-      [name, email, hashedPassword, role, BAU_ID || null]
+      [name, email, hashedPassword, roles[0].id, BAU_ID || null]
     );
 
     res.status(201).json({ message: 'User registered successfully' });
@@ -126,9 +127,9 @@ const resetPassword = async (req, res) => {
 
 //Update user
 const updateUser = async (req, res) => {
-  const { newEmail, name, password, role } = req.body;
+  const { newEmail, name, password, role,BAU_ID } = req.body;
   const { id } = req.params; // Get user ID from URL parameter
-
+  console.log(req.body);
   try {
     // Check if user exists by ID
     const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
@@ -139,7 +140,8 @@ const updateUser = async (req, res) => {
     // If changing email, check if new email is already taken
     if (newEmail) {
       const [emailCheck] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [newEmail]);
-      if (emailCheck.length > 0) {
+      console.log(emailCheck);
+      if (emailCheck.length > 0 && emailCheck[0].User_ID!=id) {
         return res.status(400).json({ message: 'Email already in use' });
       }
     }
@@ -168,9 +170,13 @@ const updateUser = async (req, res) => {
     }
     if (role) {
       updates.push('Role = ?');
-      values.push(role);
+      const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
+      values.push(roles[0].id);
     }
-
+    if (BAU_ID) {
+      updates.push('BAU_ID = ?');
+      values.push(BAU_ID);
+    }
     // Ensure at least one field is updated
     if (updates.length === 0) {
       return res.status(400).json({ message: 'No valid fields to update' });
@@ -181,6 +187,7 @@ const updateUser = async (req, res) => {
     const query = `UPDATE USERS SET ${updates.join(', ')} WHERE User_ID = ?`;
 
     await pool.execute(query, values);
+    console.log(query, values);
 
     res.json({ message: 'User updated successfully' });
   } catch (err) {
@@ -334,24 +341,59 @@ const resetPasswordWithToken = async (req, res) => {
   }
 };
 
-//Contact Us
+//Contact us (when the user is logged in):
 const contactUs = async (req, res) => {
   try {
     const { name, message } = req.body;
 
-    if (!name  || !message) {
-      return res.status(400).json({ message: "All fields are required." });
+    if (!name || !message) {
+      return res.status(400).json({ 
+        message: "Both name and message are required." 
+      });
     }
 
     await pool.execute(
-      "INSERT INTO contact_messages (name, message) VALUES (?, ?, ?)",
-      [name, message] 
+      "INSERT INTO contact_messages (name, message) VALUES (?, ?)",
+      [name, message]
     );
 
-    res.status(201).json({ message: "Message sent successfully." });
+    res.status(201).json({ 
+      message: "Your message has been sent successfully!" 
+    });
+
   } catch (error) {
-    console.error("Error in contactUs:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("Contact Us Error:", error);
+    res.status(500).json({ 
+      message: "Server error. Please try again later." 
+    });
+  }
+};
+
+const preLoginContact = async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+      return res.status(400).json({ 
+        message: "Name, email, and message are required." 
+      });
+    }
+
+    // Insert into pre-login table
+    await pool.execute(
+      "INSERT INTO prelogin_contact_messages (name, email, message) VALUES (?, ?, ?)",
+      [name, email, message]
+    );
+
+    res.status(201).json({ 
+      message: "Thank you! We've received your message." 
+    });
+
+  } catch (error) {
+    console.error("Pre-Login Contact Error:", error);
+    res.status(500).json({ 
+      message: "Server error. Please try again later." 
+    });
   }
 };
 
@@ -366,4 +408,5 @@ module.exports = {
   forgotPassword,
   resetPasswordWithToken,
   contactUs,
+  preLoginContact
 };

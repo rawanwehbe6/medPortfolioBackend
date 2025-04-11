@@ -35,11 +35,75 @@ const addLearningMaterial = async (req, res) => {
   }
 };
 
+const updateLearningMaterial = async (req, res) => {
+  try {
+    if (req.user.role !== 1 && req.user.role !== 3) {
+      return res.status(403).json({ message: "Permission denied: User is not authorized" });
+    }
+
+    const { id } = req.params;
+    const { title, category, description, resource_url, host } = req.body;
+
+    // Fetch existing record
+    const [existingRows] = await pool.execute(`SELECT * FROM elearning_materials WHERE id = ?`, [id]);
+    if (existingRows.length === 0) {
+      return res.status(404).json({ error: "Learning material not found" });
+    }
+    const existing = existingRows[0];
+
+    // Prepare updated values
+    const newTitle = title || existing.title;
+    const newCategory = category || existing.category;
+    const newDescription = description !== undefined ? description : existing.description;
+    const newResourceUrl = resource_url || existing.resource_url;
+
+    // If category is or was workshops_activities, ensure host is present
+    const categoryToCheck = category || existing.category;
+    let newHost = host !== undefined ? host : existing.Host;
+    if (categoryToCheck === "workshops_activities" && !newHost) {
+      return res.status(400).json({ error: "Host is required for workshops_activities" });
+    }
+
+    await pool.execute(
+      `UPDATE elearning_materials SET title = ?, category = ?, description = ?, resource_url = ?, Host = ? WHERE id = ?`,
+      [newTitle, newCategory, newDescription, newResourceUrl, newHost, id]
+    );
+
+    res.status(200).json({ message: "Learning material updated successfully" });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while updating learning material" });
+  }
+};
+
+const deleteLearningMaterial = async (req, res) => {
+  try {
+    if (req.user.role !== 1 && req.user.role !== 3) {
+      return res.status(403).json({ message: "Permission denied: User is not authorized" });
+    }
+
+    const { id } = req.params;
+
+    // Check if record exists
+    const [check] = await pool.execute(`SELECT id FROM elearning_materials WHERE id = ?`, [id]);
+    if (check.length === 0) {
+      return res.status(404).json({ error: "Learning material not found" });
+    }
+
+    await pool.execute(`DELETE FROM elearning_materials WHERE id = ?`, [id]);
+    res.status(200).json({ message: "Learning material deleted successfully" });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while deleting learning material" });
+  }
+};
+
+
 const getMedicalCourses = async (req, res) => {
   try {
     console.log("Request received for medical courses");
     const [materials] = await pool.execute(
-      "SELECT title, description, resource_url FROM elearning_materials WHERE category = 'medical_course'"
+      "SELECT id, title, description, resource_url FROM elearning_materials WHERE category = 'medical_course'"
     );
 
     res.status(200).json({ materials });
@@ -52,7 +116,7 @@ const getMedicalCourses = async (req, res) => {
 const getBooksAndArticles = async (req, res) => {
   try {
     const [materials] = await pool.execute(
-      "SELECT title, description, resource_url FROM elearning_materials WHERE category = 'books_articles'"
+      "SELECT id, title, description, resource_url FROM elearning_materials WHERE category = 'books_articles'"
     );
 
     res.status(200).json({ materials });
@@ -65,7 +129,7 @@ const getBooksAndArticles = async (req, res) => {
 const getWorkshopsAndActivities = async (req, res) => {
   try {
     const [materials] = await pool.execute(
-      "SELECT title, description, resource_url, Host FROM elearning_materials WHERE category = 'workshops_activities'"
+      "SELECT id, title, description, resource_url, Host FROM elearning_materials WHERE category = 'workshops_activities'"
     );
 
     res.status(200).json({ materials });
@@ -143,6 +207,8 @@ module.exports = {
   completeMaterial,
   getProgress,
   addLearningMaterial,
+  updateLearningMaterial,
+  deleteLearningMaterial,
   getMedicalCourses,
   getBooksAndArticles,
   getWorkshopsAndActivities,

@@ -16,6 +16,12 @@ router.get('/progress', auth('get_elearning_progress'), elearningController.getP
 // Add a new e-learning material
 router.post("/add", auth2, elearningController.addLearningMaterial);
 
+// Update e-learning material
+router.put("/update/:id", auth2, elearningController.updateLearningMaterial);
+
+// Delete e-learning material
+router.delete("/delete/:id", auth2, elearningController.deleteLearningMaterial);
+
 // Get medical courses
 //router.get("/medical-courses",auth2, elearningController.getMedicalCourses);
 
