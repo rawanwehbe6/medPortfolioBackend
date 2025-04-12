@@ -342,6 +342,27 @@ CREATE TABLE `fellow_resident_evaluation` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `first_year_rotations`
+--
+
+CREATE TABLE `first_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `functions`
 --
 
@@ -478,7 +499,11 @@ CREATE TABLE `logbook_profile_info` (
   `email` varchar(255) DEFAULT NULL,
   `mobile_no` varchar(50) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `certificate_id` int(11) DEFAULT NULL,
+  `trainee_signature` varchar(255) DEFAULT NULL,
+  `hospital_signature` varchar(255) DEFAULT NULL,
+  `hospital_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -687,6 +712,71 @@ INSERT INTO `prelogin_contact_messages` (`id`, `name`, `email`, `message`, `crea
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `procedures`
+--
+
+CREATE TABLE `procedures` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `minimum_required` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `procedures`
+--
+
+INSERT INTO `procedures` (`id`, `name`, `minimum_required`) VALUES
+(1, 'Central Venous Insertion', 2),
+(2, 'Resuscitation Skills', 2),
+(3, 'Endotracheal Intubations', 10),
+(4, 'Defibrillation', 2),
+(5, 'Lumbar puncture', 15),
+(6, 'Bone Marrow aspiration', 5),
+(7, 'Bone Marrow biopsy', 2),
+(8, 'Skin biopsy', 1),
+(9, 'Insertion of chest drain', 3),
+(10, 'Pleural aspiration', 3),
+(11, 'Pericardial aspiration', 1),
+(12, 'Peritoneal aspiration', 1),
+(13, 'Gastric Lavage', 5),
+(14, 'Urethral', 5),
+(15, 'Suprapubic', 5),
+(16, 'Exchange Transfusion', 2),
+(17, 'Injections (Intradermal)', 10),
+(18, 'Throat swab for Culture', 5),
+(19, 'Obtaining vesicular and pustular fluid', 3),
+(20, 'Using Growth Charts', 50),
+(21, 'Performing an ECG', 5),
+(22, 'Intraosseus', 0),
+(23, 'Others', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `procedure_summary_logs`
+--
+
+CREATE TABLE `procedure_summary_logs` (
+  `id` int(11) NOT NULL,
+  `serial_no` varchar(255) DEFAULT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `date` date DEFAULT NULL,
+  `procedure_name` varchar(255) DEFAULT NULL,
+  `status` varchar(255) DEFAULT NULL,
+  `trainer_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `procedure_summary_logs`
+--
+
+INSERT INTO `procedure_summary_logs` (`id`, `serial_no`, `trainee_id`, `date`, `procedure_name`, `status`, `trainer_signature`, `is_signed`) VALUES
+(2, '2', 26, '2025-04-11', 'Surgical Procedures', 'Completed', 'rima', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `research`
 --
 
@@ -715,6 +805,72 @@ CREATE TABLE `research_publications` (
   `faculty_signature` varchar(255) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_1st_year_config`
+--
+
+CREATE TABLE `rotation_1st_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_2nd_year_config`
+--
+
+CREATE TABLE `rotation_2nd_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `rotation_3rd_year_config`
+--
+
+CREATE TABLE `rotation_3rd_year_config` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `second_year_rotations`
+--
+
+CREATE TABLE `second_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -844,6 +1000,36 @@ CREATE TABLE `teaching` (
   `faculty_signature` varchar(255) DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `third_year_rotations`
+--
+
+CREATE TABLE `third_year_rotations` (
+  `rotation_id` int(11) NOT NULL,
+  `trainee_id` int(11) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `total_duration` varchar(50) DEFAULT NULL,
+  `area_of_rotation` text DEFAULT NULL,
+  `overall_performance` text DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `is_signed` tinyint(1) DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `third_year_rotations`
+--
+
+INSERT INTO `third_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `to_date`, `total_duration`, `area_of_rotation`, `overall_performance`, `supervisor_id`, `supervisor_signature`, `is_signed`, `created_at`, `updated_at`) VALUES
+(1, 26, '2025-04-01', '2025-04-15', '14.0', 'Cardiology', 'B', 30, 'uploads\\1744248881116.PNG', 1, '2025-04-10 00:39:13', '2025-04-10 01:34:41'),
+(2, 26, '2025-04-01', '2025-04-15', '14', 'Cardiology', 'B', NULL, NULL, 0, '2025-04-10 01:40:56', '2025-04-10 01:40:56'),
+(3, 26, '2025-04-01', '2025-04-05', '5 days', 'Surgery', 'M', 30, 'rima', 1, '2025-04-10 13:01:51', '2025-04-10 13:03:28');
 
 -- --------------------------------------------------------
 
@@ -1048,6 +1234,27 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `user_procedure_logs`
+--
+
+CREATE TABLE `user_procedure_logs` (
+  `id` int(11) NOT NULL,
+  `trainee_id` int(11) NOT NULL,
+  `procedure_id` int(11) NOT NULL,
+  `num_performed` int(11) DEFAULT 0,
+  `num_observed` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `user_procedure_logs`
+--
+
+INSERT INTO `user_procedure_logs` (`id`, `trainee_id`, `procedure_id`, `num_performed`, `num_observed`) VALUES
+(1, 26, 2, 4, 2);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `user_skills`
 --
 
@@ -1177,7 +1384,9 @@ ALTER TABLE `journal_club_assessment`
 --
 ALTER TABLE `logbook_profile_info`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `trainee_id` (`trainee_id`);
+  ADD UNIQUE KEY `certificate_id` (`certificate_id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `fk_hospital` (`hospital_id`);
 
 --
 -- Indexes for table `messages`
@@ -1221,6 +1430,20 @@ ALTER TABLE `prelogin_contact_messages`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `procedures`
+--
+ALTER TABLE `procedures`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
+
+--
+-- Indexes for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
+
+--
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
@@ -1232,6 +1455,12 @@ ALTER TABLE `research`
 ALTER TABLE `research_publications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `rotation_3rd_year_config`
+--
+ALTER TABLE `rotation_3rd_year_config`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `seminars`
@@ -1276,6 +1505,14 @@ ALTER TABLE `teaching`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`),
+  ADD KEY `trainee_id` (`trainee_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
 -- Indexes for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -1311,6 +1548,15 @@ ALTER TABLE `usertypes`
 ALTER TABLE `usertype_functions`
   ADD PRIMARY KEY (`UsertypeId`,`FunctionsId`),
   ADD KEY `FunctionsId` (`FunctionsId`);
+
+--
+-- Indexes for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `trainee_id` (`trainee_id`,`procedure_id`),
+  ADD UNIQUE KEY `trainee_id_2` (`trainee_id`,`procedure_id`),
+  ADD KEY `procedure_id` (`procedure_id`);
 
 --
 -- Indexes for table `user_skills`
@@ -1417,7 +1663,7 @@ ALTER TABLE `journal_club_assessment`
 -- AUTO_INCREMENT for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `messages`
@@ -1456,6 +1702,18 @@ ALTER TABLE `prelogin_contact_messages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT for table `procedures`
+--
+ALTER TABLE `procedures`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT for table `research`
 --
 ALTER TABLE `research`
@@ -1466,6 +1724,12 @@ ALTER TABLE `research`
 --
 ALTER TABLE `research_publications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `rotation_3rd_year_config`
+--
+ALTER TABLE `rotation_3rd_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `seminars`
@@ -1490,6 +1754,12 @@ ALTER TABLE `surgical_experiences`
 --
 ALTER TABLE `tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `teaching`
@@ -1520,6 +1790,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `usertypes`
   MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `user_skills`
@@ -1591,6 +1867,7 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
+  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
   ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
@@ -1612,6 +1889,12 @@ ALTER TABLE `miscellaneous_activities`
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `procedure_summary_logs`
+--
+ALTER TABLE `procedure_summary_logs`
+  ADD CONSTRAINT `procedure_summary_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `research_publications`
@@ -1652,6 +1935,13 @@ ALTER TABLE `teaching`
   ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
+-- Constraints for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  ADD CONSTRAINT `third_year_rotations_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `third_year_rotations_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+
+--
 -- Constraints for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
@@ -1677,6 +1967,13 @@ ALTER TABLE `users`
 ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`),
   ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`);
+
+--
+-- Constraints for table `user_procedure_logs`
+--
+ALTER TABLE `user_procedure_logs`
+  ADD CONSTRAINT `user_procedure_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `user_procedure_logs_ibfk_2` FOREIGN KEY (`procedure_id`) REFERENCES `procedures` (`id`);
 
 --
 -- Constraints for table `user_skills`

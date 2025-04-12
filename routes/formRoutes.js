@@ -107,21 +107,21 @@ router.delete('/journal-club/:id', authenticate, journalClubController.deleteAss
 
 
 // Mini-CEX Routes
-router.post('/mini-cex', authenticate, uploadPNG, miniCexController.createMiniCEX);
-router.put('/mini-cex/:id', authenticate,  miniCexController.updateMiniCEX);
-router.post('/mini-cex/:id/sign', authenticate, handleFileUpload, miniCexController.signMiniCEX);
-router.post('/mini-cex/:formId/send', authenticate, miniCexController.sendMiniCEXToTrainee);
-router.get('/mini-cex/:id', authenticate, miniCexController.getMiniCEXById);
-router.delete('/mini-cex/:id', authenticate, miniCexController.deleteMiniCEXById);
+router.post('/mini-cex', auth("create_mini_cex"), uploadPNG, miniCexController.createMiniCEX);
+router.put('/mini-cex/:id', auth("update_mini_cex"),  miniCexController.updateMiniCEX);
+router.post('/mini-cex/:id/sign', auth("sign_mini_cex"), handleFileUpload, miniCexController.signMiniCEX);
+router.post('/mini-cex/:formId/send', auth("send_mini_cex_to_trainee"), miniCexController.sendMiniCEXToTrainee);
+router.get('/mini-cex/:id', auth("get_mini_cex_by_id"), miniCexController.getMiniCEXById);
+router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.deleteMiniCEXById);
 
 
 // DOPS Routes
-router.post('/dops', authenticate, uploadPNG, dopsController.createDOPS);
-router.put('/dops/:id', authenticate, dopsController.updateDOPS);
-router.post('/dops/:id/sign', authenticate, handleFileUpload, dopsController.signDOPS);
-router.post('/dops/:formId/send', authenticate, dopsController.sendDOPSToTrainee);
-router.get('/dops/:id', authenticate, dopsController.getDOPSById);
-router.delete('/dops/:id', authenticate, dopsController.deleteDOPSById);
+router.post('/dops', auth("creat_dops"), uploadPNG, dopsController.createDOPS);
+router.put('/dops/:id', auth("update_dops"), dopsController.updateDOPS);
+router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
+router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);
+router.get('/dops/:id', auth("get_dops_by_id"), dopsController.getDOPSById);
+router.delete('/dops/:id', auth("delete_dops_by_id"), dopsController.deleteDOPSById);
 
 
 module.exports = router;
