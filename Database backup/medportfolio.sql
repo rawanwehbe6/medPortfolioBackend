@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 12, 2025 at 12:43 AM
+-- Generation Time: Apr 12, 2025 at 10:18 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -124,17 +124,24 @@ CREATE TABLE `contact_messages` (
   `id` int(11) NOT NULL,
   `name` varchar(100) NOT NULL,
   `message` text NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `contact_messages`
 --
 
-INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`) VALUES
-(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13'),
-(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27'),
-(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14');
+INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`, `user_id`) VALUES
+(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13', NULL),
+(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27', NULL),
+(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14', NULL),
+(4, 'Lorence', 'This is a test message for the contact form.', '2025-04-12 19:11:02', 27),
+(5, 'supervisor', 'This is a test message for the contact form.', '2025-04-12 19:11:33', 29),
+(6, 'admin', 'This is a test message for the contact form.', '2025-04-12 19:12:39', 1),
+(7, 'trainee', 'This is a test message for the contact form.', '2025-04-12 19:14:43', 27),
+(8, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:15:46', 29),
+(9, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:26:27', 29);
 
 -- --------------------------------------------------------
 
@@ -254,8 +261,8 @@ CREATE TABLE `eduactcourses` (
 --
 
 INSERT INTO `eduactcourses` (`id`, `user_id`, `title`, `date`, `institution`, `description`, `certificate`) VALUES
-(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1741643821554.jpg'),
-(8, 27, 'Advanced Medicine', '2025-12-31', 'BAU', 'A course on advanced medical practices.', NULL);
+(5, 27, 'Advanced Medicine Updated', '2024-12-07', 'BAU', 'Advanced Medical Pratices', '1744486071860.png'),
+(9, 27, 'Advanced Medicine', '2025-12-31', 'BAU', 'A course on advanced medical practices.', NULL);
 
 -- --------------------------------------------------------
 
@@ -278,8 +285,9 @@ CREATE TABLE `eduactworkshops` (
 --
 
 INSERT INTO `eduactworkshops` (`id`, `user_id`, `title`, `date`, `organizer`, `description`, `certificate`) VALUES
-(1, 27, 'Pediatric Advanced Life Support Updated.', '2024-06-12', 'BAU', 'An updated workshop on pediatric life support techniques.', '1741689975178.jpg'),
-(3, 1, 'test', '2025-02-04', 'test', 'testdescription', NULL);
+(1, 27, 'Pediatric Advanced Life Support Updated.', '2024-06-12', 'BAU', 'An updated workshop on pediatric life support techniques.', '1744487066365.png'),
+(3, 1, 'test', '2025-02-04', 'test', 'testdescription', NULL),
+(4, 27, 'Pediatric Advanced Life Support', '2024-06-15', 'BAU', 'A workshop on pediatric life support techniques.', NULL);
 
 -- --------------------------------------------------------
 
@@ -349,37 +357,7 @@ INSERT INTO `fellow_resident_evaluation` (`id`, `fellow_name`, `fellow_id`, `hos
 (10, 'ravan', NULL, NULL, NULL, NULL, 'uploads\\1744473152109.png', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
 (12, 'test', 29, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1);
 
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `fellow_resident_evaluation`
---
-ALTER TABLE `fellow_resident_evaluation`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `fellow_id` (`fellow_id`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `fellow_resident_evaluation`
---
-ALTER TABLE `fellow_resident_evaluation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `fellow_resident_evaluation`
---
-ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`);
-COMMIT;
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `first_year_rotations`
@@ -430,6 +408,14 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('supervisor_get_trainees', 9, 0, 0, 1),
 ('get_contact_messages', 10, 1, 0, 0),
 ('trainee_add_course', 11, 0, 1, 0),
+('contact_us', 12, 1, 1, 1),
+('trainee_update_course', 14, 1, 1, 0),
+('trainee_delete_course', 15, 1, 1, 0),
+('trainee_add_workshop', 16, 1, 1, 0),
+('trainee_update_workshop', 17, 1, 1, 0),
+('trainee_delete_workshop', 18, 1, 1, 0),
+('getCourses', 22, 1, 1, 0),
+('getWorkshops', 23, 1, 1, 0),
 ('get_Educational_Supervisors', 33, 1, 0, 0),
 ('get_Clinical_Supervisors_Or_Clinics', 34, 1, 0, 0),
 ('get_All_Users_With_Roles', 35, 1, 0, 0),
@@ -550,8 +536,8 @@ CREATE TABLE `logbook_profile_info` (
 -- Dumping data for table `logbook_profile_info`
 --
 
-INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`) VALUES
-(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03');
+INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`, `certificate_id`, `trainee_signature`, `hospital_signature`, `hospital_id`) VALUES
+(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03', NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1175,12 +1161,28 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
+(1, 12),
+(1, 14),
+(1, 15),
+(1, 16),
+(1, 17),
+(1, 18),
+(1, 22),
+(1, 23),
 (2, 4),
 (2, 5),
 (2, 6),
 (2, 7),
 (2, 8),
 (2, 11),
+(2, 12),
+(2, 14),
+(2, 15),
+(2, 16),
+(2, 17),
+(2, 18),
+(2, 22),
+(2, 23),
 (2, 33),
 (2, 34),
 (2, 35),
@@ -1200,6 +1202,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 57),
 (2, 59),
 (3, 9),
+(3, 12),
 (3, 37),
 (3, 39),
 (3, 40),
@@ -1219,6 +1222,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 58),
 (3, 59),
 (4, 9),
+(4, 12),
 (4, 37),
 (4, 39),
 (4, 40),
@@ -1350,7 +1354,8 @@ ALTER TABLE `case_presentations`
 -- Indexes for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_contact_user` (`user_id`);
 
 --
 -- Indexes for table `departmental_activities`
@@ -1637,7 +1642,7 @@ ALTER TABLE `case_presentations`
 -- AUTO_INCREMENT for table `contact_messages`
 --
 ALTER TABLE `contact_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `departmental_activities`
@@ -1661,13 +1666,13 @@ ALTER TABLE `eduactconferences`
 -- AUTO_INCREMENT for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `eduactworkshops`
 --
 ALTER TABLE `eduactworkshops`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `elearning_materials`
@@ -1679,7 +1684,7 @@ ALTER TABLE `elearning_materials`
 -- AUTO_INCREMENT for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `functions`
@@ -1796,16 +1801,16 @@ ALTER TABLE `tasks`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `third_year_rotations`
---
-ALTER TABLE `third_year_rotations`
-  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
 -- AUTO_INCREMENT for table `teaching`
 --
 ALTER TABLE `teaching`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `third_year_rotations`
+--
+ALTER TABLE `third_year_rotations`
+  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
@@ -1865,6 +1870,12 @@ ALTER TABLE `case_based_discussion_assessment`
 --
 ALTER TABLE `case_presentations`
   ADD CONSTRAINT `case_presentations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `contact_messages`
+--
+ALTER TABLE `contact_messages`
+  ADD CONSTRAINT `fk_contact_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `departmental_activities`

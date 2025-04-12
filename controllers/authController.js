@@ -351,10 +351,13 @@ const contactUs = async (req, res) => {
       });
     }
 
+    // Get the user ID from the authenticated request
+    const userId = req.user.userId;
+
     await pool.execute(
-      "INSERT INTO contact_messages (name, message) VALUES (?, ?)",
-      [name, message]
-    );
+  "INSERT INTO contact_messages (name, message, user_id) VALUES (?, ?, ?)",
+  [name, message, userId]
+);
 
     res.status(201).json({ 
       message: "Your message has been sent successfully!" 

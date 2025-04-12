@@ -36,7 +36,7 @@ const addCourse = async (req, res) => {
   try {
     const { title, date, institution, description } = req.body;
     const certificate = req.file ? req.file.filename : null;
-    const user_id = req.user.userId; // Assuming user is authenticated
+    const user_id = req.user.userId; 
 
     if (!title || !date || !institution || !description) {
       return res.status(400).json({ message: "All fields are required." });
@@ -64,77 +64,124 @@ const addCourse = async (req, res) => {
 
 //Update Course
 const updateCourse = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { title, date, institution, description } = req.body;
-      const certificate = req.file ? req.file.filename : null;
-      const user_id = req.userId; 
-  
-      if (!title || !date || !institution || !description) {
-        return res.status(400).json({ message: "All fields are required." });
-      }
-  
-      // Convert date from mm/dd/yyyy to yyyy-mm-dd
-      const formattedDate = formatDateToDatabaseFormat(date);
-  
-      await db.query(
-        "UPDATE eduactcourses SET title = ?, date = ?, institution = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
-        [title, formattedDate, institution, description, certificate, id, user_id]
-      );
-  
-      res.status(200).json({ message: "Course updated successfully." });
-    } catch (error) {
-      console.error("Error in updateCourse:", error);
-      res.status(500).json({ message: "Server error." });
-    }
-  };
-
-//Delete Course
-const deleteCourse = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const user_id = req.userId; 
-  
-      await db.query(
-        "DELETE FROM eduactcourses WHERE id = ? AND user_id = ?",
-        [id, user_id]
-      );
-  
-      res.status(200).json({ message: "Course deleted successfully." });
-    } catch (error) {
-      console.error("Error in deleteCourse:", error);
-      res.status(500).json({ message: "Server error." });
-    }
-  };
-
-  //Add Workshop
-const addWorkshop = async (req, res) => {
   try {
-    const { title, date, organizer, description } = req.body;
+    const { id } = req.params;
+    const { title, date, institution, description } = req.body;
     const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId; 
 
-    if (!title || !date || !organizer || !description) {
+    if (!title || !date || !institution || !description) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     // Convert date from mm/dd/yyyy to yyyy-mm-dd
+    const formattedDate = formatDateToDatabaseFormat(date);
+
+    // Check if course exists and belongs to user
+    const [course] = await db.query(
+      "SELECT * FROM eduactcourses WHERE id = ? AND user_id = ?",
+      [id, user_id]
+    );
+
+    if (course.length === 0) {
+      return res.status(404).json({ message: "Course not found or unauthorized." });
+    }
+
+    await db.query(
+      "UPDATE eduactcourses SET title = ?, date = ?, institution = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
+      [title, formattedDate, institution, description, certificate, id, user_id]
+    );
+
+    res.status(200).json({ message: "Course updated successfully." });
+  } catch (error) {
+    console.error("Error in updateCourse:", error);
+    res.status(500).json({ message: "Server error." });
+  }
+};
+
+// Delete Course
+const deleteCourse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user_id = req.user.userId; 
+
+    // First verify the course exists and belongs to the user
+    const [course] = await db.query(
+      "SELECT * FROM eduactcourses WHERE id = ? AND user_id = ?",
+      [id, user_id]
+    );
+
+    if (course.length === 0) {
+      return res.status(404).json({ 
+        message: "Course not found or unauthorized." 
+      });
+    }
+
+    // Delete the course
+    await db.query(
+      "DELETE FROM eduactcourses WHERE id = ? AND user_id = ?",
+      [id, user_id]
+    );
+
+    res.status(200).json({ 
+      message: "Course deleted successfully." 
+    });
+  } catch (error) {
+    console.error("Error in deleteCourse:", error);
+    res.status(500).json({ 
+      message: "Server error while deleting course." 
+    });
+  }
+};
+
+// Add Workshop
+const addWorkshop = async (req, res) => {
+  try {
+    const { title, date, organizer, description } = req.body;
+    const certificate = req.file ? req.file.filename : null;
+    const user_id = req.user.userId;
+
+    // Validate required fields
+    if (!title || !date || !organizer || !description) {
+      return res.status(400).json({ 
+        message: "All fields (title, date, organizer, description) are required." 
+      });
+    }
+
+    // Convert and validate date format
     let formattedDate;
     try {
       formattedDate = formatDateToDatabaseFormat(date);
     } catch (error) {
-      return res.status(400).json({ message: error.message });
+      return res.status(400).json({ 
+        message: "Invalid date format. Please use MM/DD/YYYY." 
+      });
     }
 
+    // Insert workshop into database
     await db.query(
-      "INSERT INTO eduactworkshops (user_id, title, date, organizer, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
+      `INSERT INTO eduactworkshops 
+       (user_id, title, date, organizer, description, certificate) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [user_id, title, formattedDate, organizer, description, certificate]
     );
 
-    res.status(201).json({ message: "Workshop added successfully." });
+    res.status(201).json({ 
+      message: "Workshop added successfully."
+    });
   } catch (error) {
     console.error("Error in addWorkshop:", error);
-    res.status(500).json({ message: "Server error." });
+    
+    // Handle specific database errors
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ 
+        message: "A workshop with similar details already exists." 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: "Failed to add workshop. Please try again later." 
+    });
   }
 };
 
@@ -143,25 +190,63 @@ const updateWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, date, organizer, description } = req.body;
-    const certificate = req.file ? req.file.filename : null;
-    const user_id = req.userId; 
+    const certificate = req.file ? req.file.filename : undefined; 
+    const user_id = req.user.userId; 
 
+    // Validate required fields
     if (!title || !date || !organizer || !description) {
-      return res.status(400).json({ message: "All fields are required." });
+      return res.status(400).json({ 
+        message: "All fields (title, date, organizer, description) are required." 
+      });
     }
 
-    // Convert date from mm/dd/yyyy to yyyy-mm-dd
-    const formattedDate = formatDateToDatabaseFormat(date);
+    // Convert and validate date format
+    let formattedDate;
+    try {
+      formattedDate = formatDateToDatabaseFormat(date);
+    } catch (error) {
+      return res.status(400).json({ 
+        message: "Invalid date format. Please use MM/DD/YYYY." 
+      });
+    }
 
-    await db.query(
-      "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
-      [title, formattedDate, organizer, description, certificate, id, user_id]
+    // First verify the workshop exists and belongs to the user
+    const [workshop] = await db.query(
+      "SELECT * FROM eduactworkshops WHERE id = ? AND user_id = ?",
+      [id, user_id]
     );
 
-    res.status(200).json({ message: "Workshop updated successfully." });
+    if (workshop.length === 0) {
+      return res.status(404).json({ 
+        message: "Workshop not found or unauthorized." 
+      });
+    }
+
+    const updateQuery = certificate
+      ? "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?"
+      : "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ? WHERE id = ? AND user_id = ?";
+
+    const params = certificate
+      ? [title, formattedDate, organizer, description, certificate, id, user_id]
+      : [title, formattedDate, organizer, description, id, user_id];
+
+    await db.query(updateQuery, params);
+
+    res.status(200).json({ 
+      message: "Workshop updated successfully."
+    });
   } catch (error) {
     console.error("Error in updateWorkshop:", error);
-    res.status(500).json({ message: "Server error." });
+    
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({ 
+        message: "A workshop with these details already exists." 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: "Failed to update workshop. Please try again later." 
+    });
   }
 };
 
@@ -169,17 +254,48 @@ const updateWorkshop = async (req, res) => {
 const deleteWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
-    const user_id = req.userId; 
+    const user_id = req.user.userId; 
 
-    await db.query(
+    // First verify the workshop exists and belongs to the user
+    const [workshop] = await db.query(
+      "SELECT * FROM eduactworkshops WHERE id = ? AND user_id = ?",
+      [id, user_id]
+    );
+
+    if (workshop.length === 0) {
+      return res.status(404).json({ 
+        message: "Workshop not found or unauthorized." 
+      });
+    }
+
+    // Delete the workshop
+    const [result] = await db.query(
       "DELETE FROM eduactworkshops WHERE id = ? AND user_id = ?",
       [id, user_id]
     );
 
-    res.status(200).json({ message: "Workshop deleted successfully." });
+    // Check if any rows were actually deleted
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        message: "Workshop not found or already deleted." 
+      });
+    }
+
+    res.status(200).json({ 
+      message: "Workshop deleted successfully."
+    });
   } catch (error) {
-    console.error("Error in deleteWorkshop:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("Error in delete Workshop:", error);
+    
+    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(409).json({ 
+        message: "Cannot delete workshop because it is referenced by other records." 
+      });
+    }
+    
+    res.status(500).json({ 
+      message: "Failed to delete workshop. Please try again later." 
+    });
   }
 };
 
@@ -276,27 +392,39 @@ const deleteConference = async (req, res) => {
     }
 };
 
-// Get All Courses for Logged-in Trainee
+// Get All Courses for Logged-in User
 const getCourses = async (req, res) => {
   try {
-    const user_id = req.userId;
-    const [rows] = await db.query("SELECT * FROM eduactcourses WHERE user_id = ?", [user_id]);
-    res.status(200).json(rows);
+    const [courses] = await db.query(
+      "SELECT id, title, date, institution, description, certificate " +
+      "FROM eduactcourses " +
+      "WHERE user_id = ? " +
+      "ORDER BY date DESC",
+      [req.user.userId]
+    );
+
+    res.json(courses);
   } catch (error) {
-    console.error("Error in getCourses:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("Get Courses Error:", error);
+    res.status(500).json({ message: "Error fetching courses" });
   }
 };
 
-// Get All Workshops for Logged-in Trainee
+// Get All Workshops for Logged-in User
 const getWorkshops = async (req, res) => {
   try {
-    const user_id = req.userId;
-    const [rows] = await db.query("SELECT * FROM eduactworkshops WHERE user_id = ?", [user_id]);
-    res.status(200).json(rows);
+    const [workshops] = await db.query(
+      "SELECT id, title, date, organizer, description, certificate " +
+      "FROM eduactworkshops " +
+      "WHERE user_id = ? " +
+      "ORDER BY date DESC",
+      [req.user.userId]
+    );
+
+    res.json(workshops);
   } catch (error) {
-    console.error("Error in getWorkshops:", error);
-    res.status(500).json({ message: "Server error." });
+    console.error("Get Workshops Error:", error);
+    res.status(500).json({ message: "Error fetching workshops" });
   }
 };
 
