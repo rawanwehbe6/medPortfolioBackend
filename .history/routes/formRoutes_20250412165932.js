@@ -85,9 +85,9 @@ router.delete(
 );
 
 //fellow resident form routes
-router.post("/fellow-resident/save-draft", auth, upload.single("instructor_signature"), frp.saveDraftAsSubmit);
-router.put("/fellow-resident/update/:id", auth, upload.single("instructor_signature"), frp.updateForm);
-router.post("/fellow-resident/submit/:id", auth, upload.single("instructor_signature"), frp.submitForm);
+router.post("/fellow-resident/save-draft", auth, upload.single("signature"), frp.saveAsDraft);
+router.put("/fellow-resident/update/:id", auth, upload.single("signature"), frp.updateForm);
+router.post("/fellow-resident/submit/:id", auth, upload.single("signature"), frp.submitForm);
 router.get("/fellow-resident/:id", auth, frp.getTupleById);
 router.delete("/fellow-resident/:id", auth, frp.deleteTupleById);
 
