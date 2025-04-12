@@ -92,6 +92,7 @@ router.post("/fellow-resident/submit/:id", auth, upload.single("instructor_signa
 router.get("/fellow-resident/:id", auth, frp.getTupleById);
 router.delete("/fellow-resident/:id", auth, frp.deleteTupleById);
 
+
 // Journal Club Assessment Routes
 router.post("/journal-club/create",authenticate, upload.fields([
   { name: "resident_signature", maxCount: 1 },

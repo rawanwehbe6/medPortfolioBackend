@@ -2,9 +2,6 @@ const pool = require('../config/db');
 
 const addLearningMaterial = async (req, res) => {
   try {
-    if (req.user.role !== 1 && req.user.role !== 3) {
-      return res.status(403).json({ message: "Permission denied: User is not authorized" });
-    }
 
     const { title, category, description, resource_url, host } = req.body;
 
@@ -37,9 +34,6 @@ const addLearningMaterial = async (req, res) => {
 
 const updateLearningMaterial = async (req, res) => {
   try {
-    if (req.user.role !== 1 && req.user.role !== 3) {
-      return res.status(403).json({ message: "Permission denied: User is not authorized" });
-    }
 
     const { id } = req.params;
     const { title, category, description, resource_url, host } = req.body;
@@ -78,10 +72,6 @@ const updateLearningMaterial = async (req, res) => {
 
 const deleteLearningMaterial = async (req, res) => {
   try {
-    if (req.user.role !== 1 && req.user.role !== 3) {
-      return res.status(403).json({ message: "Permission denied: User is not authorized" });
-    }
-
     const { id } = req.params;
 
     // Check if record exists
@@ -101,6 +91,7 @@ const deleteLearningMaterial = async (req, res) => {
 
 const getMedicalCourses = async (req, res) => {
   try {
+    console.log("Request received for medical courses");
     const [materials] = await pool.execute(
       "SELECT id, title, description, resource_url FROM elearning_materials WHERE category = 'medical_course'"
     );

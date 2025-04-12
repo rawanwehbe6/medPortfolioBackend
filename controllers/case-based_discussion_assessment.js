@@ -8,10 +8,6 @@ const createForm = async (req, res) => {
             resident_id, diagnosis, case_complexity, investigation_referral,
             treatment, future_planning, history_taking, overall_clinical_care, assessor_comment,draft_send
         } = req.body;
-        
-        if (![1, 3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied" });
-        }
 
         const assessor_signature = req.files?.signature ? req.files.signature[0].path : null;
 
@@ -59,7 +55,10 @@ const updateForm = async (req, res) => {
         let updateQuery = "";
         let updateValues = [];
 
-        if (role === 2) {
+        const hasAccess = await form_helper.auth('Trainee', 'update_cbda_form')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_cbda_form')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+        if (hasAccess) {
             if (existingRecord[0].resident_id !== userId) {
                 return res.status(403).json({ message: "Unauthorized access" });
             }
@@ -78,7 +77,7 @@ const updateForm = async (req, res) => {
              if(old_send[0].resident_signature===null)
             await form_helper.sendSignatureToSupervisor(userId, "case_based_discussion_assessment",id);
 
-        } else if ([1, 3, 4, 5].includes(role)) {
+        } else if (hasAccessS) {
             let assessorSignature = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
             
             const [old_send] =await pool.execute(
