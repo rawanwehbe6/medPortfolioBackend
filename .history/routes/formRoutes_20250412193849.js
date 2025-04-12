@@ -3,7 +3,6 @@ const mortalityMorbidityController = require('../controllers/MortalityMorbidityf
 const seminarAssessmentController = require('../controllers/SeminarAssessmentController');
 const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
-const auth = require('../middleware/auth');
 const grpa = require('../controllers/grand_round_presentation_assessment');
 const cbda = require('../controllers/case-based_discussion_assessment.js');
 const frp = require('../controllers/fellowResidentPerformance.js');
@@ -11,7 +10,7 @@ const journalClubController = require('../controllers/journalClubForm.js');
 const miniCexController = require('../controllers/miniCexController');
 const dopsController = require('../controllers/dopsController.js'); 
 
-const authenticate = require('../middleware/verifyToken.js');
+const auth = require('../middleware/verifyToken.js');
 const router = express.Router();
 
 
@@ -34,24 +33,24 @@ const handleFileUpload = (req, res, next) => {
 };
 
 
-// GRPA routes
-router.post('/grpacreate', auth("create_grpa_form"), uploadPNG, grpa.createForm);
-router.put('/grpaupdate/:id', auth("update_grpa_form"), handleFileUpload, grpa.updateForm);
-router.get('/grpa/:id', auth("get_grpa_form_by_id"), grpa.getTupleById);
-router.delete('/grpa/:id', auth("delete_grpa_form_by_id"), grpa.deleteTupleById);
+// Define routes
+router.post('/grpacreate', auth, uploadPNG, grpa.createForm);
+router.put('/grpaupdate/:id', auth, handleFileUpload, grpa.updateForm);
+router.get('/grpa/:id', auth, grpa.getTupleById);
+router.delete('/grpa/:id', auth, grpa.deleteTupleById);
 
-// CBDA routes
-router.post('/cbdacreate', auth("create_cbda_form"), uploadPNG, cbda.createForm);
-router.put('/cbdaupdate/:id', auth("update_cbda_form"), handleFileUpload, cbda.updateForm);
-router.get('/cbda/:id', auth("get_cbda_form_by_id"), cbda.getTupleById);
-router.delete('/cbda/:id', auth("delete_cbda_form_by_id"), cbda.deleteTupleById);
+
+router.post('/cbdacreate', auth, uploadPNG, cbda.createForm);
+router.put('/cbdaupdate/:id', auth, handleFileUpload, cbda.updateForm);
+router.get('/cbda/:id', auth, cbda.getTupleById);
+router.delete('/cbda/:id', auth, cbda.deleteTupleById);
 
 
 // Mortality & Morbidity Review Assessment Form Routes
-router.post('/mortality-morbidity',authenticate,uploadPNG,
+router.post('/mortality-morbidity',auth,uploadPNG,
   mortalityMorbidityController.createMortalityMorbidityForm);
 
-router.put('/mortality-morbidity/:id',authenticate,handleFileUpload,
+router.put('/mortality-morbidity/:id',auth,handleFileUpload,
   mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
@@ -67,10 +66,10 @@ router.delete(
 );
 
 // Seminar Assessment Form Routes
-router.post('/seminar-assessment',authenticate,uploadPNG,
+router.post('/seminar-assessment',auth,uploadPNG,
   seminarAssessmentController.createSeminarAssessment);
 
-router.put('/seminar-assessment/:id',authenticate,handleFileUpload,
+router.put('/seminar-assessment/:id',auth,handleFileUpload,
   seminarAssessmentController.updateSeminarAssessment);
 
 router.get(
@@ -93,36 +92,36 @@ router.get("/fellow-resident/:id", auth, frp.getTupleById);
 router.delete("/fellow-resident/:id", auth, frp.deleteTupleById);
 
 // Journal Club Assessment Routes
-router.post("/journal-club/create",authenticate, upload.fields([
+router.post("/journal-club/create",auth, upload.fields([
   { name: "resident_signature", maxCount: 1 },
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.createAssessment);
 
-router.put("/journal-club/update/:id",authenticate, upload.fields([
+router.put("/journal-club/update/:id",auth, upload.fields([
   { name: "resident_signature", maxCount: 1 },
   { name: "assessor_signature", maxCount: 1 }
 ]), journalClubController.updateAssessment);
-router.get('/journal-club/:id', authenticate, journalClubController.getAssessmentById);
-router.delete('/journal-club/:id', authenticate, journalClubController.deleteAssessmentById);
+router.get('/journal-club/:id', auth, journalClubController.getAssessmentById);
+router.delete('/journal-club/:id', auth, journalClubController.deleteAssessmentById);
 
 
 
 // Mini-CEX Routes
-router.post('/mini-cex', auth("create_mini_cex"), uploadPNG, miniCexController.createMiniCEX);
-router.put('/mini-cex/:id', auth("update_mini_cex"),  miniCexController.updateMiniCEX);
-router.post('/mini-cex/:id/sign', auth("sign_mini_cex"), handleFileUpload, miniCexController.signMiniCEX);
-router.post('/mini-cex/:formId/send', auth("send_mini_cex_to_trainee"), miniCexController.sendMiniCEXToTrainee);
-router.get('/mini-cex/:id', auth("get_mini_cex_by_id"), miniCexController.getMiniCEXById);
-router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.deleteMiniCEXById);
+router.post('/mini-cex', auth, uploadPNG, miniCexController.createMiniCEX);
+router.put('/mini-cex/:id', auth,  miniCexController.updateMiniCEX);
+router.post('/mini-cex/:id/sign', auth, handleFileUpload, miniCexController.signMiniCEX);
+router.post('/mini-cex/:formId/send', auth, miniCexController.sendMiniCEXToTrainee);
+router.get('/mini-cex/:id', auth, miniCexController.getMiniCEXById);
+router.delete('/mini-cex/:id', auth, miniCexController.deleteMiniCEXById);
 
 
 // DOPS Routes
-router.post('/dops', auth("creat_dops"), uploadPNG, dopsController.createDOPS);
-router.put('/dops/:id', auth("update_dops"), dopsController.updateDOPS);
-router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
-router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);
-router.get('/dops/:id', auth("get_dops_by_id"), dopsController.getDOPSById);
-router.delete('/dops/:id', auth("delete_dops_by_id"), dopsController.deleteDOPSById);
+router.post('/dops', auth, uploadPNG, dopsController.createDOPS);
+router.put('/dops/:id', auth, dopsController.updateDOPS);
+router.post('/dops/:id/sign', auth, handleFileUpload, dopsController.signDOPS);
+router.post('/dops/:formId/send', auth, dopsController.sendDOPSToTrainee);
+router.get('/dops/:id', auth, dopsController.getDOPSById);
+router.delete('/dops/:id', auth, dopsController.deleteDOPSById);
 
 
 module.exports = router;

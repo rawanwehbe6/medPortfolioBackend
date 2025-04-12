@@ -3,73 +3,42 @@ const form_helper = require('../middleware/form_helper');
 const upload = require("../middleware/multerConfig"); // Reference multerConfig.js
 
 const sanitize = (value) => value === undefined ? null : value;
-// Save Draft as Submit (Update or Create, but set sent=0 and completed=0)
-const saveDraftAsSubmit = async (req, res) => {
+// 1️⃣ Save as Draft (create with sent=0 and completed=0)
+const saveAsDraft = async (req, res) => {
     try {
         const {
             fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
             punctuality, dependable, respectful, positive_interaction, self_learning,
             communication, history_taking, physical_examination, clinical_reasoning,
-            application_knowledge, overall_marks, strengths, suggestions
+            application_knowledge, overall_marks, strengths, suggestions,
+            instructor_signature
         } = req.body;
 
-        // Check if the form with the same fellow_id exists
-        const [existingRows] = await pool.execute(
-            "SELECT * FROM fellow_resident_evaluation WHERE fellow_id = ?",
-            [fellow_id]
+        const [result] = await pool.execute(
+            `INSERT INTO fellow_resident_evaluation (
+                fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
+                punctuality, dependable, respectful, positive_interaction, self_learning,
+                communication, history_taking, physical_examination, clinical_reasoning,
+                application_knowledge, overall_marks, strengths, suggestions,
+                instructor_signature, sent, completed
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
+            [
+                sanitize(fellow_name), sanitize(fellow_id), sanitize(hospital), sanitize(date_of_rotation), sanitize(instructor_name),
+                sanitize(punctuality), sanitize(dependable), sanitize(respectful), sanitize(positive_interaction), sanitize(self_learning),
+                sanitize(communication), sanitize(history_taking), sanitize(physical_examination), sanitize(clinical_reasoning),
+                sanitize(application_knowledge), sanitize(overall_marks), sanitize(strengths), sanitize(suggestions),
+                sanitize(req.file ? req.file.path.replace(/\\/g, '/') : null)
+
+            ]
         );
 
-        const instructor_signature = req.file ? req.file.path.replace(/\\/g, '/') : null;
+        res.status(201).json({ message: 'Draft saved successfully', id: result.insertId });
+        console.log("req.file:", req.file); // should be an object with path
+        console.log("req.body:", req.body); // should include all form fields
 
-        if (existingRows.length > 0) {
-            // If form exists, update it with sent=0 and completed=0
-            const existing = existingRows[0];
-
-            const [result] = await pool.execute(
-                `UPDATE fellow_resident_evaluation
-                 SET
-                    fellow_name = ?, fellow_id = ?, hospital = ?, date_of_rotation = ?, instructor_name = ?,
-                    punctuality = ?, dependable = ?, respectful = ?, positive_interaction = ?, self_learning = ?,
-                    communication = ?, history_taking = ?, physical_examination = ?, clinical_reasoning = ?,
-                    application_knowledge = ?, overall_marks = ?, strengths = ?, suggestions = ?,
-                    instructor_signature = ?, sent = 0, completed = 0
-                 WHERE fellow_id = ?`,
-                [
-                    sanitize(fellow_name), sanitize(fellow_id), sanitize(hospital), sanitize(date_of_rotation), sanitize(instructor_name),
-                    sanitize(punctuality), sanitize(dependable), sanitize(respectful), sanitize(positive_interaction), sanitize(self_learning),
-                    sanitize(communication), sanitize(history_taking), sanitize(physical_examination), sanitize(clinical_reasoning),
-                    sanitize(application_knowledge), sanitize(overall_marks), sanitize(strengths), sanitize(suggestions),
-                    sanitize(instructor_signature), fellow_id
-                ]
-            );
-
-            res.status(200).json({ message: "Draft updated successfully", result });
-        } else {
-            // If form doesn't exist, create a new one with sent=0 and completed=0
-            const [insertResult] = await pool.execute(
-                `INSERT INTO fellow_resident_evaluation (
-                    fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
-                    punctuality, dependable, respectful, positive_interaction, self_learning,
-                    communication, history_taking, physical_examination, clinical_reasoning,
-                    application_knowledge, overall_marks, strengths, suggestions,
-                    instructor_signature, sent, completed
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
-                [
-                    sanitize(fellow_name), sanitize(fellow_id), sanitize(hospital), sanitize(date_of_rotation), sanitize(instructor_name),
-                    sanitize(punctuality), sanitize(dependable), sanitize(respectful), sanitize(positive_interaction), sanitize(self_learning),
-                    sanitize(communication), sanitize(history_taking), sanitize(physical_examination), sanitize(clinical_reasoning),
-                    sanitize(application_knowledge), sanitize(overall_marks), sanitize(strengths), sanitize(suggestions),
-                    sanitize(instructor_signature)
-                ]
-            );
-
-            const newId = insertResult.insertId;
-            res.status(201).json({ message: "New draft created successfully", id: newId });
-        }
-
-    } catch (err) {
-        console.error("Error in saving draft or submitting:", err);
-        res.status(500).json({ error: "Error in saving draft or submitting form" });
+    } catch (error) {
+        console.error('Error saving draft:', error);
+        res.status(500).json({ message: 'Failed to save draft', error });
     }
 };
 
@@ -186,11 +155,11 @@ const submitForm = async (req, res) => {
                     instructor_signature, sent, completed
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)`,
                 [
-                    sanitize(fellow_name), sanitize(fellow_id), sanitize(hospital), sanitize(date_of_rotation), sanitize(instructor_name),
-                    sanitize(punctuality), sanitize(dependable), sanitize(respectful), sanitize(positive_interaction), sanitize(self_learning),
-                    sanitize(communication), sanitize(history_taking), sanitize(physical_examination), sanitize(clinical_reasoning),
-                    sanitize(application_knowledge), sanitize(overall_marks), sanitize(strengths), sanitize(suggestions),
-                    sanitize(instructor_signature)
+                    fellow_name, fellow_id, hospital, date_of_rotation, instructor_name,
+                    punctuality, dependable, respectful, positive_interaction, self_learning,
+                    communication, history_taking, physical_examination, clinical_reasoning,
+                    application_knowledge, overall_marks, strengths, suggestions,
+                    instructor_signature
                   ]                  
             );
 
@@ -258,7 +227,7 @@ const deleteTupleById = async (req, res) => {
 
 
 module.exports = {
-    saveDraftAsSubmit,
+    saveAsDraft,
     updateForm,
     submitForm,
     getTupleById,

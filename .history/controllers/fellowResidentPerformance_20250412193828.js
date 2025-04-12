@@ -258,7 +258,7 @@ const deleteTupleById = async (req, res) => {
 
 
 module.exports = {
-    saveDraftAsSubmit,
+    saveAsDraft,
     updateForm,
     submitForm,
     getTupleById,
