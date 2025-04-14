@@ -48,42 +48,60 @@ router.delete('/cbda/:id', auth("delete_cbda_form_by_id"), cbda.deleteTupleById)
 
 
 // Mortality & Morbidity Review Assessment Form Routes
-router.post('/mortality-morbidity',authenticate,uploadPNG,
-  mortalityMorbidityController.createMortalityMorbidityForm);
+router.post(
+  '/mortality-morbidity-create',
+  auth("create_mortality_morbidity_form"),
+  uploadPNG,
+  mortalityMorbidityController.createMortalityMorbidityForm
+);
 
-router.put('/mortality-morbidity/:id',authenticate,handleFileUpload,
-  mortalityMorbidityController.updateMortalityMorbidityForm);
+router.put(
+  '/mortality-morbidity-update/:id',
+  auth("update_mortality_morbidity_form"),
+  handleFileUpload,
+  mortalityMorbidityController.updateMortalityMorbidityForm
+);
 
 router.get(
   '/mortality-morbidity/:id',
-  authMiddleware,
+  auth("get_mortality_morbidity_form_by_id"),
   mortalityMorbidityController.getMortalityMorbidityFormById
 );
 
 router.delete(
   '/mortality-morbidity/:id',
-  authMiddleware,
+  auth("delete_mortality_morbidity_form_by_id"),
   mortalityMorbidityController.deleteMortalityMorbidityForm
 );
 
-// Seminar Assessment Form Routes
-router.post('/seminar-assessment',authenticate,uploadPNG,
-  seminarAssessmentController.createSeminarAssessment);
 
-router.put('/seminar-assessment/:id',authenticate,handleFileUpload,
-  seminarAssessmentController.updateSeminarAssessment);
+// Seminar Assessment Form Routes
+router.post(
+  '/seminar-assessment-create',
+  auth("create_seminar_assessment"),
+  uploadPNG,
+  seminarAssessmentController.createSeminarAssessment
+);
+
+router.put(
+  '/seminar-assessment-update/:id',
+  auth("update_seminar_assessment"),
+  handleFileUpload,
+  seminarAssessmentController.updateSeminarAssessment
+);
 
 router.get(
   '/seminar-assessment/:id',
-  authMiddleware,
+  auth("get_seminar_assessment_by_id"),
   seminarAssessmentController.getSeminarAssessmentById
 );
 
 router.delete(
   '/seminar-assessment/:id',
-  authMiddleware,
+  auth("delete_seminar_assessment_by_id"),
   seminarAssessmentController.deleteSeminarAssessment
 );
+
 
 //fellow resident form routes
 router.post("/fellow-resident/save-draft", auth, upload.single("instructor_signature"), frp.saveDraftAsSubmit);
