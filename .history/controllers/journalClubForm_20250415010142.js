@@ -21,39 +21,39 @@ const createAssessment = async (req, res) => {
 
         await pool.execute(
             `INSERT INTO journal_club_assessment 
-             (resident_name, date, article_reference, paper_selection, background_knowledge, 
-              critical_analysis_methodology, critical_analysis_results, conclusions_drawn, 
-              audio_visual_aids, handling_questions, overall_performance, major_positive_feature, 
-              suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
-              suggested_presentation, suggested_answering_questions, agreed_action_plan,
-              resident_signature, assessor_signature, \`set\`, complete) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (resident_name, date, article_reference, paper_selection, background_knowledge, 
+            critical_analysis_methodology, critical_analysis_results, conclusions_drawn, 
+            audio_visual_aids, handling_questions, overall_performance, major_positive_feature, 
+            suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
+            suggested_presentation, suggested_answering_questions, agreed_action_plan,
+            resident_signature, assessor_signature, \`set\`, complete) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              resident_name,
-              date || null,
-              article_reference || null,
-              paper_selection || null,
-              background_knowledge || null,
-              critical_analysis_methodology || null,
-              critical_analysis_results || null,
-              conclusions_drawn || null,
-              audio_visual_aids || null,
-              handling_questions || null,
-              overall_performance || null,
-              major_positive_feature || null,
-              suggested_article_selection || null,
-              suggested_critical_analysis || null,
-              suggested_slide_design || null,
-              suggested_presentation || null,
-              suggested_answering_questions || null,
-              agreed_action_plan || null,
-              resident_signature || null,
-              assessor_signature || null,
-              0,
-              0
+                resident_name,
+                date,
+                article_reference || null,
+                paper_selection || null,
+                background_knowledge || null,
+                critical_analysis_methodology || null,
+                critical_analysis_results || null,
+                conclusions_drawn || null,
+                audio_visual_aids || null,
+                handling_questions || null,
+                overall_performance || null,
+                major_positive_feature || null,
+                suggested_article_selection || null,
+                suggested_critical_analysis || null,
+                suggested_slide_design || null,
+                suggested_presentation || null,
+                suggested_answering_questions || null,
+                agreed_action_plan || null,
+                resident_signature,
+                assessor_signature,
+                0, // default: not set
+                0  // default: not complete
             ]
-          );
-          
+        );
+
         res.status(201).json({ message: "Journal club assessment created successfully" });
     } catch (err) {
         console.error("Database Error:", err);

@@ -27,7 +27,7 @@ const createAssessment = async (req, res) => {
               suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
               suggested_presentation, suggested_answering_questions, agreed_action_plan,
               resident_signature, assessor_signature, \`set\`, complete) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               resident_name,
               date || null,

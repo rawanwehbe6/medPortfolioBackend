@@ -27,33 +27,33 @@ const createAssessment = async (req, res) => {
               suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
               suggested_presentation, suggested_answering_questions, agreed_action_plan,
               resident_signature, assessor_signature, \`set\`, complete) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, // should match 23
             [
-              resident_name,
-              date || null,
-              article_reference || null,
-              paper_selection || null,
-              background_knowledge || null,
-              critical_analysis_methodology || null,
-              critical_analysis_results || null,
-              conclusions_drawn || null,
-              audio_visual_aids || null,
-              handling_questions || null,
-              overall_performance || null,
-              major_positive_feature || null,
-              suggested_article_selection || null,
-              suggested_critical_analysis || null,
-              suggested_slide_design || null,
-              suggested_presentation || null,
-              suggested_answering_questions || null,
-              agreed_action_plan || null,
-              resident_signature || null,
-              assessor_signature || null,
-              0,
-              0
+                resident_name,
+                date,
+                article_reference || null,
+                paper_selection || null,
+                background_knowledge || null,
+                critical_analysis_methodology || null,
+                critical_analysis_results || null,
+                conclusions_drawn || null,
+                audio_visual_aids || null,
+                handling_questions || null,
+                overall_performance || null,
+                major_positive_feature || null,
+                suggested_article_selection || null,
+                suggested_critical_analysis || null,
+                suggested_slide_design || null,
+                suggested_presentation || null,
+                suggested_answering_questions || null,
+                agreed_action_plan || null,
+                resident_signature,
+                assessor_signature,
+                0, // set
+                0  // complete
             ]
-          );
-          
+        );
+        
         res.status(201).json({ message: "Journal club assessment created successfully" });
     } catch (err) {
         console.error("Database Error:", err);

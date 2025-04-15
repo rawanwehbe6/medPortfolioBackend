@@ -9,11 +9,12 @@ const createAssessment = async (req, res) => {
             critical_analysis_methodology, critical_analysis_results, conclusions_drawn,
             audio_visual_aids, handling_questions, overall_performance, major_positive_feature,
             suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
-            suggested_presentation, suggested_answering_questions, agreed_action_plan
+            suggested_presentation, suggested_answering_questions, agreed_action_plan,
+            set, complete
         } = req.body;
 
-        const resident_signature = req.files?.resident_signature?.[0]?.path || null;
-        const assessor_signature = req.files?.assessor_signature?.[0]?.path || null;
+        const resident_signature = req.files?.resident_signature ? req.files.resident_signature[0].path : null;
+        const assessor_signature = req.files?.assessor_signature ? req.files.assessor_signature[0].path : null;
 
         if (![1, 3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied" });
@@ -21,39 +22,23 @@ const createAssessment = async (req, res) => {
 
         await pool.execute(
             `INSERT INTO journal_club_assessment 
-             (resident_name, date, article_reference, paper_selection, background_knowledge, 
-              critical_analysis_methodology, critical_analysis_results, conclusions_drawn, 
-              audio_visual_aids, handling_questions, overall_performance, major_positive_feature, 
-              suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
-              suggested_presentation, suggested_answering_questions, agreed_action_plan,
-              resident_signature, assessor_signature, \`set\`, complete) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            (resident_name, date, article_reference, paper_selection, background_knowledge, 
+            critical_analysis_methodology, critical_analysis_results, conclusions_drawn, 
+            audio_visual_aids, handling_questions, overall_performance, major_positive_feature, 
+            suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
+            suggested_presentation, suggested_answering_questions, agreed_action_plan,
+            resident_signature, assessor_signature, set, complete) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              resident_name,
-              date || null,
-              article_reference || null,
-              paper_selection || null,
-              background_knowledge || null,
-              critical_analysis_methodology || null,
-              critical_analysis_results || null,
-              conclusions_drawn || null,
-              audio_visual_aids || null,
-              handling_questions || null,
-              overall_performance || null,
-              major_positive_feature || null,
-              suggested_article_selection || null,
-              suggested_critical_analysis || null,
-              suggested_slide_design || null,
-              suggested_presentation || null,
-              suggested_answering_questions || null,
-              agreed_action_plan || null,
-              resident_signature || null,
-              assessor_signature || null,
-              0,
-              0
+                resident_name, date, article_reference || null, paper_selection || null, background_knowledge || null,
+                critical_analysis_methodology || null, critical_analysis_results || null, conclusions_drawn || null,
+                audio_visual_aids || null, handling_questions || null, overall_performance || null, major_positive_feature || null,
+                suggested_article_selection || null, suggested_critical_analysis || null, suggested_slide_design || null,
+                suggested_presentation || null, suggested_answering_questions || null, agreed_action_plan || null,
+                resident_signature, assessor_signature, set || null, complete || null
             ]
-          );
-          
+        );
+
         res.status(201).json({ message: "Journal club assessment created successfully" });
     } catch (err) {
         console.error("Database Error:", err);
@@ -87,13 +72,12 @@ const updateAssessment = async (req, res) => {
         let updateQuery = "";
         let updateValues = [];
 
-        // Resident updates (only own record)
         if (role === 2) {
             if (existingRecord[0].resident_name !== resident_name) {
                 return res.status(403).json({ message: "Unauthorized access" });
             }
 
-            const residentSignature = req.files?.resident_signature?.[0]?.path || existingRecord[0].resident_signature;
+            const residentSignature = req.files?.resident_signature ? req.files.resident_signature[0].path : existingRecord[0].resident_signature;
 
             updateQuery = `UPDATE journal_club_assessment 
                            SET resident_signature = ?, 
@@ -103,7 +87,7 @@ const updateAssessment = async (req, res) => {
                                suggested_presentation = ?, 
                                suggested_answering_questions = ?,
                                agreed_action_plan = ?,
-                               \`set\` = ?
+                               set = ?, complete = ?
                            WHERE id = ?`;
 
             updateValues = [
@@ -115,11 +99,11 @@ const updateAssessment = async (req, res) => {
                 suggested_answering_questions ?? existingRecord[0].suggested_answering_questions,
                 agreed_action_plan ?? existingRecord[0].agreed_action_plan,
                 set ?? existingRecord[0].set,
+                complete ?? existingRecord[0].complete,
                 id
             ];
-
         } else if ([1, 3, 4, 5].includes(role)) {
-            const assessorSignature = req.files?.assessor_signature?.[0]?.path || existingRecord[0].assessor_signature;
+            const assessorSignature = req.files?.assessor_signature ? req.files.assessor_signature[0].path : existingRecord[0].assessor_signature;
 
             updateQuery = `UPDATE journal_club_assessment 
                            SET resident_name = ?, article_reference = ?, paper_selection = ?, 
@@ -129,8 +113,7 @@ const updateAssessment = async (req, res) => {
                                major_positive_feature = ?, suggested_article_selection = ?, 
                                suggested_critical_analysis = ?, suggested_slide_design = ?,
                                suggested_presentation = ?, suggested_answering_questions = ?, 
-                               agreed_action_plan = ?, assessor_signature = ?, 
-                               \`set\` = ?, complete = ?
+                               agreed_action_plan = ?, assessor_signature = ?, set = ?, complete = ?
                            WHERE id = ?`;
 
             updateValues = [
@@ -167,7 +150,6 @@ const updateAssessment = async (req, res) => {
         res.status(500).json({ error: "Server error while updating assessment" });
     }
 };
-
 
 const getAssessmentById = async (req, res) => {
     try {
@@ -208,7 +190,6 @@ const deleteAssessmentById = async (req, res) => {
         res.status(500).json({ error: "Server error while deleting assessment" });
     }
 };
-
 
 module.exports = {
     createAssessment,
