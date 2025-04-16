@@ -223,25 +223,84 @@ const deleteUser = async (req, res) => {
 
 //Add user type
 const addUserType = async (req, res) => {
-  const { name } = req.body;
-  console.log("Received Data:", { name });
-  
+  const { name, type } = req.body;
+  console.log("Received Data:", { name, type });
+
+  const validTypes = ["Admin", "Supervisor", "Trainee"];
+  if (!validTypes.includes(type)) {
+    return res.status(400).json({ message: "Invalid type. Must be Admin, Supervisor, or Trainee." });
+  }
+
   try {
-    // Check if user type already exists
     const [existingType] = await pool.execute('SELECT * FROM usertypes WHERE Name = ?', [name]);
     if (existingType.length > 0) {
       return res.status(400).json({ message: 'User type already exists' });
     }
 
-    // Insert new user type (Id auto-increments)
-    await pool.execute("INSERT INTO usertypes (Name) VALUES (?)", [name]);
-
+    await pool.execute("INSERT INTO usertypes (Name, Type) VALUES (?, ?)", [name, type]);
     res.status(201).json({ message: 'User type added successfully' });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during user type addition' });
   }
 };
+
+
+const updateUserType = async (req, res) => {
+  const { id } = req.params;
+  const { name, type } = req.body;
+  console.log("Updating UserType ID:", id, "New Name:", name, "New Type:", type);
+
+  const validTypes = ["Admin", "Supervisor", "Trainee"];
+  if (!validTypes.includes(type)) {
+    return res.status(400).json({ message: "Invalid type. Must be Admin, Supervisor, or Trainee." });
+  }
+
+  try {
+    const [existing] = await pool.execute('SELECT * FROM usertypes WHERE Id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'User type not found' });
+    }
+
+    const [nameConflict] = await pool.execute('SELECT * FROM usertypes WHERE Name = ? AND Id != ?', [name, id]);
+    if (nameConflict.length > 0) {
+      return res.status(400).json({ message: 'Another user type with this name already exists' });
+    }
+
+    await pool.execute('UPDATE usertypes SET Name = ?, Type = ? WHERE Id = ?', [name, type, id]);
+    res.status(200).json({ message: 'User type updated successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during user type update' });
+  }
+};
+
+
+const deleteUserType = async (req, res) => {
+  const { id } = req.params;
+  console.log("Deleting UserType ID:", id);
+
+  try {
+    // Check if the user type exists
+    const [existing] = await pool.execute('SELECT * FROM usertypes WHERE Id = ?', [id]);
+    if (existing.length === 0) {
+      return res.status(404).json({ message: 'User type not found' });
+    }
+
+    // Optional: check for foreign key constraints (e.g., if the user type is in use)
+
+    // Perform delete
+    await pool.execute('DELETE FROM usertypes WHERE Id = ?', [id]);
+    res.status(200).json({ message: 'User type deleted successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during user type deletion' });
+  }
+};
+
 
 //Assign roles to user type
 const assignFunctionToUserType = async (req, res) => {
@@ -406,6 +465,8 @@ module.exports = {
   updateUser,
   deleteUser,
   addUserType,
+  updateUserType,
+  deleteUserType,
   assignFunctionToUserType,
   forgotPassword,
   resetPasswordWithToken,

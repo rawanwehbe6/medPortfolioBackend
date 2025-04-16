@@ -117,7 +117,7 @@ router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.
 
 
 // DOPS Routes
-router.post('/dops', auth("creat_dops"), uploadPNG, dopsController.createDOPS);
+router.post('/dops', auth("create_dops"), dopsController.createDOPS);
 router.put('/dops/:id', auth("update_dops"), dopsController.updateDOPS);
 router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
 router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);

@@ -17,6 +17,7 @@ const uploadPNG = upload.fields([
 
 // Logbook profile Routes
 router.post("/logbook/profile", auth, logbookController.createLogbookProfile);
+//router.post("/logbook/profile", auth("create_logbook_profile"), logbookController.createLogbookProfile);
 router.get("/logbook/profile", auth, logbookController.getLogbookProfileInfo);
 router.put("/logbook/profile", auth, logbookController.updateLogbookProfile);
 router.get("/logbook/profile-picture", auth, logbookController.getLogbookProfile);

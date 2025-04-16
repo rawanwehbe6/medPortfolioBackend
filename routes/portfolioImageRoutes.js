@@ -24,11 +24,16 @@ router.post('/add', auth('add_portfolio_image'), upload.single('image'), async (
       [traineeId, imagePath]
     );
 
+    //rimastesting
+    const fullUrl = `${req.protocol}://${req.get('host')}/${imagePath}`;
+
     res.status(201).json({
       success: true,
       message: 'Image added to portfolio successfully',
       image_id: result.insertId,
-      image_path: imagePath
+      image_path: imagePath,
+      //rimastesting
+      image_url: fullUrl
     });
   } catch (error) {
     console.error('Error adding portfolio image:', error);
@@ -83,6 +88,37 @@ router.delete('/remove/:id', auth('remove_portfolio_image'), async (req, res) =>
     res.status(500).json({ 
       success: false,
       message: 'Failed to remove image from portfolio'
+    });
+  }
+});
+
+// rima and alaa testing integration
+// Get all portfolio images for the trainee
+router.get('/list', auth('view_portfolio_images'), async (req, res) => {
+  try {
+    const traineeId = req.user.userId;
+
+    const [images] = await pool.execute(
+      'SELECT id, image_path FROM trainee_portfolio_images WHERE trainee_id = ?',
+      [traineeId]
+    );
+//rimas testing
+    const imagesWithUrl = images.map(image => ({
+      ...image,
+      image_url: `${req.protocol}://${req.get('host')}/${image.image_path}`
+    }));
+/// rimas testing
+
+    res.json({
+      success: true,
+      message: 'Portfolio images fetched successfully',
+      images: imagesWithUrl
+    });
+  } catch (error) {
+    console.error('Error fetching portfolio images:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch portfolio images'
     });
   }
 });
