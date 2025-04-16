@@ -5,7 +5,7 @@ const createAssessment = async (req, res) => {
     try {
         const { role } = req.user;
         const {
-            resident_id,resident_name, date, article_reference, paper_selection, background_knowledge,
+            resident_name, date, article_reference, paper_selection, background_knowledge,
             critical_analysis_methodology, critical_analysis_results, conclusions_drawn,
             audio_visual_aids, handling_questions, overall_performance, major_positive_feature,
             suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
@@ -21,15 +21,14 @@ const createAssessment = async (req, res) => {
 
         await pool.execute(
             `INSERT INTO journal_club_assessment 
-             (resident_id, resident_name, date, article_reference, paper_selection, background_knowledge, 
+             (resident_name, date, article_reference, paper_selection, background_knowledge, 
               critical_analysis_methodology, critical_analysis_results, conclusions_drawn, 
               audio_visual_aids, handling_questions, overall_performance, major_positive_feature, 
               suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
               suggested_presentation, suggested_answering_questions, agreed_action_plan,
               resident_signature, assessor_signature, \`sent\`, complete) 
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-              resident_id ?? null,
               resident_name,
               date || null,
               article_reference || null,
@@ -68,7 +67,7 @@ const updateAssessment = async (req, res) => {
         const { id } = req.params;
 
         const {
-            resident_id, resident_name, article_reference, paper_selection, background_knowledge,
+            resident_name, article_reference, paper_selection, background_knowledge,
             critical_analysis_methodology, critical_analysis_results, conclusions_drawn,
             audio_visual_aids, handling_questions, overall_performance, major_positive_feature,
             suggested_article_selection, suggested_critical_analysis, suggested_slide_design,
@@ -123,7 +122,7 @@ const updateAssessment = async (req, res) => {
             const assessorSignature = req.files?.assessor_signature?.[0]?.path || existingRecord[0].assessor_signature;
 
             updateQuery = `UPDATE journal_club_assessment 
-                           SET resident_id = ?, resident_name = ?, article_reference = ?, paper_selection = ?, 
+                           SET resident_name = ?, article_reference = ?, paper_selection = ?, 
                                background_knowledge = ?, critical_analysis_methodology = ?, 
                                critical_analysis_results = ?, conclusions_drawn = ?, 
                                audio_visual_aids = ?, handling_questions = ?, overall_performance = ?, 
@@ -135,7 +134,6 @@ const updateAssessment = async (req, res) => {
                            WHERE id = ?`;
 
             updateValues = [
-                resident_id ?? existingRecord[0].resident_id,
                 resident_name ?? existingRecord[0].resident_name,
                 article_reference ?? existingRecord[0].article_reference,
                 paper_selection ?? existingRecord[0].paper_selection,

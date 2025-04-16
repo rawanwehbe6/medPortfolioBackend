@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 16, 2025 at 03:04 PM
+-- Generation Time: Apr 16, 2025 at 06:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -327,7 +327,7 @@ INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `re
 CREATE TABLE `fellow_resident_evaluation` (
   `id` int(11) NOT NULL,
   `fellow_name` varchar(255) DEFAULT NULL,
-  `fellow_id` int(11) NOT NULL,
+  `fellow_id` int(11) DEFAULT NULL,
   `hospital` varchar(255) DEFAULT NULL,
   `date_of_rotation` date DEFAULT NULL,
   `instructor_name` varchar(255) DEFAULT NULL,
@@ -348,14 +348,6 @@ CREATE TABLE `fellow_resident_evaluation` (
   `sent` tinyint(4) DEFAULT 0,
   `completed` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `fellow_resident_evaluation`
---
-
-INSERT INTO `fellow_resident_evaluation` (`id`, `fellow_name`, `fellow_id`, `hospital`, `date_of_rotation`, `instructor_name`, `instructor_signature`, `punctuality`, `dependable`, `respectful`, `positive_interaction`, `self_learning`, `communication`, `history_taking`, `physical_examination`, `clinical_reasoning`, `application_knowledge`, `overall_marks`, `strengths`, `suggestions`, `sent`, `completed`) VALUES
-(10, 'ravan', 0, NULL, NULL, NULL, 'uploads\\1744473152109.png', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1),
-(12, 'test', 29, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -511,8 +503,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('update_user_type', 140, 1, 0, 0),
 ('delete_user_type', 141, 1, 0, 0),
 ('view_form_status', 142, 0, 0, 1),
-('trainee_view_forms', 143, 0, 1, 0),
-('getFormsProgressForTrainee', 144, 1, 1, 0);
+('trainee_view_forms', 143, 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -579,9 +570,9 @@ CREATE TABLE `journal_club_assessment` (
   `assessor_signature` varchar(255) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `sent` tinyint(1) DEFAULT 0,
+  `sent` tinyint(1) DEFAULT NULL,
   `complete` tinyint(1) DEFAULT 0,
-  `fellow_id` int(11) DEFAULT NULL
+  `resident_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1244,7 +1235,6 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1, 18),
 (1, 22),
 (1, 23),
-(1, 144),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1333,7 +1323,6 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 111),
 (2, 112),
 (2, 143),
-(2, 144),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1676,7 +1665,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Indexes for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_resident_id` (`resident_id`);
 
 --
 -- Indexes for table `logbook_profile_info`
@@ -1944,7 +1934,7 @@ ALTER TABLE `fellow_resident_evaluation`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=145;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=144;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -2167,6 +2157,12 @@ ALTER TABLE `fellow_resident_evaluation`
 ALTER TABLE `grand_round_presentation_assessment`
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `journal_club_assessment`
+--
+ALTER TABLE `journal_club_assessment`
+  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `logbook_profile_info`

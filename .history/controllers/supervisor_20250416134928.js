@@ -48,8 +48,8 @@ const getFormCountsByTrainee = async (req, res) => {
     { table: "grand_round_presentation_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
     { table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
     { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
-    { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed" },
-    { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete"},
+    // { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
+    { table: "journal_club_assessment", idCol: "fellow_id", sentCol: "set", completeCol: "complete", inverseCompleted: true },
     { table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
     { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
