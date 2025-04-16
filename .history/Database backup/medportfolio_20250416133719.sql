@@ -1691,7 +1691,6 @@ ALTER TABLE `grand_round_presentation_assessment`
 --
 -- Indexes for table `journal_club_assessment`
 --
-
 --
 -- Indexes for table `logbook_profile_info`
 --
