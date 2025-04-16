@@ -10,7 +10,11 @@ router.put("/update/:id", auth("update_user"), authController.updateUser);
 router.delete("/delete/:id", auth("delete_user"), authController.deleteUser);
 router.post('/login', authController.login);
 router.post("/reset-password", authController.resetPassword);
+
 router.post("/add-user-type", auth("add_user_type"), authController.addUserType);
+router.put("/update-user-type/:id", auth("update_user_type"), authController.updateUserType);
+router.delete("/delete-user-type/:id", auth("delete_user_type"), authController.deleteUserType);
+
 router.post('/assign-function-to-user-type', auth("assign_roles"), authController.assignFunctionToUserType);
 router.post('/forgot-password', forgotPassword);
 router.post("/resetPassWithToken", resetPasswordWithToken);

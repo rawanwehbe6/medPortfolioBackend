@@ -48,60 +48,42 @@ router.delete('/cbda/:id', auth("delete_cbda_form_by_id"), cbda.deleteTupleById)
 
 
 // Mortality & Morbidity Review Assessment Form Routes
-router.post(
-  '/mortality-morbidity-create',
-  auth("create_mortality_morbidity_form"),
-  uploadPNG,
-  mortalityMorbidityController.createMortalityMorbidityForm
-);
+router.post('/mortality-morbidity',authenticate,uploadPNG,
+  mortalityMorbidityController.createMortalityMorbidityForm);
 
-router.put(
-  '/mortality-morbidity-update/:id',
-  auth("update_mortality_morbidity_form"),
-  handleFileUpload,
-  mortalityMorbidityController.updateMortalityMorbidityForm
-);
+router.put('/mortality-morbidity/:id',authenticate,handleFileUpload,
+  mortalityMorbidityController.updateMortalityMorbidityForm);
 
 router.get(
   '/mortality-morbidity/:id',
-  auth("get_mortality_morbidity_form_by_id"),
+  authMiddleware,
   mortalityMorbidityController.getMortalityMorbidityFormById
 );
 
 router.delete(
   '/mortality-morbidity/:id',
-  auth("delete_mortality_morbidity_form_by_id"),
+  authMiddleware,
   mortalityMorbidityController.deleteMortalityMorbidityForm
 );
 
-
 // Seminar Assessment Form Routes
-router.post(
-  '/seminar-assessment-create',
-  auth("create_seminar_assessment"),
-  uploadPNG,
-  seminarAssessmentController.createSeminarAssessment
-);
+router.post('/seminar-assessment',authenticate,uploadPNG,
+  seminarAssessmentController.createSeminarAssessment);
 
-router.put(
-  '/seminar-assessment-update/:id',
-  auth("update_seminar_assessment"),
-  handleFileUpload,
-  seminarAssessmentController.updateSeminarAssessment
-);
+router.put('/seminar-assessment/:id',authenticate,handleFileUpload,
+  seminarAssessmentController.updateSeminarAssessment);
 
 router.get(
   '/seminar-assessment/:id',
-  auth("get_seminar_assessment_by_id"),
+  authMiddleware,
   seminarAssessmentController.getSeminarAssessmentById
 );
 
 router.delete(
   '/seminar-assessment/:id',
-  auth("delete_seminar_assessment_by_id"),
+  authMiddleware,
   seminarAssessmentController.deleteSeminarAssessment
 );
-
 
 //fellow resident form routes
 router.post("/fellow-resident/save-draft", auth, upload.single("instructor_signature"), frp.saveDraftAsSubmit);
@@ -123,6 +105,8 @@ router.put("/journal-club/update/:id",authenticate, upload.fields([
 router.get('/journal-club/:id', authenticate, journalClubController.getAssessmentById);
 router.delete('/journal-club/:id', authenticate, journalClubController.deleteAssessmentById);
 
+
+
 // Mini-CEX Routes
 router.post('/mini-cex', auth("create_mini_cex"), uploadPNG, miniCexController.createMiniCEX);
 router.put('/mini-cex/:id', auth("update_mini_cex"),  miniCexController.updateMiniCEX);
@@ -133,7 +117,7 @@ router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.
 
 
 // DOPS Routes
-router.post('/dops', auth("create_dops"), dopsController.createDOPS);
+router.post('/dops', auth("creat_dops"), uploadPNG, dopsController.createDOPS);
 router.put('/dops/:id', auth("update_dops"), dopsController.updateDOPS);
 router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
 router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);

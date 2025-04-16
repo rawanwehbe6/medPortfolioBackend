@@ -23,10 +23,6 @@ const createSeminarAssessment = async (req, res) => {
         } = req.body;
         const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
         const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
-        // Only admin/supervisors can create forms
-        if (![1, 3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied" });
-        }
 
         // Only assessor signature allowed on creation
         const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
@@ -78,8 +74,10 @@ const updateSeminarAssessment = async (req, res) => {
         const currentRecord = existingRecord[0];
         let updateQuery = "";
         let updateValues = [];
-
-        if (role === 2) {  // Resident role
+        const hasAccess = await form_helper.auth('Trainee', 'update_mortality_morbidity_form')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_mortality_morbidity_form')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+        if (hasAccess) {
             // Residents can only update their own forms
             if (currentRecord.resident_id !== userId) {
                 return res.status(403).json({ message: "Unauthorized access" });
@@ -103,7 +101,7 @@ const updateSeminarAssessment = async (req, res) => {
            if(old_send[0].resident_signature_path===null)
             await form_helper.sendSignatureToSupervisor(userId, "seminar_assessment",id);
 
-        } else if ([1, 3, 4, 5].includes(role)) {  // Admin or supervisor roles
+        } else if (hasAccessS) {  // Admin or supervisor roles
             // Supervisors can update all fields except resident signature and name
             const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
@@ -164,7 +162,6 @@ const updateSeminarAssessment = async (req, res) => {
 const getSeminarAssessmentById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req;
 
         // Fetch form with resident name
         const [result] = await db.execute(
@@ -207,7 +204,7 @@ const getSeminarAssessmentById = async (req, res) => {
 const deleteSeminarAssessment = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req;
+        const {  userId } = req.user;
 
         // First check if form exists
         const [existingRecord] = await db.execute(
@@ -222,8 +219,7 @@ const deleteSeminarAssessment = async (req, res) => {
         const form = existingRecord[0];
 
         // Check permissions
-        if (role === 1 || // Admin can delete any
-            ([3,4,5].includes(role) && form.supervisor_id === userId)) { // Supervisor can delete assigned
+        if (form.supervisor_id === userId) { // Supervisor can delete assigned
             await db.execute(
                 "DELETE FROM seminar_assessment WHERE id = ?", 
                 [id]

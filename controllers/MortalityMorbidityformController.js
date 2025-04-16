@@ -15,11 +15,6 @@ const createMortalityMorbidityForm = async (req, res) => {
         } = req.body;
         const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
         const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
-        // Only admin/supervisors can create forms
-        if (![1, 3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied" });
-        }
-
         // Only assessor signature allowed on creation
         const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
 
@@ -71,8 +66,10 @@ const updateMortalityMorbidityForm = async (req, res) => {
       const currentRecord = existingRecord[0];
       let updateQuery = "";
       let updateValues = [];
-
-      if (role === 2) {  // Resident role
+        const hasAccess = await form_helper.auth('Trainee', 'update_mortality_morbidity_form')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_mortality_morbidity_form')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+        if (hasAccess) {
           // Residents can only update their own forms
           if (currentRecord.resident_id !== userId) {
               return res.status(403).json({ message: "Unauthorized access" });
@@ -96,7 +93,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
            if(old_send[0].resident_signature_path===null)
             await form_helper.sendSignatureToSupervisor(userId, "mortality_morbidity_review_assessment",id);
 
-      } else if ([1, 3, 4, 5].includes(role)) {  // Admin or supervisor roles
+      } else if (hasAccessS) {  // Admin or supervisor roles
           // Supervisors can update all fields except resident signature and name
           const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
 
@@ -159,7 +156,6 @@ const updateMortalityMorbidityForm = async (req, res) => {
 const getMortalityMorbidityFormById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req;
 
         // Fetch form with resident name
         const [result] = await db.execute(
@@ -202,9 +198,8 @@ const getMortalityMorbidityFormById = async (req, res) => {
 const deleteMortalityMorbidityForm = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req;
-
-        // First check if form exists
+        const {  userId } = req.user;
+        // Check if form exists
         const [existingRecord] = await db.execute(
             "SELECT * FROM mortality_morbidity_review_assessment WHERE id = ?",
             [id]
@@ -216,20 +211,22 @@ const deleteMortalityMorbidityForm = async (req, res) => {
 
         const form = existingRecord[0];
 
-        // Check permissions
-        if (role === 1 || // Admin can delete any
-            ([3,4,5].includes(role) && form.supervisor_id === userId)) { // Supervisor can delete assigned
+        // Check permission
+        console.log(form.supervisor_id ,userId)
+        if (form.supervisor_id === userId) {
             await db.execute(
                 "DELETE FROM mortality_morbidity_review_assessment WHERE id = ?", 
                 [id]
             );
-            res.status(200).json({ message: "Mortality & Morbidity form deleted successfully" });
+            return res.status(200).json({ message: "Mortality & Morbidity form deleted successfully" });
         } else {
-            res.status(403).json({ message: "Permission denied" });
+            // Handle forbidden access
+            return res.status(403).json({ error: "You do not have permission to delete this form." });
         }
+
     } catch (err) {
         console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while deleting Mortality & Morbidity form" });
+        return res.status(500).json({ error: "Server error while deleting Mortality & Morbidity form" });
     }
 };
 
