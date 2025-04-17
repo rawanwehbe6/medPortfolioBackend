@@ -1,5 +1,6 @@
 const pool = require("../config/db");
 const moment = require("moment");
+const form_helper = require('../middleware/form_helper');
 
 const createMiniCEX = async (req, res) => {
     try {
@@ -126,8 +127,12 @@ const updateMiniCEX = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'update_mini_cex')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_mini_cex')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
         // Supervisor Updates (Roles 3, 4, 5)
-        if ([3, 4, 5].includes(role)) {
+        if (hasAccessS) {
             if (form.is_signed_by_supervisor) {
                 return res.status(400).json({ message: "You have already signed this form and cannot edit." });
             }
@@ -152,7 +157,7 @@ const updateMiniCEX = async (req, res) => {
         }
 
         // Trainee Updates (Role 2)
-        if (role === 2) {
+        else if (hasAccess) {
             
             // Ensure the current logged-in trainee is the one assigned to the form
             if (form.trainee_id !== userId) {
@@ -199,9 +204,11 @@ if (req.body.evaluation_date) {
         
             await pool.execute(updateQuery, updateValues);
             return res.status(200).json({ message: "Mini-CEX form updated successfully" });
+        } else {
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
         }
 
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
+        //return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
 
     } catch (err) {
         console.error("Database Error:", err);
@@ -230,8 +237,12 @@ const signMiniCEX = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'sign_mini_cex')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'sign_mini_cex')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
         // 🔹 Trainee Signs First
-        if (role === 2) {
+        if (hasAccess) {
             if (form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "You have already signed this form." });
             }
@@ -264,7 +275,7 @@ const signMiniCEX = async (req, res) => {
         }
 
         // 🔹 Supervisor Signs Last
-        if ([3, 4, 5].includes(role)) {
+        else if (hasAccessS) {
             if (!form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "The trainee must sign before you can sign." });
             }
@@ -306,10 +317,10 @@ const signMiniCEX = async (req, res) => {
             );
 
             return res.status(200).json({ message: "Mini-CEX form signed by supervisor." });
+        }else{
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
+
         }
-
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
-
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while signing Mini-CEX form." });

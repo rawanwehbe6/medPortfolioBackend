@@ -79,18 +79,18 @@ const updateLogbookProfile = async (req, res) => {
 
 const getLogbookProfileInfo = async (req, res) => {
     try {
-      const { role, userId } = req.user; // trainee's ID from token
-      
-      // Only trainees are allowed to delete certificates
+      //const { userId } = req.user; // trainee's ID from token
+      const { traineeId } = req.params;
+      /*// Only trainees are allowed to delete certificates
       if (role !== 2 || [3,4,5].includes(role) ) {
         return res.status(403).json({ message: "Only trainees and supervisors can get logbook profile info." });
-      }
+      }*/
 
       const [rows] = await pool.execute(
         `SELECT trainee_id, resident_name, academic_year, email, mobile_no
          FROM logbook_profile_info
          WHERE trainee_id = ?`,
-        [userId]
+        [traineeId]
       );
   
       if (rows.length === 0) {
@@ -198,7 +198,7 @@ const deleteLogbookProfileInfo = async (req, res) => {
 
 const signLogbookCertificate = async (req, res) => {
   try {
-    const { role, userId } = req.user;
+    const { /*role,*/ userId } = req.user;
     const traineeId = [3, 4, 5].includes(role) ? req.params.trainee_id : userId;
 
     console.log("Resolved traineeId:", traineeId);
@@ -221,8 +221,13 @@ const signLogbookCertificate = async (req, res) => {
 
     const signaturePath = req.files.signature[0].path;
 
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
+    
+
     // Trainee signs
-    if (role === 2) {
+    if (hasAccess) {
       if (profile.trainee_signature) {
         return res.status(400).json({ message: "You already signed." });
       }
@@ -236,7 +241,7 @@ const signLogbookCertificate = async (req, res) => {
     }
 
     // Hospital signs
-    if ([3, 4, 5].includes(role)) {
+    else if (hasAccessS) {
       if (profile.hospital_signature) {
         return res.status(400).json({ message: "Hospital already signed." });
       }
@@ -247,9 +252,12 @@ const signLogbookCertificate = async (req, res) => {
       );
 
       return res.status(200).json({ message: "Hospital signed the profile." });
+    }else{
+      return res.status(403).json({ message: "Permission denied." });
+
     }
 
-    return res.status(403).json({ message: "Permission denied." });
+    
   } catch (err) {
     console.error("Error signing logbook profile:", err);
     res.status(500).json({ message: "Server error." });
@@ -259,12 +267,12 @@ const signLogbookCertificate = async (req, res) => {
   const getCertificateSignature = async (req, res) => {
     try {
       const trainee_id = req.user.userId;
-      const role = req.user;
+      //const role = req.user;
 
       // Only trainees are allowed to delete certificates
-      if (role !== 2 || [3,4,5].includes(role) ) {
+      /*if (role !== 2 || [3,4,5].includes(role) ) {
         return res.status(403).json({ message: "Only trainees and supervisors can get their certificate's signatures." });
-      }
+      }*/
 
       // Fetch the certificate details and signatures from the logbook_profile_info table
       const [[profileInfo]] = await pool.execute(

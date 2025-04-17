@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require('../middleware/multerConfig');
 const authMiddleware = require('../middleware/authMiddleware');
-const auth = require('../middleware/verifyToken.js');
+const auth = require('../middleware/auth');
 const logbookController = require("../controllers/logbookController");
 const academicsAController = require("../controllers/academicsA");
 const seminarController = require("../controllers/academicsB");
@@ -16,20 +16,20 @@ const uploadPNG = upload.fields([
 ]);
 
 // Logbook profile Routes
-router.post("/logbook/profile", auth, logbookController.createLogbookProfile);
-//router.post("/logbook/profile", auth("create_logbook_profile"), logbookController.createLogbookProfile);
-router.get("/logbook/profile", auth, logbookController.getLogbookProfileInfo);
-router.put("/logbook/profile", auth, logbookController.updateLogbookProfile);
-router.get("/logbook/profile-picture", auth, logbookController.getLogbookProfile);
-router.delete('/logbook/profile-picture', auth, logbookController.deleteLogbookProfile);
-router.delete('/logbook/profile', auth, logbookController.deleteLogbookProfileInfo);
+router.post("/logbook/profile", auth("create_logbook_profile"), logbookController.createLogbookProfile);
+router.get("/logbook/profile/:traineeId", auth("get_logbook_profile_info"), logbookController.getLogbookProfileInfo);
+router.put("/logbook/profile", auth("update_logbook_profile"), logbookController.updateLogbookProfile);
+router.get("/logbook/profile-picture", auth("get_logbook_profile"), logbookController.getLogbookProfile);
+router.delete('/logbook/profile-picture', auth("get_logbook_profile"), logbookController.deleteLogbookProfile);
+router.delete('/logbook/profile', auth("delete_logbook_profile"), logbookController.deleteLogbookProfileInfo);
+
 
 
 // Logbook Certificate Routes
-router.post("/logbook/certificate", auth, uploadPNG, logbookController.signLogbookCertificate);
-router.post("/logbook/certificate/:trainee_id", auth, uploadPNG, logbookController.signLogbookCertificate);
-router.get("/logbook/certificate/sign/:certificate_id", auth, logbookController.getCertificateSignature);
-router.delete("/logbook/certificate/delete/:certificate_id",auth, logbookController.deleteLogbookCertificate);
+router.post("/logbook/certificate", auth("sign_logbook_certificate"), uploadPNG, logbookController.signLogbookCertificate);
+router.post("/logbook/certificate/:trainee_id", auth("sign_logbook_certificate"), uploadPNG, logbookController.signLogbookCertificate);
+router.get("/logbook/certificate/sign/:certificate_id", auth("get_certificate_signature"), logbookController.getCertificateSignature);
+router.delete("/logbook/certificate/delete/:certificate_id",auth("delete_logbook_certificate"), logbookController.deleteLogbookCertificate);
 
 // Logbook First Year Rotation Config Routes
 router.post('/logbook/first-year-rotation-config', auth, logbookController.createRotation1stYearConfig);
