@@ -20,6 +20,8 @@ const messagesRoutes = require('./routes/messages_notificationsRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
 const logbookRoutes = require('./routes/logbookRoutes');
+//rimas testing
+const path = require('path');
 
 // Use express.json() to parse incoming JSON requests
 app.use(express.json());  // This should be placed before any route handling
@@ -63,6 +65,9 @@ const PORT = process.env.PORT || 3000;
 
 app.get('/tdb', testConnection);
 
+// rimas testing
+// Serve the uploads folder as static
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

@@ -1,18 +1,15 @@
 const pool = require("../config/db");
 const moment = require("moment");
+const form_helper = require('../middleware/form_helper');
 
 const createMiniCEX = async (req, res) => {
     try {
-        const { role, userId } = req.user;
+        const { userId } = req.user;
         const {
             medical_interviewing, physical_exam, professionalism, clinical_judgment,
             counseling_skills, efficiency, overall_competence, observer_time, feedback_time,
             evaluator_satisfaction, trainee_id
         } = req.body;
-
-        if (![3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied: Only supervisors can create this form" });
-        }
 
         // Fetch supervisor name
         const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [userId]);
@@ -47,7 +44,7 @@ const createMiniCEX = async (req, res) => {
 
 const sendMiniCEXToTrainee = async (req, res) => {
     try {
-        const { role, userId } = req.user;
+        const { /*role,*/ userId } = req.user;
         const { formId } = req.params; // The Mini-CEX form ID
 
         /*
@@ -60,10 +57,10 @@ const sendMiniCEXToTrainee = async (req, res) => {
         if (!formId || !userId) {
             return res.status(400).json({ message: "Missing required parameters: formId or userId." });
         }
-        
+        /*
         if (![3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied: Only supervisors can send forms to trainees" });
-        }
+        }*/
 
         // Check if form exists and belongs to the supervisor
         const [[form]] = await pool.execute("SELECT trainee_id FROM mini_cex WHERE id = ? AND supervisor_id = ?", [formId, userId]);
@@ -130,8 +127,12 @@ const updateMiniCEX = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'update_mini_cex')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_mini_cex')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
         // Supervisor Updates (Roles 3, 4, 5)
-        if ([3, 4, 5].includes(role)) {
+        if (hasAccessS) {
             if (form.is_signed_by_supervisor) {
                 return res.status(400).json({ message: "You have already signed this form and cannot edit." });
             }
@@ -156,7 +157,7 @@ const updateMiniCEX = async (req, res) => {
         }
 
         // Trainee Updates (Role 2)
-        if (role === 2) {
+        else if (hasAccess) {
             
             // Ensure the current logged-in trainee is the one assigned to the form
             if (form.trainee_id !== userId) {
@@ -203,9 +204,11 @@ if (req.body.evaluation_date) {
         
             await pool.execute(updateQuery, updateValues);
             return res.status(200).json({ message: "Mini-CEX form updated successfully" });
+        } else {
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
         }
 
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
+        //return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
 
     } catch (err) {
         console.error("Database Error:", err);
@@ -234,8 +237,12 @@ const signMiniCEX = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'sign_mini_cex')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'sign_mini_cex')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
         // 🔹 Trainee Signs First
-        if (role === 2) {
+        if (hasAccess) {
             if (form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "You have already signed this form." });
             }
@@ -268,7 +275,7 @@ const signMiniCEX = async (req, res) => {
         }
 
         // 🔹 Supervisor Signs Last
-        if ([3, 4, 5].includes(role)) {
+        else if (hasAccessS) {
             if (!form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "The trainee must sign before you can sign." });
             }
@@ -310,10 +317,10 @@ const signMiniCEX = async (req, res) => {
             );
 
             return res.status(200).json({ message: "Mini-CEX form signed by supervisor." });
+        }else{
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
+
         }
-
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
-
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while signing Mini-CEX form." });
@@ -324,7 +331,7 @@ const signMiniCEX = async (req, res) => {
 const getMiniCEXById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req.user;
+        const { /*role,*/ userId } = req.user;
 
         const [result] = await pool.execute(
             `SELECT mc.*, 
@@ -343,10 +350,10 @@ const getMiniCEXById = async (req, res) => {
 
         const form = result[0];
 
-        // Check if the user is the supervisor or trainee assigned to the form
+        /* / Check if the user is the supervisor or trainee assigned to the form
         if (role !== 1 && form.supervisor_id !== userId && form.trainee_id !== userId) {
             return res.status(403).json({ message: "Permission denied: You can only view forms assigned to you." });
-        }
+        }*/
 
         res.status(200).json(form);
     } catch (err) {
@@ -358,7 +365,7 @@ const getMiniCEXById = async (req, res) => {
 const deleteMiniCEXById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId, role } = req.user;
+        const { userId/*, role*/ } = req.user;
 
         const [rows] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [id]);
 
@@ -368,10 +375,10 @@ const deleteMiniCEXById = async (req, res) => {
 
         const record = rows[0];
 
-        // Allow only the supervisor who created the form or an admin to delete it
+        /*/ Allow only the supervisor who created the form or an admin to delete it
         if (record.supervisor_id !== userId && role !== 1) {
             return res.status(403).json({ message: "Permission denied: Only the evaluator or an admin can delete this Mini-CEX record." });
-        }
+        }*/
 
         await pool.execute("DELETE FROM mini_cex WHERE id = ?", [id]);
         res.status(200).json({ message: "Mini-CEX record deleted successfully" });

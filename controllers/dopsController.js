@@ -1,9 +1,10 @@
 const pool = require("../config/db");
 const moment = require("moment");
+const form_helper = require('../middleware/form_helper');
 
 const createDOPS = async (req, res) => {
     try {
-        const { role, userId } = req.user;
+        const { /*role,*/ userId } = req.user;
         const {
             trainee_id, indications, indications_comment, consent, consent_comment, 
             preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
@@ -14,9 +15,9 @@ const createDOPS = async (req, res) => {
             
         } = req.body;
 
-        if (![3, 4, 5].includes(role)) {
+        /*if (![3, 4, 5].includes(role)) {
             return res.status(403).json({ message: "Permission denied: Only supervisors can create this form" });
-        }
+        }*/
 
         // Fetch supervisor and trainee names
         const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [userId]);
@@ -37,16 +38,17 @@ const createDOPS = async (req, res) => {
             communication, communication_comment, professionalism, professionalism_comment,
             global_summary, feedback, strengths, developmental_needs, recommended_actions, is_draft, is_sent_to_trainee
             ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 0)`,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
                 userId, supervisor.Name, trainee_id, trainee.Name, indications, indications_comment, consent, consent_comment, 
                 preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
                 asepsis_comment, technical_aspects, technical_aspects_comment, 
                 unexpected_events, unexpected_events_comment, documentation, documentation_comment,
                 communication, communication_comment, professionalism, professionalism_comment,
-                global_summary, feedback, strengths, developmental_needs, recommended_actions, is_draft, is_sent_to_trainee
+                global_summary, feedback, strengths, developmental_needs, recommended_actions, 1, 0
             ]
         );
+        
 
         res.status(201).json({ message: "DOPS form created successfully", formId: result.insertId});
     } catch (err) {
@@ -130,8 +132,12 @@ const updateDOPS = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'update_dops')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'update_dops')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
       // Supervisor Updates (Roles 3, 4, 5)
-      if ([3, 4, 5].includes(role)) {
+      if (hasAccessS) {
         if (form.is_signed_by_supervisor) {
             return res.status(400).json({ message: "You have already signed this form and cannot edit." });
         }
@@ -164,7 +170,7 @@ const updateDOPS = async (req, res) => {
     
     
         // Trainee Updates (Role 2)
-        if (role === 2) {
+        else if (hasAccess) {
             
             // Ensure the current logged-in trainee is the one assigned to the form
             if (form.trainee_id !== userId) {
@@ -210,9 +216,9 @@ const updateDOPS = async (req, res) => {
         
             await pool.execute(updateQuery, updateValues);
             return res.status(200).json({ message: "DOPS form updated successfully" });
+        }else{
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
         }
-
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
 
     } catch (err) {
         console.error("Database Error:", err);
@@ -240,8 +246,12 @@ const signDOPS = async (req, res) => {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
         }
 
+        const hasAccess = await form_helper.auth('Trainee', 'sign_dops')(req, res);
+        const hasAccessS = await form_helper.auth('Supervisor', 'sign_dops')(req, res);
+        console.log(hasAccess,hasAccessS,userId);
+
         // 🔹 Trainee Signs First
-        if (role === 2) {
+        if (hasAccess) {
             if (form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "You have already signed this form." });
             }
@@ -273,7 +283,7 @@ const signDOPS = async (req, res) => {
         }
 
         // 🔹 Supervisor Signs Last
-        if ([3, 4, 5].includes(role)) {
+        else if (hasAccessS) {
             if (!form.is_signed_by_trainee) {
                 return res.status(400).json({ message: "The trainee must sign before you can sign." });
             }
@@ -315,10 +325,9 @@ const signDOPS = async (req, res) => {
             );
 
             return res.status(200).json({ message: "DOPS form signed by supervisor." });
-        }
-
-        return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
-
+        } else{
+            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
+        } 
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while signing DOPS form." });
@@ -328,13 +337,13 @@ const signDOPS = async (req, res) => {
 const getDOPSById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { role, userId } = req.user;
+        const { /*role,*/ userId } = req.user;
 
         const [result] = await pool.execute(
             `SELECT d.*, u1.Name AS trainee_name, u2.Name AS supervisor_name
              FROM dops d
-             JOIN users u1 ON d.trainee_id = u1.id
-             JOIN users u2 ON d.supervisor_id = u2.id
+             JOIN users u1 ON d.trainee_id = u1.User_ID
+             JOIN users u2 ON d.supervisor_id = u2.User_ID
              WHERE d.id = ?`, 
             [id]
         );
@@ -345,9 +354,9 @@ const getDOPSById = async (req, res) => {
 
         const form = result[0];
 
-        if (role !== 1 && form.trainee_id !== userId && form.supervisor_id !== userId) {
+        /*if (role !== 1 && form.trainee_id !== userId && form.supervisor_id !== userId) {
             return res.status(403).json({ message: "Permission denied: You are not authorized to view this DOPS record" });
-        }
+        }*/
 
         res.status(200).json(form);
     } catch (err) {

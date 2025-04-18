@@ -304,7 +304,7 @@ const addConference = async (req, res) => {
     try {
         const { title, date, host, description } = req.body;
         const certificate = req.file ? req.file.filename : null;
-        const user_id = req.userId; // Assuming user is authenticated
+        const user_id = req.user.userId; // Assuming user is authenticated
 
         if (!req.body.title || !req.body.date || !req.body.host || !req.body.description) {
             return res.status(400).json({ message: "All fields are required." });
@@ -431,7 +431,7 @@ const getWorkshops = async (req, res) => {
 // Get All Conferences for Logged-in Trainee
 const getConferences = async (req, res) => {
   try {
-    const user_id = req.userId;
+    const user_id = req.user.userId;
     const [rows] = await db.query("SELECT * FROM eduactconferences WHERE User_ID = ?", [user_id]);
     res.status(200).json(rows);
   } catch (error) {

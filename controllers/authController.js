@@ -145,7 +145,6 @@ const updateUser = async (req, res) => {
         return res.status(400).json({ message: 'Email already in use' });
       }
     }
-
     // Hash new password if provided
     let hashedPassword = null;
     if (password && password.trim() !== '') {
@@ -169,8 +168,9 @@ const updateUser = async (req, res) => {
       values.push(hashedPassword);
     }
     if (role) {
+      const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
       updates.push('Role = ?');
-      values.push(role);
+      values.push(roles[0].id);
     }
     if (BAU_ID) {
       updates.push('BAU_ID = ?');
@@ -184,9 +184,9 @@ const updateUser = async (req, res) => {
     // Execute the update query
     values.push(id); // Use ID to match the correct user
     const query = `UPDATE USERS SET ${updates.join(', ')} WHERE User_ID = ?`;
-
+console.log(query, values);
     await pool.execute(query, values);
-    console.log(query, values);
+    
 
     res.json({ message: 'User updated successfully' });
   } catch (err) {
