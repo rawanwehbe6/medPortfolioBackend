@@ -247,7 +247,7 @@ const getAllUsersWithRoles = async (req, res) => {
 const getAllRoles = async (req, res) => {
   try {
     const [roles] = await pool.execute(`
-      SELECT id, name FROM usertypes
+      SELECT id,type, name FROM usertypes
     `);
 
     res.status(200).json({
