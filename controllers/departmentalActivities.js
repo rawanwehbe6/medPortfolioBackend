@@ -3,16 +3,21 @@ const pool = require("../config/db");
 // Create new departmental activity entry
 const createActivityEntry = async (req, res) => {
   try {
-    const { activity_category, details, date, user_id } = req.body;
+    const { userId } = req.user;
+    const { activity_category, details, date } = req.body;
 
     if (!activity_category || !details || !date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    if (!userId) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
+
     const [result] = await pool.execute(
       `INSERT INTO departmental_activities (activity_category, details, date, user_id)
        VALUES (?, ?, ?, ?)`,
-      [activity_category, details, date, user_id || null]
+      [activity_category, details, date, userId]
     );
 
     res.status(201).json({

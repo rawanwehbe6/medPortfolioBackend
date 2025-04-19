@@ -106,18 +106,18 @@ router.post("/research-publications",auth('create_researchPub'), researchpublica
 router.get("/research-publications",auth('get_researchPub'), researchpublicationsController.getResearchEntries);
 router.delete("/research-publications/:id", auth("delete_researchPub"),researchpublicationsController.deleteResearchEntry);
 router.put(
-  "/teaching/:id/sign",
+  "/research-publications/:id/sign",
   auth("update_researchPub"),
   researchpublicationsController.signFaculty
 );
 
 //departmental activities routes
-router.post("/departmental-Activities", departmentalActivities.createActivityEntry);
-router.get("/departmental-Activities", departmentalActivities.getActivityEntries);
-router.delete("/departmental-Activities/:id", departmentalActivities.deleteActivityEntry);
+router.post("/departmental-Activities",auth('create_depActivities'), departmentalActivities.createActivityEntry);
+router.get("/departmental-Activities",auth('get_depActivities'), departmentalActivities.getActivityEntries);
+router.delete("/departmental-Activities/:id",auth('delete_depActivities'), departmentalActivities.deleteActivityEntry);
 router.put(
   "/departmental-Activities/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
+  auth("update_depActivities"),
   departmentalActivities.signActivityFaculty
 );
 
