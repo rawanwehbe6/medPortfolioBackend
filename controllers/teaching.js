@@ -23,6 +23,7 @@ const createTeaching = async (req, res) => {
 };
 
 const getTeachings = async (req, res) => {
+  
   try {
     const [rows] = await pool.execute(
       `SELECT id, activity, date, topic, rating, faculty_signature FROM teaching`
