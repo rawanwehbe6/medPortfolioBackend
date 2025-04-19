@@ -224,7 +224,7 @@ const signLogbookCertificate = async (req, res) => {
     const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
     const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
     console.log(hasAccess,hasAccessS,userId);
-    
+     
 
     // Trainee signs
     if (hasAccess) {

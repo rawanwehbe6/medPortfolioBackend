@@ -1,4 +1,5 @@
 const pool = require("../config/db");
+const upload = require("../middleware/multerConfig");
 
 const createTeaching = async (req, res) => {
   try {
@@ -55,27 +56,26 @@ const deleteTeaching = async (req, res) => {
   };
   
 
-  const signFaculty = async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { faculty_signature } = req.body;
-  
-      if (!faculty_signature) {
-        return res.status(400).json({ error: "Faculty signature is required" });
-      }
-  
-      await pool.execute(
-        `UPDATE teaching SET faculty_signature = ? WHERE id = ?`,
-        [faculty_signature, id]
-      );
-  
-      res.status(200).json({ message: "Faculty signature added successfully" });
-    } catch (err) {
-      console.error("Signature Update Error:", err);
-      res.status(500).json({ error: "Server error" });
+const signFaculty = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const facultySignature = req.files?.signature ? req.files.signature[0].path : null;
+
+    if (!facultySignature) {
+      return res.status(400).json({ error: "Signature image is required" });
     }
-  };
-  
+
+    await pool.execute(
+      `UPDATE teaching SET faculty_signature = ? WHERE id = ?`,
+      [facultySignature, id]
+    );
+
+    res.status(200).json({ message: "Faculty signature uploaded successfully" });
+  } catch (err) {
+    console.error("Signature Upload Error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 module.exports = {
   createTeaching,

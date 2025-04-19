@@ -11,15 +11,33 @@ const createResearch = async (req, res) => {
     if (!title || !date || !description || !userId || !req.file) {
       return res.status(400).json({ error: "Missing required fields: title, date, description, or file." });
     }
+    // Get the file extension from the original filename
+    const ext = path.extname(req.file.originalname);
+    let filename = req.file.filename;
 
-    const filePath = req.file.path; // Store file path
+    // Add extension only if not already there
+    if (!filename.endsWith(ext)) {
+      filename = `${filename}${ext}`;
+    }
+
+    const filePath = `uploads/${filename}`;
+
+    fs.renameSync(
+      path.join(__dirname, '..', 'uploads', req.file.filename),
+      path.join(__dirname, '..', filePath)
+    );
 
     const [result] = await pool.execute(
       "INSERT INTO research (User_ID, Title, Date, Description, File_Path) VALUES (?, ?, ?, ?, ?)",
       [userId, title, date, description, filePath]
     );
 
-    res.status(201).json({ message: "Research added successfully", researchId: result.insertId });
+    //rimastesting
+    const fullUrl = `${req.protocol}://${req.get('host')}/${filePath}`;
+
+    res.status(201).json({ message: "Research added successfully", researchId: result.insertId, File_Path: filePath,
+      //rimastesting
+      image_url: fullUrl });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).json({ error: "Server error during research creation" });
@@ -65,7 +83,7 @@ const updateResearch = async (req, res) => {
         [title, date, description, filePath, id, userId]
       );
   
-      res.status(200).json({ message: "Research updated successfully" });
+      res.status(200).json({ message: "Research updated successfully", filePath });
     } catch (err) {
       console.error("Database Error:", err);
       res.status(500).json({ error: "Server error during research update" });
@@ -119,12 +137,25 @@ const getResearch = async (req, res) => {
       return res.status(403).json({ error: "Unauthorized access." });
     }
 
-    const [researches] = await pool.execute(
+    /*const [researches] = await pool.execute(
       "SELECT Research_ID, Title, Date, Description, File_Path FROM research WHERE User_ID = ?",
       [userId]
-    );
+    );*/
+    const [researches] = await pool.execute(`
+      SELECT 
+        Research_ID, Title,
+        DATE_FORMAT(Date, '%Y-%m-%d') AS Date,
+        Description, File_Path
+      FROM research
+      WHERE User_ID = ?
+    `, [userId]);
+    
+    const researchesWithUrl = researches.map(research => ({
+      ...research,
+      image_url: `${req.protocol}://${req.get('host')}/${research.File_Path}`
+    }));
 
-    res.status(200).json({ researches });
+    res.status(200).json({ researches: researchesWithUrl });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).json({ error: "Server error while retrieving research papers" });

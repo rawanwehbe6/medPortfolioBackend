@@ -1,4 +1,6 @@
 const db = require("../config/db");
+const fs = require('fs');
+const path = require('path');
 
 //Ensure date is in the format mm/dd/yyyy
 const isValidDate = (date) => {
@@ -35,7 +37,7 @@ const formatDateToDatabaseFormat = (date) => {
 const addCourse = async (req, res) => {
   try {
     const { title, date, institution, description } = req.body;
-    const certificate = req.file ? req.file.filename : null;
+    //const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId; 
 
     if (!title || !date || !institution || !description) {
@@ -49,13 +51,32 @@ const addCourse = async (req, res) => {
     } catch (error) {
       return res.status(400).json({ message: error.message });
     }
+    let certificate = null;
+
+    if (req.file) {
+      const ext = path.extname(req.file.originalname);
+          let filename = req.file.filename;
+
+          if (!filename.endsWith(ext)) {
+            filename = `${filename}${ext}`;
+          }
+
+          certificate = `uploads/${filename}`;
+
+          fs.renameSync(
+            path.join(__dirname, '..', 'uploads', req.file.filename),
+            path.join(__dirname, '..', certificate)
+          );
+    }
 
     await db.query(
       "INSERT INTO eduactcourses (user_id, title, date, institution, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
       [user_id, title, formattedDate, institution, description, certificate]
     );
 
-    res.status(201).json({ message: "Course added successfully." });
+    const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
+
+    res.status(201).json({ message: "Course added successfully." , certificate_url: fullUrl});
   } catch (error) {
     console.error("Error in addCourse:", error);
     res.status(500).json({ message: "Server error." });
@@ -67,7 +88,7 @@ const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, date, institution, description } = req.body;
-    const certificate = req.file ? req.file.filename : null;
+    //const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId; 
 
     if (!title || !date || !institution || !description) {
@@ -87,6 +108,18 @@ const updateCourse = async (req, res) => {
       return res.status(404).json({ message: "Course not found or unauthorized." });
     }
 
+    let certificate = course[0].certificate; // Use existing file by default
+    if (req.file) {
+      // Delete the old file if a new one is uploaded
+      const oldFilePath = path.join(__dirname, '..', 'uploads', course[0].certificate);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+
+      certificate = req.file.path; // Store the new file path
+    }
+    
+
     await db.query(
       "UPDATE eduactcourses SET title = ?, date = ?, institution = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
       [title, formattedDate, institution, description, certificate, id, user_id]
@@ -103,34 +136,37 @@ const updateCourse = async (req, res) => {
 const deleteCourse = async (req, res) => {
   try {
     const { id } = req.params;
-    const user_id = req.user.userId; 
+    const userId = req.user ? req.user.userId : null;
 
-    // First verify the course exists and belongs to the user
-    const [course] = await db.query(
-      "SELECT * FROM eduactcourses WHERE id = ? AND user_id = ?",
-      [id, user_id]
-    );
-
-    if (course.length === 0) {
-      return res.status(404).json({ 
-        message: "Course not found or unauthorized." 
-      });
+    if (!userId || !id) {
+      return res.status(400).json({ message: "Missing required fields: userId or id" });
     }
 
-    // Delete the course
-    await db.query(
-      "DELETE FROM eduactcourses WHERE id = ? AND user_id = ?",
-      [id, user_id]
+    // Check if the course exists
+    const [existingCourses] = await db.query(
+      "SELECT * FROM eduactcourses WHERE id = ? AND user_id = ?",
+      [id, userId]
     );
 
-    res.status(200).json({ 
-      message: "Course deleted successfully." 
-    });
+    if (existingCourses.length === 0) {
+      return res.status(404).json({ message: "Course not found or unauthorized." });
+    }
+
+    // Delete the certificate file if it exists
+    const certificatePath = existingCourses[0].certificate;
+    const fileToDelete = path.join(__dirname, '..', certificatePath);
+
+    if (certificatePath && fs.existsSync(fileToDelete)) {
+      fs.unlinkSync(fileToDelete);
+    }
+
+    // Delete the course record from DB
+    await db.query("DELETE FROM eduactcourses WHERE id = ? AND user_id = ?", [id, userId]);
+
+    res.status(200).json({ message: "Course deleted successfully." });
   } catch (error) {
-    console.error("Error in deleteCourse:", error);
-    res.status(500).json({ 
-      message: "Server error while deleting course." 
-    });
+    console.error("Delete Course Error:", error);
+    res.status(500).json({ message: "Server error while deleting course." });
   }
 };
 
@@ -138,7 +174,7 @@ const deleteCourse = async (req, res) => {
 const addWorkshop = async (req, res) => {
   try {
     const { title, date, organizer, description } = req.body;
-    const certificate = req.file ? req.file.filename : null;
+    //const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId;
 
     // Validate required fields
@@ -156,6 +192,19 @@ const addWorkshop = async (req, res) => {
       return res.status(400).json({ 
         message: "Invalid date format. Please use MM/DD/YYYY." 
       });
+    }
+
+    let certificate = null;
+    // Check if a certificate is uploaded and handle file renaming
+    if (req.file) {
+      const ext = path.extname(req.file.originalname);
+      certificate = `uploads/${req.file.filename}${ext}`;
+      
+      // Rename the uploaded file to include the correct extension
+      fs.renameSync(
+        path.join(__dirname, '..', 'uploads', req.file.filename),
+        path.join(__dirname, '..', certificate)
+      );
     }
 
     // Insert workshop into database
@@ -190,63 +239,67 @@ const updateWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, date, organizer, description } = req.body;
-    const certificate = req.file ? req.file.filename : undefined; 
-    const user_id = req.user.userId; 
+    const userId = req.user ? req.user.userId : null;
 
-    // Validate required fields
-    if (!title || !date || !organizer || !description) {
-      return res.status(400).json({ 
-        message: "All fields (title, date, organizer, description) are required." 
-      });
+    if (!userId || !id || !title || !date || !organizer || !description) {
+      return res.status(400).json({ message: "Missing required fields: userId, id, title, date, organizer, or description." });
     }
 
-    // Convert and validate date format
-    let formattedDate;
-    try {
-      formattedDate = formatDateToDatabaseFormat(date);
-    } catch (error) {
-      return res.status(400).json({ 
-        message: "Invalid date format. Please use MM/DD/YYYY." 
-      });
+    // Validate date
+    const dateError = isValidDate(date);
+    if (dateError) {
+      return res.status(400).json({ message: dateError });
     }
 
-    // First verify the workshop exists and belongs to the user
-    const [workshop] = await db.query(
-      "SELECT * FROM eduactworkshops WHERE id = ? AND user_id = ?",
-      [id, user_id]
+    // Check if the workshop exists
+    const [existing] = await db.query(
+      "SELECT certificate FROM eduactworkshops WHERE id = ? AND user_id = ?",
+      [id, userId]
     );
 
-    if (workshop.length === 0) {
-      return res.status(404).json({ 
-        message: "Workshop not found or unauthorized." 
-      });
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Workshop not found or unauthorized." });
     }
 
-    const updateQuery = certificate
-      ? "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?"
-      : "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ? WHERE id = ? AND user_id = ?";
+    let certificate = existing[0].certificate;
 
-    const params = certificate
-      ? [title, formattedDate, organizer, description, certificate, id, user_id]
-      : [title, formattedDate, organizer, description, id, user_id];
+    // Handle new certificate upload
+    if (req.file) {
+      // Delete old file if exists
+      const oldFilePath = path.join(__dirname, '..', certificate);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
 
-    await db.query(updateQuery, params);
+      // Rename new file with extension
+      const ext = path.extname(req.file.originalname);
+      let filename = req.file.filename;
+      if (!filename.endsWith(ext)) {
+        filename += ext;
+      }
 
-    res.status(200).json({ 
-      message: "Workshop updated successfully."
-    });
+      certificate = `uploads/${filename}`;
+
+      fs.renameSync(
+        path.join(__dirname, '..', 'uploads', req.file.filename),
+        path.join(__dirname, '..', certificate)
+      );
+    }
+
+    const formattedDate = formatDateToDatabaseFormat(date);
+
+    await db.query(
+      "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
+      [title, formattedDate, organizer, description, certificate, id, userId]
+    );
+
+    const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
+
+    res.status(200).json({ message: "Workshop updated successfully.", certificate_url: fullUrl });
+
   } catch (error) {
-    console.error("Error in updateWorkshop:", error);
-    
-    if (error.code === 'ER_DUP_ENTRY') {
-      return res.status(409).json({ 
-        message: "A workshop with these details already exists." 
-      });
-    }
-    
-    res.status(500).json({ 
-      message: "Failed to update workshop. Please try again later." 
-    });
+    console.error("Update Workshop Error:", error);
+    res.status(500).json({ message: "Server error during workshop update." });
   }
 };
 
@@ -254,56 +307,46 @@ const updateWorkshop = async (req, res) => {
 const deleteWorkshop = async (req, res) => {
   try {
     const { id } = req.params;
-    const user_id = req.user.userId; 
+    const userId = req.user ? req.user.userId : null;
 
-    // First verify the workshop exists and belongs to the user
-    const [workshop] = await db.query(
+    if (!userId || !id) {
+      return res.status(400).json({ message: "Missing required fields: userId or id" });
+    }
+
+    // Check if the workshop exists
+    const [existingWorkshops] = await db.query(
       "SELECT * FROM eduactworkshops WHERE id = ? AND user_id = ?",
-      [id, user_id]
+      [id, userId]
     );
 
-    if (workshop.length === 0) {
-      return res.status(404).json({ 
-        message: "Workshop not found or unauthorized." 
-      });
+    if (existingWorkshops.length === 0) {
+      return res.status(404).json({ message: "Workshop not found or unauthorized." });
     }
 
-    // Delete the workshop
-    const [result] = await db.query(
-      "DELETE FROM eduactworkshops WHERE id = ? AND user_id = ?",
-      [id, user_id]
-    );
+    // Delete the certificate file if it exists
+    const certificatePath = existingWorkshops[0].certificate;
+    const fileToDelete = path.join(__dirname, '..', certificatePath);
 
-    // Check if any rows were actually deleted
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ 
-        message: "Workshop not found or already deleted." 
-      });
+    if (certificatePath && fs.existsSync(fileToDelete)) {
+      fs.unlinkSync(fileToDelete);
     }
 
-    res.status(200).json({ 
-      message: "Workshop deleted successfully."
-    });
+    // Delete the workshop record from DB
+    await db.query("DELETE FROM eduactworkshops WHERE id = ? AND user_id = ?", [id, userId]);
+
+    res.status(200).json({ message: "Workshop deleted successfully." });
   } catch (error) {
-    console.error("Error in delete Workshop:", error);
-    
-    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
-      return res.status(409).json({ 
-        message: "Cannot delete workshop because it is referenced by other records." 
-      });
-    }
-    
-    res.status(500).json({ 
-      message: "Failed to delete workshop. Please try again later." 
-    });
+    console.error("Delete Workshop Error:", error);
+    res.status(500).json({ message: "Server error during workshop deletion." });
   }
 };
+
 
 //Add Conference
 const addConference = async (req, res) => {
     try {
         const { title, date, host, description } = req.body;
-        const certificate = req.file ? req.file.filename : null;
+       // const certificate = req.file ? req.file.filename : null;
         const user_id = req.user.userId; // Assuming user is authenticated
 
         if (!req.body.title || !req.body.date || !req.body.host || !req.body.description) {
@@ -323,12 +366,32 @@ const addConference = async (req, res) => {
              return res.status(400).json({ message: error.message });
          }
         
+        let certificate = null;
+
+        if (req.file) {
+          const ext = path.extname(req.file.originalname);
+          let filename = req.file.filename;
+
+          if (!filename.endsWith(ext)) {
+            filename = `${filename}${ext}`;
+          }
+
+          certificate = `uploads/${filename}`;
+
+          fs.renameSync(
+            path.join(__dirname, '..', 'uploads', req.file.filename),
+            path.join(__dirname, '..', certificate)
+          );
+        }
+
         await db.query(
             "INSERT INTO eduactconferences (User_ID, title, date, host, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
             [user_id, title, formattedDate, host, description, certificate]
         );
         
-        res.status(201).json({ message: "Conference added successfully." });
+        const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
+
+        res.status(201).json({ message: "Conference added successfully.", certificate_url: fullUrl });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error." });
@@ -336,109 +399,211 @@ const addConference = async (req, res) => {
 };
 
 const updateConference = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { title, date, host, description } = req.body;
-        const certificate = req.file ? req.file.filename : null;
-        const user_id = req.userId; // Assuming user is authenticated
+  try {
+    const { id } = req.params;
+    const { title, date, host, description } = req.body;
+    const userId = req.user ? req.user.userId : null;
 
-        if (!title || !date || !host || !description) {
-            return res.status(400).json({ message: "All fields are required." });
-        }
-        
-        const dateError = isValidDate(date);
-        if (dateError) {
-            return res.status(400).json({ message: dateError });
-        }
-
-        // Validate and format the date
-        let formattedDate;
-        try {
-            formattedDate = formatDateToDatabaseFormat(date);
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
-
-        await db.query(
-            "UPDATE eduactconferences SET title = ?, date = ?, host = ?, description = ?, certificate = ? WHERE id = ? AND User_ID = ?",
-            [title, formattedDate, host, description, certificate, id, user_id]
-        );
-
-        res.status(200).json({ message: "Conference updated successfully." });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error." });
+    if (!userId || !id || !title || !date || !host || !description) {
+      return res.status(400).json({ message: "Missing required fields: userId, id, title, date, host, or description." });
     }
+
+    // Validate date
+    const dateError = isValidDate(date);
+    if (dateError) {
+      return res.status(400).json({ message: dateError });
+    }
+
+    // Check if the conference exists
+    const [existing] = await db.query(
+      "SELECT certificate FROM eduactconferences WHERE id = ? AND User_ID = ?",
+      [id, userId]
+    );
+
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Conference not found or unauthorized." });
+    }
+
+    let certificate = existing[0].certificate;
+
+    if (req.file) {
+      // Delete old certificate file
+      const oldFilePath = path.join(__dirname, '..', certificate);
+      if (fs.existsSync(oldFilePath)) {
+        fs.unlinkSync(oldFilePath);
+      }
+
+      // Rename and assign new certificate
+      const ext = path.extname(req.file.originalname);
+      let filename = req.file.filename;
+      if (!filename.endsWith(ext)) {
+        filename += ext;
+      }
+
+      certificate = `uploads/${filename}`;
+
+      fs.renameSync(
+        path.join(__dirname, '..', 'uploads', req.file.filename),
+        path.join(__dirname, '..', certificate)
+      );
+    }
+
+    const formattedDate = formatDateToDatabaseFormat(date);
+
+    await db.query(
+      "UPDATE eduactconferences SET title = ?, date = ?, host = ?, description = ?, certificate = ? WHERE id = ? AND User_ID = ?",
+      [title, formattedDate, host, description, certificate, id, userId]
+    );
+
+    const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
+
+    res.status(200).json({ message: "Conference updated successfully.", certificate_url: fullUrl });
+  } catch (error) {
+    console.error("Update Conference Error:", error);
+    res.status(500).json({ message: "Server error during conference update." });
+  }
 };
 
 const deleteConference = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const user_id = req.userId; // Assuming user is authenticated
+  try {
+    const { id } = req.params;
+    const userId = req.user ? req.user.userId : null;
 
-        const result = await db.query(
-            "DELETE FROM eduactconferences WHERE id = ? AND User_ID = ?",
-            [id, user_id]
-        );
-
-        if (result.affectedRows === 0) {
-            return res.status(404).json({ message: "Conference not found or unauthorized." });
-        }
-
-        res.status(200).json({ message: "Conference deleted successfully." });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error." });
+    if (!userId || !id) {
+      return res.status(400).json({ message: "Missing required fields: userId or id" });
     }
+
+    // Get the conference
+    const [existingConferences] = await db.query(
+      "SELECT * FROM eduactconferences WHERE id = ? AND User_ID = ?",
+      [id, userId]
+    );
+
+    if (existingConferences.length === 0) {
+      return res.status(404).json({ message: "Conference not found or unauthorized." });
+    }
+
+    // Delete certificate file if exists
+    const certificatePath = existingConferences[0].certificate;
+    const fileToDelete = path.join(__dirname, '..', certificatePath);
+
+    if (fs.existsSync(fileToDelete)) {
+      fs.unlinkSync(fileToDelete);
+    }
+
+    // Delete the DB row
+    await db.query("DELETE FROM eduactconferences WHERE id = ? AND User_ID = ?", [id, userId]);
+
+    res.status(200).json({ message: "Conference deleted successfully." });
+
+  } catch (error) {
+    console.error("Delete Conference Error:", error);
+    res.status(500).json({ message: "Server error." });
+  }
 };
+
 
 // Get All Courses for Logged-in User
 const getCourses = async (req, res) => {
   try {
-    const [courses] = await db.query(
-      "SELECT id, title, date, institution, description, certificate " +
-      "FROM eduactcourses " +
-      "WHERE user_id = ? " +
-      "ORDER BY date DESC",
-      [req.user.userId]
-    );
+    const userId = req.user ? req.user.userId : null;
 
-    res.json(courses);
+    if (!userId) {
+      return res.status(403).json({ message: "Unauthorized access." });
+    }
+
+    const [courses] = await db.query(`
+      SELECT 
+        id, title, 
+        DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+        institution, description, certificate
+      FROM eduactcourses
+      WHERE user_id = ?
+      ORDER BY date DESC
+    `, [userId]);
+
+    const coursesWithUrl = courses.map(course => ({
+      ...course,
+      certificate_url: course.certificate 
+        ? `${req.protocol}://${req.get('host')}/${course.certificate}` 
+        : null
+    }));
+
+    res.status(200).json({ courses: coursesWithUrl });
   } catch (error) {
-    console.error("Get Courses Error:", error);
-    res.status(500).json({ message: "Error fetching courses" });
+    console.error("Error in getCourses:", error);
+    res.status(500).json({ message: "Error fetching courses." });
   }
 };
+
 
 // Get All Workshops for Logged-in User
 const getWorkshops = async (req, res) => {
   try {
+    const userId = req.user ? req.user.userId : null;
+
+    if (!userId) {
+      return res.status(403).json({ message: "Unauthorized access." });
+    }
+
     const [workshops] = await db.query(
-      "SELECT id, title, date, organizer, description, certificate " +
-      "FROM eduactworkshops " +
-      "WHERE user_id = ? " +
-      "ORDER BY date DESC",
-      [req.user.userId]
+      `SELECT 
+         id, title, 
+         DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+         organizer, description, certificate 
+       FROM eduactworkshops 
+       WHERE user_id = ? 
+       ORDER BY date DESC`,
+      [userId]
     );
 
-    res.json(workshops);
+    if (workshops.length === 0) {
+      return res.status(404).json({ message: "No workshops found." });
+    }
+
+    const workshopsWithUrl = workshops.map(workshop => ({
+      ...workshop,
+      certificate_url: `${req.protocol}://${req.get('host')}/${workshop.certificate}`
+    }));
+
+    res.status(200).json({ workshops: workshopsWithUrl });
   } catch (error) {
     console.error("Get Workshops Error:", error);
-    res.status(500).json({ message: "Error fetching workshops" });
+    res.status(500).json({ message: "Error fetching workshops." });
   }
 };
+
 
 // Get All Conferences for Logged-in Trainee
 const getConferences = async (req, res) => {
   try {
-    const user_id = req.user.userId;
-    const [rows] = await db.query("SELECT * FROM eduactconferences WHERE User_ID = ?", [user_id]);
-    res.status(200).json(rows);
+    const userId = req.user ? req.user.userId : null;
+
+    if (!userId) {
+      return res.status(403).json({ message: "Unauthorized access." });
+    }
+
+    const [conferences] = await db.query(`
+      SELECT 
+        id, title, 
+        DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+        host, description, certificate
+      FROM eduactconferences
+      WHERE User_ID = ?
+    `, [userId]);
+
+    const conferencesWithUrl = conferences.map(conference => ({
+      ...conference,
+      certificate_url: `${req.protocol}://${req.get('host')}/${conference.certificate}`
+    }));
+
+    res.status(200).json({ conferences: conferencesWithUrl });
   } catch (error) {
     console.error("Error in getConferences:", error);
-    res.status(500).json({ message: "Server error." });
+    res.status(500).json({ message: "Error fetching conferences." });
   }
 };
+
 
 module.exports = {
     addCourse,

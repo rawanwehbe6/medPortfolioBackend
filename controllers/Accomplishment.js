@@ -1,16 +1,31 @@
 const pool = require("../config/db");
+const fs = require('fs');
+const path = require('path');
 
 const addAccomplishment = async (req, res) => {
   try {
     const { title, description } = req.body;
-    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+    //rimas edit/const filePath = req.file ? `/uploads/${req.file.filename}` : null;
     const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
     if (!userId || !title || !description) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-
+    //rimasedit block
+    let filePath = null;
+    if(req.file){
+    // Get the file extension from the original filename
+    const ext = path.extname(req.file.originalname);
+    // Create the path with extension
+    filePath = `uploads/${req.file.filename}${ext}`;
+    
+    // You'll need to rename the actual file too
+    fs.renameSync(
+      path.join(__dirname, '..', 'uploads', req.file.filename),
+      path.join(__dirname, '..', filePath)
+    );
+  }
     // Check if the title already exists for the user
     const [existingAccomplishments] = await pool.execute(
       "SELECT * FROM accomplishments WHERE User_ID = ? AND Title = ?",
@@ -36,15 +51,13 @@ const addAccomplishment = async (req, res) => {
 
 const updateAccomplishment = async (req, res) => {
   try {
-   
     const { id } = req.params; // Get the accomplishment ID from the request parameters
     const { title, description } = req.body;
-    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
     const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
-    if (!userId || !id) {
-      return res.status(400).json({ error: "Missing required fields: userId or id" });
+    if (!userId || !id || !title || !description) {
+      return res.status(400).json({ error: "Missing required fields: userId, id, title, or description" });
     }
 
     // Check if the accomplishment exists
@@ -55,6 +68,28 @@ const updateAccomplishment = async (req, res) => {
 
     if (existingAccomplishments.length === 0) {
       return res.status(404).json({ error: "Accomplishment not found or does not belong to the user." });
+    }
+
+    // Default to existing file path if no new file is uploaded
+    let filePath = existingAccomplishments[0].File_Path;
+
+    if (req.file) {
+      // If a file is uploaded, delete the old one
+      if (filePath) {
+        const oldFilePath = path.join(__dirname, '..', filePath);
+        if (fs.existsSync(oldFilePath)) {
+          fs.unlinkSync(oldFilePath);
+        }
+      }
+
+      // Rename the uploaded file to include the original extension
+      const ext = path.extname(req.file.originalname);
+      filePath = `uploads/${req.file.filename}${ext}`;
+
+      fs.renameSync(
+        path.join(__dirname, '..', 'uploads', req.file.filename),
+        path.join(__dirname, '..', filePath)
+      );
     }
 
     // Prepare the SQL update query
@@ -65,56 +100,66 @@ const updateAccomplishment = async (req, res) => {
     `;
 
     // Execute the SQL query to update the accomplishment
-    await pool.execute(updateQuery, [title, description, filePath || null, id, userId]);
+    await pool.execute(updateQuery, [title, description, filePath, id, userId]);
 
-    res.status(200).json({ message: "Accomplishment updated successfully" });
+    // Optionally, you can generate a URL for the updated file
+    const fileUrl = filePath ? `${req.protocol}://${req.get('host')}/${filePath}` : null;
+
+    res.status(200).json({ message: "Accomplishment updated successfully", file_url: fileUrl });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).json({ error: "Server error during accomplishment update" });
   }
 };
 
+// Delete an existing accomplishment
 const deleteAccomplishment = async (req, res) => {
   try {
+    const { id } = req.params;
+    const userId = req.user ? req.user.userId : null;
 
-    const { id } = req.params; // Get the accomplishment ID from the request parameters
-    const userId = req.user ? req.user.userId : null; 
-
-    // Check for required fields
     if (!userId || !id) {
-      return res.status(400).json({ error: "Missing required fields: userId or id" });
+      return res.status(400).json({ message: "Missing required fields: userId or id" });
     }
 
     // Check if the accomplishment exists
-    const [existingAccomplishments] = await pool.execute(
+    const [existing] = await pool.execute(
       "SELECT * FROM accomplishments WHERE id = ? AND User_ID = ?",
       [id, userId]
     );
 
-    if (existingAccomplishments.length === 0) {
-      return res.status(404).json({ error: "Accomplishment not found or does not belong to the user." });
+    if (existing.length === 0) {
+      return res.status(404).json({ message: "Accomplishment not found or unauthorized." });
     }
 
-    // Execute the SQL query to delete the accomplishment
+    // If there is a file associated with the accomplishment, delete it
+    const filePath = existing[0].File_Path;
+    if (filePath) {
+      const fullPath = path.join(__dirname, '..', filePath);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath); // Delete the file from the server
+      }
+    }
+
+    // Delete the accomplishment from the database
     await pool.execute(
       "DELETE FROM accomplishments WHERE id = ? AND User_ID = ?",
       [id, userId]
     );
 
-    res.status(200).json({ message: "Accomplishment deleted successfully" });
+    res.status(200).json({ message: "Accomplishment deleted successfully." });
   } catch (err) {
-    console.error("Database Error:", err);
-    res.status(500).json({ error: "Server error during accomplishment deletion" });
+    console.error("Delete Accomplishment Error:", err);
+    res.status(500).json({ message: "Server error during accomplishment deletion." });
   }
 };
 
 const getAccomplishments = async (req, res) => {
   try {
-
     const userId = req.user ? req.user.userId : null;
 
     if (!userId) {
-      return res.status(400).json({ error: "Missing user ID" });
+      return res.status(403).json({ message: "Unauthorized access." });
     }
 
     const [accomplishments] = await pool.execute(
@@ -122,11 +167,24 @@ const getAccomplishments = async (req, res) => {
       [userId]
     );
 
-    res.status(200).json({ accomplishments });
-  } catch (err) {
-    console.error("Database Error:", err);
-    res.status(500).json({ error: "Server error while fetching accomplishments" });
+  
+    const accomplishmentsWithUrl = accomplishments.map(item => {
+      if (!item.file_path) {
+        console.log(`Warning: No file path for accomplishment with ID: ${item.id}`);
+      }
+
+      return {
+        ...item,
+        file_path_url: item.file_path ? `${req.protocol}://${req.get('host')}/${item.file_path}` : null
+      };
+    });
+
+    res.status(200).json({ accomplishments: accomplishmentsWithUrl });
+  } catch (error) {
+    console.error("Error in getAccomplishments:", error);
+    res.status(500).json({ message: "Error fetching accomplishments." });
   }
 };
+
 
 module.exports = { addAccomplishment ,updateAccomplishment,deleteAccomplishment, getAccomplishments};
