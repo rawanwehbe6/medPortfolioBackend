@@ -92,10 +92,10 @@ router.delete("/seminars/:id", auth, seminarController.deleteSeminar);
 router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerator);
 
 //teaching routes
-router.post("/teaching", teachingController.createTeaching);
-router.get("/teaching", teachingController.getTeachings);
-router.delete("/teaching/:id", teachingController.deleteTeaching);
-router.put("/teaching/:id/sign", upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
+router.post("/teaching", auth('create_teachings'), teachingController.createTeaching);
+router.get("/teaching",auth,  teachingController.getTeachings);
+router.delete("/teaching/:id",auth, teachingController.deleteTeaching);
+router.put("/teaching/:id/sign",auth, upload.fields([{ name: "signature", maxCount: 1 }]), teachingController.signFaculty);
 
 //research publications routes
 router.post("/research-publications", researchpublicationsController.createResearchEntry);

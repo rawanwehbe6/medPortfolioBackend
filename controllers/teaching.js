@@ -1,18 +1,18 @@
 const pool = require("../config/db");
-const upload = require("../middleware/multerConfig");
 
 const createTeaching = async (req, res) => {
   try {
-    const { activity, date, topic, rating, user_id } = req.body;
+    const { userId } = req.user;
+    const { activity, date, topic, rating} = req.body;
 
-    if (!user_id) {
+    if (!userId) {
       return res.status(400).json({ error: "user_id is required" });
     }
 
     const [result] = await pool.execute(
       `INSERT INTO teaching (activity, date, topic, rating, user_id)
        VALUES (?, ?, ?, ?, ?)`,
-      [activity, date, topic, rating, user_id]
+      [activity, date, topic, rating, userId]
     );
 
     res.status(201).json({ message: "Teaching entry created", id: result.insertId });
@@ -56,26 +56,27 @@ const deleteTeaching = async (req, res) => {
   };
   
 
-const signFaculty = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const facultySignature = req.files?.signature ? req.files.signature[0].path : null;
-
-    if (!facultySignature) {
-      return res.status(400).json({ error: "Signature image is required" });
+  const signFaculty = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { faculty_signature } = req.body;
+  
+      if (!faculty_signature) {
+        return res.status(400).json({ error: "Faculty signature is required" });
+      }
+  
+      await pool.execute(
+        `UPDATE teaching SET faculty_signature = ? WHERE id = ?`,
+        [faculty_signature, id]
+      );
+  
+      res.status(200).json({ message: "Faculty signature added successfully" });
+    } catch (err) {
+      console.error("Signature Update Error:", err);
+      res.status(500).json({ error: "Server error" });
     }
-
-    await pool.execute(
-      `UPDATE teaching SET faculty_signature = ? WHERE id = ?`,
-      [facultySignature, id]
-    );
-
-    res.status(200).json({ message: "Faculty signature uploaded successfully" });
-  } catch (err) {
-    console.error("Signature Upload Error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-};
+  };
+  
 
 module.exports = {
   createTeaching,

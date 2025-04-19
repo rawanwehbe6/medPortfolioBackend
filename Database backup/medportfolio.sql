@@ -509,8 +509,8 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('trainee_view_forms', 143, 0, 1, 0),
 ('getFormsProgressForTrainee', 144, 1, 1, 0),
 ('getLatestUpdatedForm', 145, 1, 1, 0),
-('view_portfolio_images', 146, 0, 1, 1);
-
+('view_portfolio_images', 146, 0, 1, 1),
+('create_teachings', 147, 1, 1, 1);
 -- --------------------------------------------------------
 
 --
@@ -1251,6 +1251,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1, 23),
 (1, 144),
 (1, 145),
+(1, 147),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1342,6 +1343,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 144),
 (2, 145),
 (2, 146),
+(2, 147),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1403,6 +1405,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 111),
 (3, 142),
 (3, 146),
+(3, 147),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1458,6 +1461,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 111),
 (4, 142),
 (4, 146),
+(4, 147),
 (5, 9),
 (5, 24),
 (5, 25),
