@@ -102,12 +102,12 @@ router.put(
 );
 
 //research publications routes
-router.post("/research-publications", researchpublicationsController.createResearchEntry);
-router.get("/research-publications", researchpublicationsController.getResearchEntries);
-router.delete("/research-publications/:id", researchpublicationsController.deleteResearchEntry);
+router.post("/research-publications",auth('create_researchPub'), researchpublicationsController.createResearchEntry);
+router.get("/research-publications",auth('get_researchPub'), researchpublicationsController.getResearchEntries);
+router.delete("/research-publications/:id", auth("delete_researchPub"),researchpublicationsController.deleteResearchEntry);
 router.put(
-  "/research-publications/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
+  "/teaching/:id/sign",
+  auth("update_researchPub"),
   researchpublicationsController.signFaculty
 );
 

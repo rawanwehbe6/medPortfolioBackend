@@ -3,12 +3,17 @@ const pool = require("../config/db");
 // Create new research/publication entry
 const createResearchEntry = async (req, res) => {
   try {
-    const { activity, details, date, user_id } = req.body;
+    const { userId } = req.user;
+    const { activity, details, date } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
 
     const [result] = await pool.execute(
       `INSERT INTO research_publications (activity, details, date, user_id)
        VALUES (?, ?, ?, ?)`,
-      [activity, details, date, user_id || null]
+      [activity, details, date, userId]
     );
 
     res.status(201).json({
