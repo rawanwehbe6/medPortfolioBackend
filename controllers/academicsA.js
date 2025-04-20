@@ -91,9 +91,41 @@ const signModerator = async (req, res) => {
   }
 };
 
+// Update an existing case presentation
+const updateCasePresentation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, diagnosis_problem, presented_attended } = req.body;
+
+    if (!date || !diagnosis_problem || !presented_attended) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [rows] = await pool.execute(
+      `SELECT * FROM case_presentations WHERE id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Case presentation not found" });
+    }
+
+    await pool.execute(
+      `UPDATE case_presentations SET date = ?, diagnosis_problem = ?, presented_attended = ? WHERE id = ?`,
+      [date, diagnosis_problem, presented_attended, id]
+    );
+
+    res.status(200).json({ message: "Case presentation updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err.message);
+    res.status(500).json({ error: "Server error while updating case presentation", details: err.message });
+  }
+};
+
 module.exports = {
   createCasePresentation,
   deleteCasePresentation,
   getCasePresentations,
-  signModerator
+  signModerator,
+  updateCasePresentation
 };

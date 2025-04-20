@@ -85,9 +85,10 @@ router.get("/case-presentations", auth('get_case_presentation'), academicsAContr
 router.delete("/case-presentations/:id", auth('delete_case_presentation'), academicsAController.deleteCasePresentation);
 router.put(
   "/case-presentations/:id/sign",
-  auth("update_case_presentation"),
+  auth("sign_case_presentation"),
   academicsAController.signModerator
 );
+router.put("/case-presentations/:id", auth("update_case_presentation"), academicsAController.updateCasePresentation);
 
 // Case seminar Routes
 router.post("/seminars", auth('create_seminars'), seminarController.createSeminar);
