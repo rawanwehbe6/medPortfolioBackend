@@ -5,7 +5,6 @@ const path = require('path');
 const addAccomplishment = async (req, res) => {
   try {
     const { title, description } = req.body;
-    //rimas edit/const filePath = req.file ? `/uploads/${req.file.filename}` : null;
     const userId = req.user ? req.user.userId : null; 
 
     // Check for required fields
@@ -14,11 +13,15 @@ const addAccomplishment = async (req, res) => {
     }
     //rimasedit block
     let filePath = null;
+
     if(req.file){
-    // Get the file extension from the original filename
-    const ext = path.extname(req.file.originalname);
-    // Create the path with extension
-    filePath = `uploads/${req.file.filename}${ext}`;
+      const ext = path.extname(req.file.originalname);
+      let filename = req.file.filename;
+      if (!filename.endsWith(ext)) {
+        filename += ext;
+      }
+    
+      filePath = `uploads/${filename}`;
     
     // You'll need to rename the actual file too
     fs.renameSync(
@@ -42,7 +45,9 @@ const addAccomplishment = async (req, res) => {
       [userId, title, description, filePath || null] // Pass null if filePath is undefined
     );
 
-    res.status(201).json({ message: "Accomplishment added successfully" });
+    const fullUrl = `${req.protocol}://${req.get('host')}/${filePath}`;
+
+    res.status(201).json({ message: "Accomplishment added successfully", File_Path: filePath, image_url: fullUrl });
   } catch (err) {
     console.error("Database Error:", err);
     res.status(500).json({ error: "Server error during accomplishment creation" });
@@ -82,9 +87,13 @@ const updateAccomplishment = async (req, res) => {
         }
       }
 
-      // Rename the uploaded file to include the original extension
       const ext = path.extname(req.file.originalname);
-      filePath = `uploads/${req.file.filename}${ext}`;
+      let filename = req.file.filename;
+      if (!filename.endsWith(ext)) {
+        filename += ext;
+      }
+    
+      filePath = `uploads/${filename}`;
 
       fs.renameSync(
         path.join(__dirname, '..', 'uploads', req.file.filename),
