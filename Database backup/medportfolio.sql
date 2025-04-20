@@ -539,8 +539,8 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('create_seminars',168,1,1,1),
 ('get_seminars',169,1,1,1),
 ('delete_seminars',170,1,1,1),
-('update_seminars',171,1,0,1),
-('update_seminars',172,1,1,1);
+('sign_seminars',171,1,0,1),
+('update_seminars',178,1,1,1);
 
 -- --------------------------------------------------------
 
@@ -1313,6 +1313,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1,175),
 (1,176),
 (1,177),
+(1,178),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1427,6 +1428,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2,175),
 (2,176),
 (2,177),
+(2,178),
 (2,174),
 (3, 9),
 (3, 12),
@@ -1520,6 +1522,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3,175),
 (3,176),
 (3,177),
+(3,178),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1605,6 +1608,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4,175),
 (4,176),
 (4,177),
+(4,178),
 (4,174),
 (5, 9),
 (5, 24),

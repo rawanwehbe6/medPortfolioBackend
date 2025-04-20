@@ -96,9 +96,10 @@ router.get("/seminars", auth('get_seminars'), seminarController.getSeminars);
 router.delete("/seminars/:id", auth('delete_seminars'), seminarController.deleteSeminar);
 router.put(
   "/seminars/sign/:id",
-  auth("update_seminars"),
+  auth("sign_seminars"),
   seminarController.signModerator
 );
+router.put("/seminars/:id", auth("update_seminars"), seminarController.updateSeminar);
 
 //teaching routes
 router.post("/teaching", auth('create_teachings'), teachingController.createTeaching);

@@ -80,9 +80,37 @@ const signModerator = async (req, res) => {
   }
 };
 
+// Update an existing seminar entry
+const updateSeminar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { date, topic, presented_attended } = req.body;
+
+    if (!date || !topic || !presented_attended) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const [rows] = await pool.execute(`SELECT * FROM seminars WHERE id = ?`, [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Seminar not found" });
+    }
+
+    await pool.execute(
+      `UPDATE seminars SET date = ?, topic = ?, presented_attended = ? WHERE id = ?`,
+      [date, topic, presented_attended, id]
+    );
+
+    res.status(200).json({ message: "Seminar updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err.message);
+    res.status(500).json({ error: "Server error while updating seminar", details: err.message });
+  }
+};
+
 module.exports = {
   createSeminar,
   getSeminars,
   deleteSeminar,
   signModerator,
+  updateSeminar,
 };
