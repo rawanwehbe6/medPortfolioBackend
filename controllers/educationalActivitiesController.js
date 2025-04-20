@@ -37,7 +37,6 @@ const formatDateToDatabaseFormat = (date) => {
 const addCourse = async (req, res) => {
   try {
     const { title, date, institution, description } = req.body;
-    //const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId; 
 
     if (!title || !date || !institution || !description) {
@@ -88,7 +87,6 @@ const updateCourse = async (req, res) => {
   try {
     const { id } = req.params;
     const { title, date, institution, description } = req.body;
-    //const certificate = req.file ? req.file.filename : null;
     const user_id = req.user.userId; 
 
     if (!title || !date || !institution || !description) {
@@ -116,7 +114,20 @@ const updateCourse = async (req, res) => {
         fs.unlinkSync(oldFilePath);
       }
 
-      certificate = req.file.path; // Store the new file path
+      const ext = path.extname(req.file.originalname);
+      let filename = req.file.filename;
+
+      if (!filename.endsWith(ext)) {
+        filename = `${filename}${ext}`;
+      }
+
+      certificate = `uploads/${filename}`;
+
+      fs.renameSync(
+        path.join(__dirname, '..', 'uploads', req.file.filename),
+        path.join(__dirname, '..', certificate)
+      );
+      
     }
     
 
@@ -124,6 +135,7 @@ const updateCourse = async (req, res) => {
       "UPDATE eduactcourses SET title = ?, date = ?, institution = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
       [title, formattedDate, institution, description, certificate, id, user_id]
     );
+    const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
 
     res.status(200).json({ message: "Course updated successfully." });
   } catch (error) {
@@ -195,16 +207,21 @@ const addWorkshop = async (req, res) => {
     }
 
     let certificate = null;
-    // Check if a certificate is uploaded and handle file renaming
+
     if (req.file) {
       const ext = path.extname(req.file.originalname);
-      certificate = `uploads/${req.file.filename}${ext}`;
-      
-      // Rename the uploaded file to include the correct extension
-      fs.renameSync(
-        path.join(__dirname, '..', 'uploads', req.file.filename),
-        path.join(__dirname, '..', certificate)
-      );
+          let filename = req.file.filename;
+
+          if (!filename.endsWith(ext)) {
+            filename = `${filename}${ext}`;
+          }
+
+          certificate = `uploads/${filename}`;
+
+          fs.renameSync(
+            path.join(__dirname, '..', 'uploads', req.file.filename),
+            path.join(__dirname, '..', certificate)
+          );
     }
 
     // Insert workshop into database
@@ -214,6 +231,8 @@ const addWorkshop = async (req, res) => {
        VALUES (?, ?, ?, ?, ?, ?)`,
       [user_id, title, formattedDate, organizer, description, certificate]
     );
+   
+    const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
 
     res.status(201).json({ 
       message: "Workshop added successfully."
