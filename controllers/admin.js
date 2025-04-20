@@ -219,30 +219,44 @@ const getClinicalSupervisorsOrClinics = async (req, res) => {
 };
 
 const getAllUsersWithRoles = async (req, res) => {
-  try {
-    const [users] = await pool.execute(`
-      SELECT 
-        users.User_ID,
-        users.name,
-        usertypes.name AS role,
-        users.email,
-        users.BAU_ID
-      FROM users
-      JOIN usertypes ON users.Role = usertypes.id
-    `);
-
-    res.status(200).json({
-      users: users
-    });
-  } catch (error) {
-    console.error("Error fetching users with roles:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error: error.message
-    });
-  }
-};
+    try {
+      const [users] = await pool.execute(`
+        SELECT 
+          u.User_ID,
+          u.name,
+          ut.name AS role,
+          u.email,
+          u.BAU_ID,
+          -- Educational Supervisor (role = 3)
+          (
+            SELECT s1.name 
+            FROM supervisor_supervisee ss1
+            JOIN users s1 ON ss1.SupervisorID = s1.User_ID
+            WHERE ss1.SuperviseeID = u.User_ID AND s1.role = 3
+            LIMIT 1
+          ) AS educational_supervisor,
+          -- Clinical Supervisor (role = 4 or 5)
+          (
+            SELECT s2.name 
+            FROM supervisor_supervisee ss2
+            JOIN users s2 ON ss2.SupervisorID = s2.User_ID
+            WHERE ss2.SuperviseeID = u.User_ID AND (s2.role = 4 OR s2.role = 5)
+            LIMIT 1
+          ) AS clinical_supervisor
+        FROM users u
+        JOIN usertypes ut ON u.Role = ut.id
+      `);
+  
+      res.status(200).json({ users });
+    } catch (error) {
+      console.error("Error fetching users with roles:", error);
+      res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        error: error.message
+      });
+    }
+  };
 
 const getAllRoles = async (req, res) => {
   try {
