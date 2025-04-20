@@ -116,9 +116,10 @@ router.get("/research-publications",auth('get_researchPub'), researchpublication
 router.delete("/research-publications/:id", auth("delete_researchPub"),researchpublicationsController.deleteResearchEntry);
 router.put(
   "/research-publications/:id/sign",
-  auth("update_researchPub"),
+  auth("sign_researchPub"),
   researchpublicationsController.signFaculty
 );
+router.put("/research-publications/:id", auth("update_researchPub"), researchpublicationsController.updateResearchEntry);
 
 //departmental activities routes
 router.post("/departmental-Activities",auth('create_depActivities'), departmentalActivities.createActivityEntry);

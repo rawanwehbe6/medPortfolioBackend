@@ -79,9 +79,33 @@ const signFaculty = async (req, res) => {
   }
 };
 
+// Update an existing research/publication entry
+const updateResearchEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { activity, details, date } = req.body;
+
+    const [rows] = await pool.execute(`SELECT * FROM research_publications WHERE id = ?`, [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Entry not found" });
+    }
+
+    await pool.execute(
+      `UPDATE research_publications SET activity = ?, details = ?, date = ? WHERE id = ?`,
+      [activity, details, date, id]
+    );
+
+    res.status(200).json({ message: "Research/Publication entry updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err);
+    res.status(500).json({ error: "Server error while updating entry", details: err.message });
+  }
+};
+
 module.exports = {
   createResearchEntry,
   getResearchEntries,
   deleteResearchEntry,
-  signFaculty
+  signFaculty,
+  updateResearchEntry
 };
