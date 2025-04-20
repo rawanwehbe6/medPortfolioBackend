@@ -513,7 +513,8 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('create_teachings', 147, 1, 1, 1),
 ('get_teachings', 148,1,1,1),
 ('delete_teachings',149,1,1,1),
-('update_teachings',150,1,0,1),
+('sign_teachings',150,1,0,1),
+('update_teachings',173,1,1,1),
 ('create_researchPub',151,1,1,1),
 ('get_researchPub',152,1,1,1),
 ('delete_researchPub',153,1,1,1),
@@ -534,7 +535,8 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('create_seminars',168,1,1,1),
 ('get_seminars',169,1,1,1),
 ('delete_seminars',170,1,1,1),
-('update_seminars',171,1,0,1);
+('update_seminars',171,1,0,1),
+('update_seminars',172,1,1,1);
 
 -- --------------------------------------------------------
 
@@ -1301,6 +1303,8 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1,169),
 (1,170),
 (1,171),
+(1,172),
+(1,173),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1411,6 +1415,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2,168),
 (2,169),
 (2,170),
+(2,173),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1497,6 +1502,8 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3,169),
 (3,170),
 (3,171),
+(3,172),
+(3,173),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1577,6 +1584,8 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4,169),
 (4,170),
 (4,171),
+(4,172),
+(4,173),
 (5, 9),
 (5, 24),
 (5, 25),

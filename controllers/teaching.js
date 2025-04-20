@@ -77,11 +77,36 @@ const deleteTeaching = async (req, res) => {
       res.status(500).json({ error: "Server error" });
     }
   };
-  
+
+const updateTeaching = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { activity, date, topic, rating } = req.body;
+
+    // Check if the record exists
+    const [rows] = await pool.execute(`SELECT * FROM teaching WHERE id = ?`, [id]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Teaching entry not found" });
+    }
+
+    // Update the teaching entry
+    await pool.execute(
+      `UPDATE teaching SET activity = ?, date = ?, topic = ?, rating = ? WHERE id = ?`,
+      [activity, date, topic, rating, id]
+    );
+
+    res.status(200).json({ message: "Teaching entry updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err);
+    res.status(500).json({ error: "Server error while updating teaching entry" });
+  }
+};
 
 module.exports = {
   createTeaching,
   getTeachings,
   deleteTeaching,
-  signFaculty
+  signFaculty,
+  updateTeaching
 };

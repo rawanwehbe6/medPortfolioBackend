@@ -105,9 +105,10 @@ router.get("/teaching",auth('get_teachings'),  teachingController.getTeachings);
 router.delete("/teaching/:id",auth('delete_teachings'), teachingController.deleteTeaching);
 router.put(
   "/teaching/:id/sign",
-  auth("update_teachings"),
+  auth("sign_teachings"),
   teachingController.signFaculty
 );
+router.put("/teaching/:id", auth("update_teachings"), teachingController.updateTeaching);
 
 //research publications routes
 router.post("/research-publications",auth('create_researchPub'), researchpublicationsController.createResearchEntry);
