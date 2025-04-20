@@ -62,21 +62,21 @@ const deleteSeminar = async (req, res) => {
 const signModerator = async (req, res) => {
   try {
     const { id } = req.params;
-    const moderatorSignature = req.files?.signature?.[0]?.path;
+    const { moderator_signature } = req.body;
 
-    if (!moderatorSignature) {
-      return res.status(400).json({ error: "Signature image is required" });
+    if (!moderator_signature) {
+      return res.status(400).json({ error: "Moderator signature is required" });
     }
 
     await pool.execute(
       `UPDATE seminars SET moderator_signature = ? WHERE id = ?`,
-      [moderatorSignature, id]
+      [moderator_signature, id]
     );
 
-    res.status(200).json({ message: "Moderator signature uploaded successfully" });
+    res.status(200).json({ message: "Moderator signature saved successfully" });
   } catch (err) {
-    console.error("Signature Upload Error:", err);
-    res.status(500).json({ error: "Server error while uploading signature" });
+    console.error("Signature Update Error:", err);
+    res.status(500).json({ error: "Server error while saving signature" });
   }
 };
 
