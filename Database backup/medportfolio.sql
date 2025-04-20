@@ -526,7 +526,12 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_miscellaneous-Activities',160,1,1,1),
 ('delete_miscellaneous-Activities',161,1,1,1),
 ('update_miscellaneous-Activities',162,1,0,1),
-('get_miscellaneous-ActivitiesByID',163,1,1,1);
+('get_miscellaneous-ActivitiesByID',163,1,1,1),
+('create_case_presentation',164,1,1,1),
+('get_case_presentation',165,1,1,1),
+('delete_case_presentation',166,1,1,1),
+('update_case_presentation',167,1,0,1);
+
 -- --------------------------------------------------------
 
 --
@@ -1284,6 +1289,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1,161),
 (1,162),
 (1,163),
+(1,164),
+(1,165),
+(1,166),
+(1,167),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1387,6 +1396,9 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2,159),
 (2,160),
 (2,161),
+(2,164),
+(2,165),
+(2,166),
 (2,163),
 (3, 9),
 (3, 12),
@@ -1466,6 +1478,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3,161),
 (3,162),
 (3,163),
+(3,164),
+(3,165),
+(3,166),
+(3,167),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1538,6 +1554,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4,161),
 (4,162),
 (4,163),
+(4,164),
+(4,165),
+(4,166),
+(4,167),
 (5, 9),
 (5, 24),
 (5, 25),

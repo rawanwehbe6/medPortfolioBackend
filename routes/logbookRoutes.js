@@ -80,16 +80,21 @@ router.put("/logbook/procedure-summary/:id", auth, logbookController.updateProce
 router.delete("/logbook/procedure-summary/:id", auth, logbookController.deleteProcedureSummary);
 
 // Case Presentation Routes
-router.post("/case-presentations", auth, academicsAController.createCasePresentation);
-router.get("/case-presentations", auth, academicsAController.getCasePresentations);
-router.delete("/case-presentations/:id", auth, academicsAController.deleteCasePresentation);
-router.put("/case-presentations/sign/:id", auth, uploadPNG, academicsAController.signModerator);
+router.post("/case-presentations", auth('create_case_presentation'), academicsAController.createCasePresentation);
+router.get("/case-presentations", auth('get_case_presentation'), academicsAController.getCasePresentations);
+router.delete("/case-presentations/:id", auth('delete_case_presentation'), academicsAController.deleteCasePresentation);
+router.put(
+  "/case-presentations/:id/sign",
+  auth("update_case_presentation"),
+  academicsAController.signModerator
+);
 
 // Case seminar Routes
 router.post("/seminars", auth, seminarController.createSeminar);
 router.get("/seminars", auth, seminarController.getSeminars);
 router.delete("/seminars/:id", auth, seminarController.deleteSeminar);
 router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerator);
+
 
 //teaching routes
 router.post("/teaching", auth('create_teachings'), teachingController.createTeaching);
