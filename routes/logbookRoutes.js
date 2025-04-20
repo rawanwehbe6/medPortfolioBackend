@@ -138,9 +138,10 @@ router.get("/miscellaneous-Activities",auth('get_miscellaneous-Activities'), mis
 router.delete("/miscellaneous-Activities/:id",auth('delete_miscellaneous-Activities'), miscellaneousActivities.deleteMiscActivity);
 router.put(
   "/miscellaneous-Activities/:id/sign",
-  auth("update_miscellaneous-Activities"),
+  auth("sign_miscellaneous-Activities"),
   miscellaneousActivities.signMiscActivityFaculty
 );
 router.get("/miscellaneous-Activities/:id", auth('get_miscellaneous-ActivitiesByID'),miscellaneousActivities.getMiscActivityById);
+router.put("/miscellaneous-Activities/:id", auth("update_miscellaneous-Activities"), miscellaneousActivities.updateMiscActivity);
 
 module.exports = router;

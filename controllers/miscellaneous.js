@@ -111,10 +111,38 @@ const getMiscActivityById = async (req, res) => {
   }
 };
 
+// Update an existing miscellaneous activity entry
+const updateMiscActivity = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { category, details, date } = req.body;
+
+    if (!category || !details || !date) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [rows] = await pool.execute(`SELECT * FROM miscellaneous_activities WHERE id = ?`, [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Entry not found" });
+    }
+
+    await pool.execute(
+      `UPDATE miscellaneous_activities SET category = ?, details = ?, date = ? WHERE id = ?`,
+      [category, details, date, id]
+    );
+
+    res.status(200).json({ message: "Miscellaneous activity entry updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err.stack);
+    res.status(500).json({ error: "Server error while updating entry", details: err.message });
+  }
+};
+
 module.exports = {
   createMiscActivity,
   getAllMiscActivities,
   deleteMiscActivity,
   signMiscActivityFaculty,
-  getMiscActivityById
+  getMiscActivityById,
+  updateMiscActivity
 };
