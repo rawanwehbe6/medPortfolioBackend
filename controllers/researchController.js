@@ -74,7 +74,14 @@ const updateResearch = async (req, res) => {
           fs.unlinkSync(oldFilePath);
         }
   
-        filePath = req.file.path; // Store the new file path
+          // Rename the uploaded file to include the original extension
+          const ext = path.extname(req.file.originalname);
+          filePath = `uploads/${req.file.filename}${ext}`;
+
+          fs.renameSync(
+            path.join(__dirname, '..', 'uploads', req.file.filename),
+            path.join(__dirname, '..', filePath)
+          );
       }
   
       // Update the research record
@@ -82,8 +89,12 @@ const updateResearch = async (req, res) => {
         "UPDATE research SET Title = ?, Date = ?, Description = ?, File_Path = ? WHERE Research_ID = ? AND User_ID = ?",
         [title, date, description, filePath, id, userId]
       );
-  
-      res.status(200).json({ message: "Research updated successfully", filePath });
+      
+      // Optionally, you can generate a URL for the updated file
+    const fileUrl = filePath ? `${req.protocol}://${req.get('host')}/${filePath}` : null;
+
+
+      res.status(200).json({ message: "Research updated successfully", file_url: fileUrl });
     } catch (err) {
       console.error("Database Error:", err);
       res.status(500).json({ error: "Server error during research update" });
