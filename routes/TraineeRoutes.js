@@ -5,4 +5,6 @@ const Trainee = require('../controllers/Trainee');
 
 router.get('/forms-progress', auth("trainee_view_forms"), Trainee.getFormsProgressForTrainee);
 router.get('/latest-form', auth("trainee_view_forms"), Trainee.getLatestUpdatedForm);
+router.get('/sent-forms', auth("trainee_view_forms"), Trainee.getSentFormsForTrainee);
+ 
 module.exports = router;
