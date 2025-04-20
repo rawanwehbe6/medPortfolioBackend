@@ -87,9 +87,37 @@ const signActivityFaculty = async (req, res) => {
   }
 };
 
+// Update an existing departmental activity entry
+const updateActivityEntry = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { activity_category, details, date } = req.body;
+
+    if (!activity_category || !details || !date) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [rows] = await pool.execute(`SELECT * FROM departmental_activities WHERE id = ?`, [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Entry not found" });
+    }
+
+    await pool.execute(
+      `UPDATE departmental_activities SET activity_category = ?, details = ?, date = ? WHERE id = ?`,
+      [activity_category, details, date, id]
+    );
+
+    res.status(200).json({ message: "Departmental activity entry updated successfully" });
+  } catch (err) {
+    console.error("Update Error:", err.stack);
+    res.status(500).json({ error: "Server error while updating entry", details: err.message });
+  }
+};
+
 module.exports = {
   createActivityEntry,
   getActivityEntries,
   deleteActivityEntry,
-  signActivityFaculty
+  signActivityFaculty,
+  updateActivityEntry
 };

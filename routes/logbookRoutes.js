@@ -127,9 +127,10 @@ router.get("/departmental-Activities",auth('get_depActivities'), departmentalAct
 router.delete("/departmental-Activities/:id",auth('delete_depActivities'), departmentalActivities.deleteActivityEntry);
 router.put(
   "/departmental-Activities/:id/sign",
-  auth("update_depActivities"),
+  auth("sign_depActivities"),
   departmentalActivities.signActivityFaculty
 );
+router.put("/departmental-Activities/:id", auth("update_depActivities"), departmentalActivities.updateActivityEntry);
 
 //miscellaneous activities routes
 router.post("/miscellaneous-Activities",auth('create_miscellaneous-Activities'), miscellaneousActivities.createMiscActivity);
