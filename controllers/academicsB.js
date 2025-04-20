@@ -1,18 +1,20 @@
 const pool = require("../config/db");
 const upload = require("../middleware/multerConfig");
 
+// Create new seminar entry
 const createSeminar = async (req, res) => {
   try {
-    const { date, topic, presented_attended, user_id } = req.body;
+    const { date, topic, presented_attended } = req.body;
+    const { userId } = req.user; // Get user from middleware
 
-    if (!user_id || !date || !topic || !presented_attended) {
+    if (!date || !topic || !presented_attended) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
     const [result] = await pool.execute(
       `INSERT INTO seminars (date, topic, presented_attended, user_id)
        VALUES (?, ?, ?, ?)`,
-      [date, topic, presented_attended, user_id]
+      [date, topic, presented_attended, userId]
     );
 
     res.status(201).json({ message: "Seminar entry created", id: result.insertId });
@@ -22,6 +24,7 @@ const createSeminar = async (req, res) => {
   }
 };
 
+// Get all seminars
 const getSeminars = async (req, res) => {
   try {
     const [rows] = await pool.execute(
@@ -34,6 +37,7 @@ const getSeminars = async (req, res) => {
   }
 };
 
+// Delete seminar
 const deleteSeminar = async (req, res) => {
   try {
     const { id } = req.params;
@@ -54,33 +58,31 @@ const deleteSeminar = async (req, res) => {
   }
 };
 
+// Upload moderator signature
 const signModerator = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      // Access uploaded file via multer config
-      const moderatorSignature = req.files?.signature?.[0]?.path;
-  
-      if (!moderatorSignature) {
-        return res.status(400).json({ error: "Signature image is required" });
-      }
-  
-      await pool.execute(
-        `UPDATE seminars SET moderator_signature = ? WHERE id = ?`,
-        [moderatorSignature, id]
-      );
-  
-      res.status(200).json({ message: "Moderator signature uploaded successfully" });
-    } catch (err) {
-      console.error("Signature Upload Error:", err);
-      res.status(500).json({ error: "Server error while uploading signature" });
+  try {
+    const { id } = req.params;
+    const moderatorSignature = req.files?.signature?.[0]?.path;
+
+    if (!moderatorSignature) {
+      return res.status(400).json({ error: "Signature image is required" });
     }
-  };
-  
+
+    await pool.execute(
+      `UPDATE seminars SET moderator_signature = ? WHERE id = ?`,
+      [moderatorSignature, id]
+    );
+
+    res.status(200).json({ message: "Moderator signature uploaded successfully" });
+  } catch (err) {
+    console.error("Signature Upload Error:", err);
+    res.status(500).json({ error: "Server error while uploading signature" });
+  }
+};
 
 module.exports = {
   createSeminar,
   getSeminars,
   deleteSeminar,
-  signModerator
+  signModerator,
 };

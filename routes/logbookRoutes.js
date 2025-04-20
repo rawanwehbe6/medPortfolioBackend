@@ -90,11 +90,14 @@ router.put(
 );
 
 // Case seminar Routes
-router.post("/seminars", auth, seminarController.createSeminar);
-router.get("/seminars", auth, seminarController.getSeminars);
-router.delete("/seminars/:id", auth, seminarController.deleteSeminar);
-router.put("/seminars/sign/:id", auth, uploadPNG, seminarController.signModerator);
-
+router.post("/seminars", auth('create_seminars'), seminarController.createSeminar);
+router.get("/seminars", auth('get_seminars'), seminarController.getSeminars);
+router.delete("/seminars/:id", auth('delete_seminars'), seminarController.deleteSeminar);
+router.put(
+  "/seminars/sign/:id",
+  auth("update_seminars"),
+  seminarController.signModerator
+);
 
 //teaching routes
 router.post("/teaching", auth('create_teachings'), teachingController.createTeaching);
