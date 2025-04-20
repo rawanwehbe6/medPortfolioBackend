@@ -122,13 +122,14 @@ router.put(
 );
 
 //miscellaneous activities routes
-router.post("/miscellaneous-Activities", miscellaneousActivities.createMiscActivity);
-router.get("/miscellaneous-Activities", miscellaneousActivities.getAllMiscActivities);
-router.delete("/miscellaneous-Activities/:id", miscellaneousActivities.deleteMiscActivity);
+router.post("/miscellaneous-Activities",auth('create_miscellaneous-Activities'), miscellaneousActivities.createMiscActivity);
+router.get("/miscellaneous-Activities",auth('get_miscellaneous-Activities'), miscellaneousActivities.getAllMiscActivities);
+router.delete("/miscellaneous-Activities/:id",auth('delete_miscellaneous-Activities'), miscellaneousActivities.deleteMiscActivity);
 router.put(
   "/miscellaneous-Activities/:id/sign",
-  upload.fields([{ name: "signature", maxCount: 1 }]),
+  auth("update_miscellaneous-Activities"),
   miscellaneousActivities.signMiscActivityFaculty
 );
-router.get("/miscellaneous-Activities/:id", miscellaneousActivities.getMiscActivityById);
+router.get("/miscellaneous-Activities/:id", auth('get_miscellaneous-ActivitiesByID'),miscellaneousActivities.getMiscActivityById);
+
 module.exports = router;

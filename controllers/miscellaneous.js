@@ -3,16 +3,21 @@ const pool = require("../config/db");
 // Create new miscellaneous activity entry
 const createMiscActivity = async (req, res) => {
   try {
-    const { category, details, date, user_id } = req.body;
+    const { userId } = req.user;
+    const { category, details, date } = req.body;
 
     if (!category || !details || !date) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+    if (!userId) {
+      return res.status(400).json({ error: "user_id is required" });
+    }
+
     const [result] = await pool.execute(
       `INSERT INTO miscellaneous_activities (category, details, date, user_id)
        VALUES (?, ?, ?, ?)`,
-      [category, details, date, user_id || null]
+      [category, details, date, userId]
     );
 
     res.status(201).json({
@@ -28,7 +33,9 @@ const createMiscActivity = async (req, res) => {
 // Get all entries
 const getAllMiscActivities = async (req, res) => {
   try {
-    const [rows] = await pool.execute(`SELECT * FROM miscellaneous_activities`);
+    const [rows] = await pool.execute(
+      `SELECT id, category, details, date, faculty_signature FROM miscellaneous_activities`
+    );
     res.status(200).json(rows);
   } catch (err) {
     console.error("Fetch Error:", err.stack);
@@ -89,7 +96,7 @@ const getMiscActivityById = async (req, res) => {
     }
 
     const [rows] = await pool.execute(
-      `SELECT * FROM miscellaneous_activities WHERE id = ?`,
+      `SELECT id, category, details, date, faculty_signature FROM miscellaneous_activities WHERE id = ?`,
       [id]
     );
 
