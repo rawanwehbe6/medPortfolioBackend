@@ -534,7 +534,7 @@ const getCourses = async (req, res) => {
     const [courses] = await db.query(`
       SELECT 
         id, title, 
-        DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+        date, 
         institution, description, certificate
       FROM eduactcourses
       WHERE user_id = ?
@@ -577,7 +577,7 @@ const getWorkshops = async (req, res) => {
     );
 
     if (workshops.length === 0) {
-      return res.status(404).json({ message: "No workshops found." });
+      return res.status(200).json({ workshops:[] });
     }
 
     const workshopsWithUrl = workshops.map(workshop => ({

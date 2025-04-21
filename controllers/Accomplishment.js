@@ -1,6 +1,8 @@
+const { Console } = require("console");
 const pool = require("../config/db");
 const fs = require('fs');
 const path = require('path');
+const { FILE } = require("dns");
 
 const addAccomplishment = async (req, res) => {
   try {
@@ -11,10 +13,10 @@ const addAccomplishment = async (req, res) => {
     if (!userId || !title || !description) {
       return res.status(400).json({ error: "Missing required fields" });
     }
-    //rimasedit block
-    let filePath = null;
-
-    if(req.file){
+    if (!req.file) {
+    return res.status(400).json({ error: "File is required for an accomplishment" });
+    }
+    else{
       const ext = path.extname(req.file.originalname);
       let filename = req.file.filename;
       if (!filename.endsWith(ext)) {
@@ -76,8 +78,8 @@ const updateAccomplishment = async (req, res) => {
     }
 
     // Default to existing file path if no new file is uploaded
-    let filePath = existingAccomplishments[0].File_Path;
-
+    let filePath = existingAccomplishments[0].file_path;
+    console.log( filePath );
     if (req.file) {
       // If a file is uploaded, delete the old one
       if (filePath) {
