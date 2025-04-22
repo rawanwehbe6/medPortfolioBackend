@@ -131,7 +131,7 @@ const getSentFormIdsForTrainee = async (req, res) => {
       result[table] = rows.map(r => r.id);
     }
 
-    res.status(200).json({ traineeId, sentForms: result });
+    res.status(200).json({ traineeId, Forms: result });
   } catch (err) {
     console.error("Error fetching sent forms:", err);
     res.status(500).json({ error: "Server error while fetching sent forms" });
@@ -172,7 +172,7 @@ const getCompletedFormIdsForTrainee = async (req, res) => {
       result[table] = rows.map(r => r.id);
     }
 
-    res.status(200).json({ traineeId, completedForms: result });
+    res.status(200).json({ traineeId, Forms: result });
   } catch (err) {
     console.error("Error fetching completed forms:", err);
     res.status(500).json({ error: "Server error while fetching completed forms" });
@@ -215,7 +215,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
       result[table] = rows.map(r => r.id);
     }
 
-    res.status(200).json({ traineeId, supervisorId, draftForms: result });
+    res.status(200).json({ traineeId, supervisorId, Forms: result });
   } catch (err) {
     console.error("Error fetching draft forms for trainee by supervisor:", err);
     res.status(500).json({ error: "Server error while fetching drafts" });
