@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 22, 2025 at 03:57 PM
+-- Generation Time: Apr 22, 2025 at 09:39 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -511,6 +511,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
+('view_supervisee_form_statuses', 136, 0, 0, 1),
 ('supervisor_view_drafts', 137, 0, 0, 1),
 ('view_completed_forms', 138, 0, 0, 1),
 ('view_sent_forms', 139, 0, 0, 1),
@@ -1507,6 +1508,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 136),
 (3, 137),
 (3, 138),
 (3, 139),
@@ -1596,6 +1598,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 136),
 (4, 137),
 (4, 138),
 (4, 139),
@@ -1684,6 +1687,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 136),
 (5, 137),
 (5, 138),
 (5, 139),
@@ -2303,7 +2307,7 @@ ALTER TABLE `third_year_rotations`
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `trainee_portfolio_images`

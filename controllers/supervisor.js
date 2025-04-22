@@ -221,6 +221,84 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
     res.status(500).json({ error: "Server error while fetching drafts" });
   }
 };
+const getFormCountsBySupervisor = async (req, res) => {
+  const supervisorID = req.user.userId;
+
+  if (!supervisorID) {
+    return res.status(400).json({
+      success: false,
+      message: 'Bad request: supervisorID is required'
+    });
+  }
+
+  const formTypes = [
+    { table: "case_based_discussion_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
+    { table: "grand_round_presentation_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
+    { table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
+    { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
+    { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed" },
+    { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete" },
+    { table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
+    { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
+  ];
+
+  try {
+    const [trainees] = await pool.execute(
+      `SELECT u.User_ID, u.Name
+       FROM supervisor_supervisee ss
+       JOIN users u ON ss.SuperviseeID = u.User_ID
+       WHERE ss.SupervisorID = ?`,
+      [supervisorID]
+    );
+
+    const traineeTotals = [];
+    let overallTotalSent = 0;
+    let overallTotalCompleted = 0;
+
+    for (const trainee of trainees) {
+      const traineeId = trainee.User_ID;
+      let totalSent = 0;
+      let totalCompleted = 0;
+
+      for (const form of formTypes) {
+        const { table, idCol, sentCol, completeCol, inverseCompleted } = form;
+
+        const sentQuery = `SELECT COUNT(*) as sent FROM ${table} WHERE ${idCol} = ? AND ${sentCol} = 1`;
+        const completeQuery = inverseCompleted
+          ? `SELECT COUNT(*) as completed FROM ${table} WHERE ${idCol} = ? AND ${completeCol} = 0`
+          : `SELECT COUNT(*) as completed FROM ${table} WHERE ${idCol} = ? AND ${completeCol} = 1`;
+
+        const [[{ sent }]] = await pool.execute(sentQuery, [traineeId]);
+        const [[{ completed }]] = await pool.execute(completeQuery, [traineeId]);
+
+        totalSent += sent;
+        totalCompleted += completed;
+      }
+
+      overallTotalSent += totalSent;
+      overallTotalCompleted += totalCompleted;
+
+      traineeTotals.push({
+        traineeId,
+        name: trainee.Name,
+        totalSent,
+        totalCompleted
+      });
+    }
+
+    res.status(200).json({
+      supervisorId: supervisorID,
+      overallTotal: {
+        sent: overallTotalSent,
+        completed: overallTotalCompleted
+      },
+      trainees: traineeTotals
+    });
+  } catch (error) {
+    console.error("Error fetching form counts by supervisor:", error);
+    res.status(500).json({ error: "Server error fetching form counts by supervisor" });
+  }
+};
 
 
 
@@ -229,5 +307,6 @@ module.exports = {
   getFormCountsByTrainee,
   getSentFormIdsForTrainee,
   getCompletedFormIdsForTrainee,
-  getDraftFormsForTraineeBySupervisor
+  getDraftFormsForTraineeBySupervisor,
+  getFormCountsBySupervisor
 };

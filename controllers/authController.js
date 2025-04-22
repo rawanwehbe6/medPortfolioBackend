@@ -33,21 +33,24 @@ const registerUser = async (req, res) => {
 
 // Login function
 async function login(req, res) {
-  const { email, password } = req.body;
-  console.log("Email:", email, "Password:", password);
+  const { email, password } = req.body; // 'email' can be email or BAU_ID
+  console.log("email:", email, "Password:", password);
 
   try {
-    // Execute query to fetch user by email
-    const [rows] = await pool.execute("SELECT * FROM USERS WHERE Email = ?", [email]);
+    // Execute query to fetch user by email or BAU_ID
+    const [rows] = await pool.execute(
+      `SELECT * FROM USERS WHERE Email = ? OR (BAU_ID IS NOT NULL AND BAU_ID = ?)`,
+      [email, email]
+    );
 
-    console.log("Rows:", rows); // This should contain the user data
+    console.log("Rows:", rows); // Should contain matched user(s)
 
     // Check if user exists
     if (rows.length === 0) {
       return res.status(400).json({ message: "User not found" });
     }
 
-    const user = rows[0]; // Get first user row
+    const user = rows[0];
 
     // Validate password
     const validPassword = await bcrypt.compare(password, user.Password);
@@ -68,6 +71,7 @@ async function login(req, res) {
     res.status(500).json({ error: "Server error during login", details: err.message });
   }
 }
+
 
 
 // Reset Password
@@ -250,8 +254,17 @@ const addUserType = async (req, res) => {
 const updateUserType = async (req, res) => {
   const { id } = req.params;
   const { name, type } = req.body;
+  const user = req.user.role; // Assuming req.user is set via authentication middleware
+
   console.log("Updating UserType ID:", id, "New Name:", name, "New Type:", type);
 
+  // Prevent a user from updating their own usertype
+  if (Number(user) === Number(id)) {
+    return res.status(403).json({ message: "You cannot update your own user type." });
+  }
+  if (1 === Number(id)) {
+    return res.status(403).json({ message: "You cannot update The main admin." });
+  }
   const validTypes = ["Admin", "Supervisor", "Trainee"];
   if (!validTypes.includes(type)) {
     return res.status(400).json({ message: "Invalid type. Must be Admin, Supervisor, or Trainee." });
@@ -263,7 +276,9 @@ const updateUserType = async (req, res) => {
       return res.status(404).json({ message: 'User type not found' });
     }
 
-    const [nameConflict] = await pool.execute('SELECT * FROM usertypes WHERE Name = ? AND Id != ?', [name, id]);
+    const [nameConflict] = await pool.execute(
+      'SELECT * FROM usertypes WHERE Name = ? AND Id != ?', [name, id]
+    );
     if (nameConflict.length > 0) {
       return res.status(400).json({ message: 'Another user type with this name already exists' });
     }
@@ -280,7 +295,19 @@ const updateUserType = async (req, res) => {
 
 const deleteUserType = async (req, res) => {
   const { id } = req.params;
+  const userRoleId = req.user.role; // Assuming this is the current user's user type ID
+
   console.log("Deleting UserType ID:", id);
+
+  // Prevent deleting your own user type
+  if (Number(userRoleId) === Number(id)) {
+    return res.status(403).json({ message: "You cannot delete your own user type." });
+  }
+
+  // Prevent deleting the main admin
+  if (Number(id) === 1) {
+    return res.status(403).json({ message: "You cannot delete the main admin user type." });
+  }
 
   try {
     // Check if the user type exists
@@ -289,7 +316,11 @@ const deleteUserType = async (req, res) => {
       return res.status(404).json({ message: 'User type not found' });
     }
 
-    // Optional: check for foreign key constraints (e.g., if the user type is in use)
+    // Optional: check if any users are using this user type
+    const [usersUsingType] = await pool.execute('SELECT * FROM users WHERE Role = ?', [id]);
+    if (usersUsingType.length > 0) {
+      return res.status(400).json({ message: 'Cannot delete a user type that is currently assigned to users.' });
+    }
 
     // Perform delete
     await pool.execute('DELETE FROM usertypes WHERE Id = ?', [id]);
@@ -300,6 +331,7 @@ const deleteUserType = async (req, res) => {
     res.status(500).json({ error: 'Server error during user type deletion' });
   }
 };
+
 
 
 //Assign roles to user type
