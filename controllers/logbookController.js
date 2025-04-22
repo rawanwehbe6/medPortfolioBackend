@@ -1,14 +1,14 @@
 const pool = require("../config/db");
 const { get } = require("../routes/authRoutes");
-
+const moment = require("moment");
 // Create logbook profile (POST)
 const createLogbookProfile = async (req, res) => {
   try {
-    const { userId, role } = req.user;
+    const { userId/*, role*/ } = req.user;
 
-    if (role !== 2) {
+   /* if (role !== 2) {
       return res.status(403).json({ message: "Only trainees can fill profile info." });
-    }
+    }*/
 
     const { resident_name, traineeId, academic_year, email, mobile_no } = req.body;
 
@@ -46,11 +46,11 @@ const createLogbookProfile = async (req, res) => {
 // Update logbook profile (PUT)
 const updateLogbookProfile = async (req, res) => {
   try {
-    const { userId, role } = req.user;
+    const { userId/*, role*/ } = req.user;
 
-    if (role !== 2) {
+    /*if (role !== 2) {
       return res.status(403).json({ message: "Only trainees can update profile info." });
-    }
+    }*/
 
     const { resident_name, traineeId, academic_year, email, mobile_no } = req.body;
 
@@ -107,11 +107,11 @@ const getLogbookProfileInfo = async (req, res) => {
 // Get profile info with image (GET)
 const getLogbookProfile = async (req, res) => {
     try {
-        const { userId, role } = req.user;
+        const { userId/*, role*/ } = req.user;
     
-        if (role !== 2 || [3,4,5].includes(role) ) {
+        /*if (role !== 2 || [3,4,5].includes(role) ) {
           return res.status(403).json({ message: "Only trainees and supervisors can access the trainee's profile picture." });
-        }
+        }*/
     
         const [rows] = await pool.execute(
           `SELECT id, image_path as imagePath
@@ -134,12 +134,12 @@ const getLogbookProfile = async (req, res) => {
 // Delete profile picture (DELETE)
 const deleteLogbookProfile = async (req, res) => {
     try {
-        const { userId, role } = req.user;
+        const { userId, /*role*/ } = req.user;
 
-        // Ensure only the trainee can delete their profile picture
+        /*// Ensure only the trainee can delete their profile picture
         if (role !== 2) {
             return res.status(403).json({ message: "Only trainees can delete their profile picture." });
-        }
+        }*/
 
         // Check if the profile image exists
         const [rows] = await pool.execute(
@@ -167,11 +167,11 @@ const deleteLogbookProfile = async (req, res) => {
 // Delete logbook profile info (DELETE)
 const deleteLogbookProfileInfo = async (req, res) => {
     try {
-        const { role, userId } = req.user; // Trainee's ID from token
+        const { /*role,*/ userId } = req.user; // Trainee's ID from token
 
-        if (role !== 2) {
+        /*if (role !== 2) {
             return res.status(403).json({ message: "Only trainees can delete their profile info." });
-        }
+        }*/
 
         // Fetch the existing profile info
         const [rows] = await pool.execute(
@@ -267,12 +267,6 @@ const signLogbookCertificate = async (req, res) => {
   const getCertificateSignature = async (req, res) => {
     try {
       const trainee_id = req.user.userId;
-      //const role = req.user;
-
-      // Only trainees are allowed to delete certificates
-      /*if (role !== 2 || [3,4,5].includes(role) ) {
-        return res.status(403).json({ message: "Only trainees and supervisors can get their certificate's signatures." });
-      }*/
 
       // Fetch the certificate details and signatures from the logbook_profile_info table
       const [[profileInfo]] = await pool.execute(
@@ -299,12 +293,12 @@ const signLogbookCertificate = async (req, res) => {
   const deleteLogbookCertificate = async (req, res) => {
     try {
       const { certificate_id } = req.params;
-      const { role, userId } = req.user;
+      const { /*role,*/ userId } = req.user;
   
       // Only trainees are allowed to delete certificates
-      if (role !== 2) {
+      /*if (role !== 2) {
         return res.status(403).json({ message: "Only trainees can delete certificates." });
-      }
+      }*/
   
       // Fetch certificate data from logbook_profile_info to ensure it exists
       const [[profileInfo]] = await pool.execute(
@@ -340,18 +334,39 @@ const signLogbookCertificate = async (req, res) => {
 
  const createRotation3rdYearConfig = async (req, res) => {
   const { from_date, to_date } = req.body;
-  const { role, userId } = req.user;
+  const { /*role,*/ userId } = req.user;
   
   // Ensure only the trainee or authorized role can delete the logbook entry
-  if (role !== 2) {
+  /*if (role !== 2) {
     return res.status(403).json({ message: 'Only a trainee can Create their logbook third year config entry.' });
-  }
+  }*/
 
   try {
+    let formattedDate1 = null;
+            if (req.body.from_date) {
+                const parsedDate = moment(req.body.from_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                
+                if (parsedDate.isValid()) {
+                    formattedDate1 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                } else {
+                    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                }
+      }
+
+      let formattedDate2 = null;
+              if (req.body.to_date) {
+                  const parsedDate = moment(req.body.to_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                  
+                  if (parsedDate.isValid()) {
+                      formattedDate2 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                  } else {
+                      return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                  }
+                }
     const [result] = await pool.execute(
-      `INSERT INTO logbook_3rd_year_config (trainee_id, from_date, to_date)
+      `INSERT INTO rotation_3rd_year_config (trainee_id, from_date, to_date)
        VALUES (?, ?, ?)`,
-      [userId, from_date, to_date]
+      [userId, formattedDate1, formattedDate2]
     );
     res.status(201).json({ message: 'Rotation config created', id: result.insertId });
   } catch (error) {
@@ -372,7 +387,7 @@ const updateRotation3rdYearConfig = async (req, res) => {
   try {
      // Fetch the existing record to compare and update only the fields provided
      const [existingRecord] = await pool.execute(
-      `SELECT * FROM logbook_3rd_year_config WHERE id = ?`,
+      `SELECT * FROM rotation_3rd_year_config WHERE id = ?`,
       [id]
     );
 
@@ -387,7 +402,7 @@ const updateRotation3rdYearConfig = async (req, res) => {
     };
 
     await pool.execute(
-      `UPDATE logbook_3rd_year_config
+      `UPDATE rotation_3rd_year_config
        SET from_date = ?, to_date = ?
        WHERE id = ?`,
       [updatedFields.from_date, updatedFields.to_date, id]
@@ -400,14 +415,14 @@ const updateRotation3rdYearConfig = async (req, res) => {
 
 const getRotation3rdYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook third year config entry.' });
-  }
+  }*/
   try {
     const [rows] = await pool.execute(
-      `SELECT * FROM logbook_3rd_year_config WHERE trainee_id = ?`,
+      `SELECT from_date, to_date FROM rotation_3rd_year_config WHERE trainee_id = ?`,
       [trainee_id]
     );
 
@@ -415,7 +430,7 @@ const getRotation3rdYearConfig = async (req, res) => {
       return res.status(404).json({ message: 'No config found for this trainee' });
     }
 
-    res.status(200).json(rows);
+    res.status(200).json(rows[0]);
   } catch (error) {
     res.status(500).json({ message: 'Database error', error });
   }
@@ -423,14 +438,14 @@ const getRotation3rdYearConfig = async (req, res) => {
 
 const deleteRotation3rdYearConfig = async (req, res) => {
   const { id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
   if (role !== 2){
     return res.status(403).json({ message: 'Only a trainee can delete their logbook third year config entry.' });
-  }
+  }*/
   
   try {
     const [result] = await pool.execute(
-      `DELETE FROM logbook_3rd_year_config WHERE id = ?`,
+      `DELETE FROM rotation_3rd_year_config WHERE id = ?`,
       [id]
     );
 
@@ -445,12 +460,12 @@ const deleteRotation3rdYearConfig = async (req, res) => {
 };
 
 const createThirdYearRotationDetails = async (req, res) => {
-  const { role, userId } = req.user;
+  const { /*role,*/ userId } = req.user;
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
   
-  if (role !== 2){
+  /*if (role !== 2){
     return res.status(403).json({ message: 'Only a trainee can create their third year rotation entry.' });
-  }
+  }*/
 
    // Validate required fields (basic check)
    if (!from_date || !to_date || !total_duration || !area_of_rotation || !overall_performance) {
@@ -460,13 +475,35 @@ const createThirdYearRotationDetails = async (req, res) => {
   }
 
   try {
+
+    let formattedDate1 = null;
+            if (req.body.from_date) {
+                const parsedDate = moment(req.body.from_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                
+                if (parsedDate.isValid()) {
+                    formattedDate1 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                } else {
+                    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                }
+      }
+
+      let formattedDate2 = null;
+              if (req.body.to_date) {
+                  const parsedDate = moment(req.body.to_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                  
+                  if (parsedDate.isValid()) {
+                      formattedDate2 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                  } else {
+                      return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                  }
+                }
     const [result] = await pool.execute(
       `INSERT INTO third_year_rotations (
         trainee_id, from_date, to_date, total_duration,
         area_of_rotation, overall_performance
       ) VALUES (?, ?, ?, ?, ?, ?)`,
       [
-        userId, from_date, to_date, total_duration,area_of_rotation, overall_performance
+        userId, formattedDate1, formattedDate2, total_duration,area_of_rotation, overall_performance
       ]
     );
 
@@ -497,7 +534,27 @@ const updateThirdYearRotationDetails = async (req, res) => {
     if (existing.length === 0) {
       return res.status(404).json({ message: 'Rotation not found' });
     }
+    let formattedDate1 = null;
+            if (req.body.from_date) {
+                const parsedDate = moment(req.body.from_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                
+                if (parsedDate.isValid()) {
+                    formattedDate1 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                } else {
+                    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                }
+      }
 
+      let formattedDate2 = null;
+              if (req.body.to_date) {
+                  const parsedDate = moment(req.body.to_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
+                  
+                  if (parsedDate.isValid()) {
+                      formattedDate2 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+                  } else {
+                      return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
+                  }
+                }
     // Initialize updatedFields with existing values
     const updatedFields = {
       from_date: from_date !== undefined ? from_date : existing[0].from_date,
@@ -506,17 +563,20 @@ const updateThirdYearRotationDetails = async (req, res) => {
       area_of_rotation: area_of_rotation !== undefined ? area_of_rotation : existing[0].area_of_rotation,
       overall_performance: overall_performance !== undefined ? overall_performance : existing[0].overall_performance
     };
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
 
     // Trainee can update rotation details
-    if (role === 2) { 
+    if (hasAccess) { 
       await pool.execute(
         `UPDATE third_year_rotations 
         SET from_date = ?, to_date = ?, total_duration = ?,
         area_of_rotation = ?, overall_performance = ?
         WHERE rotation_id = ?`,
         [
-          updatedFields.from_date, 
-          updatedFields.to_date, 
+          updatedFields.formattedDate1, 
+          updatedFields.formattedDate2, 
           updatedFields.total_duration, 
           updatedFields.area_of_rotation, 
           updatedFields.overall_performance,
@@ -527,7 +587,7 @@ const updateThirdYearRotationDetails = async (req, res) => {
     }
   
     // Supervisors can sign the rotation
-    if ([3, 4, 5].includes(role)) {
+    if (hasAccessS) {
       if (!req.body.signature || req.body.signature === '') {
         return res.status(400).json({ message: 'Signature text is required.' });
       }
@@ -567,24 +627,26 @@ const updateThirdYearRotationDetails = async (req, res) => {
 
 
 const getThirdYearRotationDetailsById = async (req, res) => {
-  const { rotation_id } = req.params;
-  const { role } = req.user;
+  const { trainee_id } = req.params;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook third year rotation entry.' });
-  }
+  }*/
 
   try {
     const [result] = await pool.execute(
-      `SELECT * FROM third_year_rotations WHERE rotation_id = ?`,
-      [rotation_id]
+      `SELECT trainee_id, from_date, to_date, total_duration, 
+      area_of_rotation, overall_performance, supervisor_signature 
+      FROM third_year_rotations WHERE trainee_id = ?`,
+      [trainee_id]
     );
 
     if (result.length === 0) {
       return res.status(404).json({ message: 'Rotation not found' });
     }
 
-    res.status(200).json(result[0]);
+    res.status(200).json(result);
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ message: 'Database error', error });
@@ -628,7 +690,7 @@ const createRotation2ndYearConfig = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `INSERT INTO logbook_2nd_year_config (trainee_id, from_date, to_date)
+      `INSERT INTO rotation_2nd_year_config (trainee_id, from_date, to_date)
        VALUES (?, ?, ?)`,
       [userId, from_date, to_date]
     );
@@ -641,16 +703,16 @@ const createRotation2ndYearConfig = async (req, res) => {
 const updateRotation2ndYearConfig = async (req, res) => {
   const { id } = req.params;
   const { from_date, to_date } = req.body;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   // Ensure only the trainee can update their third year rotation config logbook entry
   if (role !== 2) {
     return res.status(403).json({ message: 'Only a trainee can update their logbook second year config entry.' });
-  }
+  }*/
 
   try {
     await pool.execute(
-      `UPDATE logbook_2nd_year_config
+      `UPDATE rotation_2nd_year_config
        SET from_date = ?, to_date = ?
        WHERE id = ?`,
       [from_date, to_date, id]
@@ -663,31 +725,15 @@ const updateRotation2ndYearConfig = async (req, res) => {
 
 const getRotation2ndYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook second year config entry.' });
-  }
+  }*/
 
   try {
-    // Fetch the existing record to compare and update only the fields provided
-    const [existingRecord] = await pool.execute(
-      `SELECT * FROM logbook_2nd_year_config WHERE id = ?`,
-      [id]
-    );
-
-    if (existingRecord.length === 0) {
-      return res.status(404).json({ message: 'Config entry not found.' });
-    }
-
-    // Initialize updatedFields with existing values
-    const updatedFields = {
-      from_date: from_date !== undefined ? from_date : existingRecord[0].from_date,
-      to_date: to_date !== undefined ? to_date : existingRecord[0].to_date
-    };
-
     const [rows] = await pool.execute(
-      `SELECT * FROM logbook_2nd_year_config WHERE trainee_id = ?`,
+      `SELECT from_date, to_date FROM rotation_2nd_year_config WHERE trainee_id = ?`,
       [trainee_id]
     );
 
@@ -695,7 +741,7 @@ const getRotation2ndYearConfig = async (req, res) => {
       return res.status(404).json({ message: 'No config found for this trainee' });
     }
 
-    res.status(200).json(rows);
+    res.status(200).json(rows[0]);
   } catch (error) {
     res.status(500).json({ message: 'Database error', error });
   }
@@ -703,14 +749,14 @@ const getRotation2ndYearConfig = async (req, res) => {
 
 const deleteRotation2ndYearConfig = async (req, res) => {
   const { id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
   if (role !== 2){
     return res.status(403).json({ message: 'Only a trainee can delete their logbook second year config entry.' });
-  }
+  }*/
   
   try {
     const [result] = await pool.execute(
-      `DELETE FROM logbook_2nd_year_config WHERE id = ?`,
+      `DELETE FROM rotation_2nd_year_config WHERE id = ?`,
       [id]
     );
 
@@ -728,12 +774,12 @@ const deleteRotation2ndYearConfig = async (req, res) => {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const createSecondYearRotationDetails = async (req, res) => {
-  const { role, userId } = req.user;
+  const { /*role,*/ userId } = req.user;
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
   
-  if (role !== 2){
+  /*if (role !== 2){
     return res.status(403).json({ message: 'Only a trainee can create their second year rotation entry.' });
-  }
+  }*/
 
    // Validate required fields (basic check)
    if (!from_date || !to_date || !total_duration || !area_of_rotation || !overall_performance) {
@@ -762,7 +808,7 @@ const createSecondYearRotationDetails = async (req, res) => {
 
 const updateSecondYearRotationDetails = async (req, res) => {
   const { rotation_id } = req.params; // Ensure that rotation_id is being passed in the URL
-  const { role, userId } = req.user;  // Get user role and ID from the request (assumed from auth)
+  const { /*role,*/ userId } = req.user;  // Get user role and ID from the request (assumed from auth)
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance } = req.body;
 
   try {
@@ -788,9 +834,11 @@ const updateSecondYearRotationDetails = async (req, res) => {
       area_of_rotation: area_of_rotation !== undefined ? area_of_rotation : existing[0].area_of_rotation,
       overall_performance: overall_performance !== undefined ? overall_performance : existing[0].overall_performance
     };
-
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
     // Trainee can update rotation details
-    if (role === 2) { 
+    if (hasAccess) { 
       await pool.execute(
         `UPDATE second_year_rotations 
         SET from_date = ?, to_date = ?, total_duration = ?,
@@ -809,7 +857,7 @@ const updateSecondYearRotationDetails = async (req, res) => {
     }
   
     // Supervisors can sign the rotation
-    if ([3, 4, 5].includes(role)) {
+    if (hasAccessS) {
       if (!req.body.signature || req.body.signature === '') {
         return res.status(400).json({ message: 'Signature text is required.' });
       }
@@ -850,23 +898,25 @@ const updateSecondYearRotationDetails = async (req, res) => {
 
 const getSecondYearRotationDetailsById = async (req, res) => {
   const { rotation_id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook second year rotation entry.' });
-  }
+  }*/
 
   try {
     const [result] = await pool.execute(
-      `SELECT * FROM second_year_rotations WHERE rotation_id = ?`,
-      [rotation_id]
+      `SELECT trainee_id, from_date, to_date, total_duration, 
+      area_of_rotation, overall_performance, supervisor_signature 
+      FROM third_year_rotations WHERE trainee_id = ?`,
+      [trainee_id]
     );
 
     if (result.length === 0) {
       return res.status(404).json({ message: 'Rotation not found' });
     }
 
-    res.status(200).json(result[0]);
+    res.status(200).json(result);
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ message: 'Database error', error });
@@ -908,7 +958,7 @@ const createRotation1stYearConfig = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `INSERT INTO logbook_1st_year_config (trainee_id, from_date, to_date)
+      `INSERT INTO rotation_1st_year_config (trainee_id, from_date, to_date)
        VALUES (?, ?, ?)`,
       [userId, from_date, to_date]
     );
@@ -931,7 +981,7 @@ const updateRotation1stYearConfig = async (req, res) => {
   try {
     // Fetch the existing record to compare and update only the fields provided
     const [existingRecord] = await pool.execute(
-      `SELECT * FROM logbook_1st_year_config WHERE id = ?`,
+      `SELECT * FROM rotation_1st_year_config WHERE id = ?`,
       [id]
     );
 
@@ -946,7 +996,7 @@ const updateRotation1stYearConfig = async (req, res) => {
     };
 
     await pool.execute(
-      `UPDATE logbook_1st_year_config
+      `UPDATE rotation_1st_year_config
        SET from_date = ?, to_date = ?
        WHERE id = ?`,
       [from_date, to_date, id]
@@ -959,14 +1009,14 @@ const updateRotation1stYearConfig = async (req, res) => {
 
 const getRotation1stYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook first year config entry.' });
-  }
+  }*/
   try {
     const [rows] = await pool.execute(
-      `SELECT * FROM logbook_1st_year_config WHERE trainee_id = ?`,
+      `SELECT from_date, to_date FROM rotation_1st_year_config WHERE trainee_id = ?`,
       [trainee_id]
     );
 
@@ -974,7 +1024,7 @@ const getRotation1stYearConfig = async (req, res) => {
       return res.status(404).json({ message: 'No config found for this trainee' });
     }
 
-    res.status(200).json(rows);
+    res.status(200).json(rows[0]);
   } catch (error) {
     res.status(500).json({ message: 'Database error', error });
   }
@@ -989,7 +1039,7 @@ const deleteRotation1stYearConfig = async (req, res) => {
   
   try {
     const [result] = await pool.execute(
-      `DELETE FROM logbook_1st_year_config WHERE id = ?`,
+      `DELETE FROM rotation_1st_year_config WHERE id = ?`,
       [id]
     );
 
@@ -1065,9 +1115,11 @@ const updateFirstYearRotationDetails = async (req, res) => {
       area_of_rotation: area_of_rotation !== undefined ? area_of_rotation : existing[0].area_of_rotation,
       overall_performance: overall_performance !== undefined ? overall_performance : existing[0].overall_performance
     };
-
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
     // Trainee can update rotation details
-    if (role === 2) { 
+    if (hasAccess) { 
       await pool.execute(
         `UPDATE first_year_rotations 
         SET from_date = ?, to_date = ?, total_duration = ?,
@@ -1081,7 +1133,7 @@ const updateFirstYearRotationDetails = async (req, res) => {
     }
   
     // Supervisors can sign the rotation
-    if ([3, 4, 5].includes(role)) {
+    if (hasAccessS) {
       if (!req.body.signature || req.body.signature === '') {
         return res.status(400).json({ message: 'Signature text is required.' });
       }
@@ -1122,23 +1174,25 @@ const updateFirstYearRotationDetails = async (req, res) => {
 
 const getFirstYearRotationDetailsById = async (req, res) => {
   const { rotation_id } = req.params;
-  const { role } = req.user;
+  /*const { role } = req.user;
 
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee can get trainees logbook first year rotation entry.' });
-  }
+  }*/
 
   try {
     const [result] = await pool.execute(
-      `SELECT * FROM first_year_rotations WHERE rotation_id = ?`,
-      [rotation_id]
+      `SELECT trainee_id, from_date, to_date, total_duration, 
+      area_of_rotation, overall_performance, supervisor_signature 
+      FROM third_year_rotations WHERE trainee_id = ?`,
+      [trainee_id]
     );
 
     if (result.length === 0) {
       return res.status(404).json({ message: 'Rotation not found' });
     }
 
-    res.status(200).json(result[0]);
+    res.status(200).json(result);
   } catch (error) {
     console.error('Database error:', error);
     res.status(500).json({ message: 'Database error', error });
@@ -1233,19 +1287,20 @@ console.log("observed:", observed ?? 0);
 
 
 const getProcedureLogs = async (req, res) => {
+  const {trainee_id} = req.params; // or req.user.User_ID — match this with your token
   const { role } = req.user;
   if (![2,3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee or supervisor can get log procedures.' });
   }
   try {
-    const traineeId = req.user.userId; // or req.user.User_ID — match this with your token
-    if (!traineeId) {
+    
+    /*if (!traineeId) {
       return res.status(400).json({ message: 'Trainee ID is missing in token.' });
-    }
+    }*/
 
     const [rows] = await pool.execute(
       "SELECT * FROM user_procedure_logs WHERE trainee_id = ?",
-      [traineeId]
+      [trainee_id]
     );
 
     res.status(200).json(rows);
@@ -1260,12 +1315,12 @@ const getProcedureLogs = async (req, res) => {
 const deleteProcedureLog = async (req, res) => {
   try {
     const { procedure_name } = req.params;
-    const traineeId = req.user.User_ID;
-    const { role } = req.user;
+    const traineeId = req.user.userId;
+    /*const { role } = req.user;
 
     if (role !== 2) {
       return res.status(403).json({ message: 'Only a trainee can delete log procedures.' });
-    }
+    }*/
 
     const [procedureRows] = await pool.execute(
       `SELECT id FROM procedures WHERE name = ?`, 
@@ -1297,7 +1352,7 @@ const addProcedureSummary = async (req, res) => {
     return res.status(403).json({ message: 'Only a trainee add log summary.' });
   }
   try {
-    const { serial_no, date, procedure_name, status, trainer_signature } = req.body;
+    const { serial_no, date, procedure_name, status/*, trainer_signature */} = req.body;
     const traineeId = req.user.userId;
 
     // Convert undefined values to null for optional fields
@@ -1306,14 +1361,14 @@ const addProcedureSummary = async (req, res) => {
       date: date !== undefined ? date : null,
       procedure_name: procedure_name !== undefined ? procedure_name : null,
       status: status !== undefined ? status : null,
-      trainer_signature: trainer_signature !== undefined ? trainer_signature : null,
+      //trainer_signature: trainer_signature !== undefined ? trainer_signature : null,
     };
 
     await pool.execute(
       `INSERT INTO procedure_summary_logs 
-       (serial_no, trainee_id, date, procedure_name, status, trainer_signature)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [fields.serial_no, traineeId, fields.date, fields.procedure_name, fields.status, fields.trainer_signature]
+       (serial_no, trainee_id, date, procedure_name, status)
+       VALUES (?, ?, ?, ?, ?)`,
+      [fields.serial_no, traineeId, fields.date, fields.procedure_name, fields.status/*, fields.trainer_signature*/]
     );
 
     res.status(201).json({ message: "Procedure summary entry added." });
@@ -1324,12 +1379,13 @@ const addProcedureSummary = async (req, res) => {
 };
 
 const getProcedureSummaries = async (req, res) => {
+  const {traineeId} = req.params;
   const {role} = req.user;
   if (role !== 2 || [3,4,5].includes(role)) {
     return res.status(403).json({ message: 'Only a trainee or supervisor log summary.' });
   }
   try {
-    const traineeId = req.user.userId;
+    
 
     const [rows] = await pool.execute(
       `SELECT serial_no, date, procedure_name, status, trainer_signature
@@ -1445,8 +1501,12 @@ const updateProcedureSummary = async (req, res) => {
       return res.status(404).json({ message: "Entry not found." });
     }
 
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
+
     // Step 2: Check if it's the trainee or supervisor updating
-    if (role === 2) {  // Trainee
+    if (hasAccess) {  // Trainee
       if (existingRecord[0].trainee_id !== traineeId) {
         return res.status(403).json({ message: "This log is not associated with you." });
       }
@@ -1482,7 +1542,7 @@ const updateProcedureSummary = async (req, res) => {
 
       return res.status(200).json({ message: "Procedure summary updated successfully." });
 
-    } else if ([3, 4, 5].includes(role)) {  // Supervisor
+    } else if (hasAccessS) {  // Supervisor
       // Check if the trainer_signature already exists, meaning the supervisor has already signed
       if (existingRecord[0].trainer_signature !== null && existingRecord[0].trainer_signature !== '') {
         return res.status(400).json({ message: "Trainer signature already provided." });

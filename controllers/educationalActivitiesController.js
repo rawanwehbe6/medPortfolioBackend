@@ -1,8 +1,9 @@
 const db = require("../config/db");
 const fs = require('fs');
 const path = require('path');
+const moment = require("moment");
 
-//Ensure date is in the format mm/dd/yyyy
+/*//Ensure date is in the format mm/dd/yyyy
 const isValidDate = (date) => {
     const regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/; // MM/DD/YYYY format
     if (!regex.test(date)) return "Invalid date format. Expected MM/DD/YYYY.";
@@ -31,7 +32,7 @@ const isValidDate = (date) => {
 const formatDateToDatabaseFormat = (date) => {
     const [month, day, year] = date.split('/').map(Number); // Split and convert to numbers
     return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`; // Format as YYYY-MM-DD
-};
+};*/
 
 //Add Course
 const addCourse = async (req, res) => {
@@ -43,13 +44,17 @@ const addCourse = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Convert date from mm/dd/yyyy to yyyy-mm-dd
-    let formattedDate;
-    try {
-      formattedDate = formatDateToDatabaseFormat(date);
-    } catch (error) {
-      return res.status(400).json({ message: error.message });
+
+    // Only accept MM/DD/YYYY
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
+      return res.status(400).json({
+        message: "Invalid date format. Please use MM/DD/YYYY."
+      });
     }
+    
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+
     let certificate = null;
 
     if (req.file) {
@@ -93,8 +98,14 @@ const updateCourse = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Convert date from mm/dd/yyyy to yyyy-mm-dd
-    const formattedDate = formatDateToDatabaseFormat(date);
+    // 2. Parse & validate MM/DD/YYYY only
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
+      return res.status(400).json({
+        message: "Invalid date format. Please use MM/DD/YYYY."
+      });
+    }
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Check if course exists and belongs to user
     const [course] = await db.query(
@@ -196,15 +207,14 @@ const addWorkshop = async (req, res) => {
       });
     }
 
-    // Convert and validate date format
-    let formattedDate;
-    try {
-      formattedDate = formatDateToDatabaseFormat(date);
-    } catch (error) {
+     // Only accept MM/DD/YYYY format
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
       return res.status(400).json({ 
-        message: "Invalid date format. Please use MM/DD/YYYY." 
+        error: "Invalid date format. Please use MM/DD/YYYY." 
       });
     }
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     let certificate = null;
 
@@ -264,11 +274,13 @@ const updateWorkshop = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields: userId, id, title, date, organizer, or description." });
     }
 
-    // Validate date
-    const dateError = isValidDate(date);
-    if (dateError) {
-      return res.status(400).json({ message: dateError });
-    }
+  // Only accept MM/DD/YYYY format
+  const parsedDate = moment(date, "MM/DD/YYYY", true);
+  if (!parsedDate.isValid()) {
+    return res.status(400).json({ error: "Invalid date format. Please use MM/DD/YYYY." });
+  }
+  const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+
 
     // Check if the workshop exists
     const [existing] = await db.query(
@@ -304,8 +316,6 @@ const updateWorkshop = async (req, res) => {
         path.join(__dirname, '..', certificate)
       );
     }
-
-    const formattedDate = formatDateToDatabaseFormat(date);
 
     await db.query(
       "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
@@ -371,20 +381,16 @@ const addConference = async (req, res) => {
         if (!req.body.title || !req.body.date || !req.body.host || !req.body.description) {
             return res.status(400).json({ message: "All fields are required." });
         }
-
-        const dateError = isValidDate(date);
-        if (dateError) {
-            return res.status(400).json({ message: dateError });
-        }
-
-         // Validate and format the date
-         let formattedDate;
-         try {
-             formattedDate = formatDateToDatabaseFormat(date);
-         } catch (error) {
-             return res.status(400).json({ message: error.message });
-         }
         
+         // Validate and format date (MM/DD/YYYY only)
+        const parsedDate = moment(date, "MM/DD/YYYY", true);
+        if (!parsedDate.isValid()) {
+          return res.status(400).json({
+            error: "Invalid date format. Please use MM/DD/YYYY."
+          });
+        }
+        const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+
         let certificate = null;
 
         if (req.file) {
@@ -403,7 +409,7 @@ const addConference = async (req, res) => {
           );
         }
 
-        await db.query(
+            await db.query(
             "INSERT INTO eduactconferences (User_ID, title, date, host, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
             [user_id, title, formattedDate, host, description, certificate]
         );
@@ -427,11 +433,14 @@ const updateConference = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields: userId, id, title, date, host, or description." });
     }
 
-    // Validate date
-    const dateError = isValidDate(date);
-    if (dateError) {
-      return res.status(400).json({ message: dateError });
+    // --- ONLY MM/DD/YYYY allowed here ---
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
+      return res.status(400).json({
+        error: "Invalid date format. Please use MM/DD/YYYY."
+      });
     }
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Check if the conference exists
     const [existing] = await db.query(
@@ -466,8 +475,6 @@ const updateConference = async (req, res) => {
         path.join(__dirname, '..', certificate)
       );
     }
-
-    const formattedDate = formatDateToDatabaseFormat(date);
 
     await db.query(
       "UPDATE eduactconferences SET title = ?, date = ?, host = ?, description = ?, certificate = ? WHERE id = ? AND User_ID = ?",
@@ -504,10 +511,11 @@ const deleteConference = async (req, res) => {
 
     // Delete certificate file if exists
     const certificatePath = existingConferences[0].certificate;
-    const fileToDelete = path.join(__dirname, '..', certificatePath);
-
-    if (fs.existsSync(fileToDelete)) {
-      fs.unlinkSync(fileToDelete);
+    if (certificatePath) {
+      const fileToDelete = path.join(__dirname, '..', certificatePath);
+      if (fs.existsSync(fileToDelete)) {
+        fs.unlinkSync(fileToDelete);
+      }
     }
 
     // Delete the DB row
@@ -534,7 +542,7 @@ const getCourses = async (req, res) => {
     const [courses] = await db.query(`
       SELECT 
         id, title, 
-        date, 
+        DATE_FORMAT(date, '%m/%d/%Y') AS date, 
         institution, description, certificate
       FROM eduactcourses
       WHERE user_id = ?
@@ -568,7 +576,7 @@ const getWorkshops = async (req, res) => {
     const [workshops] = await db.query(
       `SELECT 
          id, title, 
-         DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+         DATE_FORMAT(date, '%m/%d/%Y') AS date, 
          organizer, description, certificate 
        FROM eduactworkshops 
        WHERE user_id = ? 
@@ -605,7 +613,7 @@ const getConferences = async (req, res) => {
     const [conferences] = await db.query(`
       SELECT 
         id, title, 
-        DATE_FORMAT(date, '%Y-%m-%d') AS date, 
+        DATE_FORMAT(date, '%m/%d/%Y') AS date, 
         host, description, certificate
       FROM eduactconferences
       WHERE User_ID = ?

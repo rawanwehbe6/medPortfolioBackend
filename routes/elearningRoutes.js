@@ -10,7 +10,7 @@ router.post('/view/:materialId', auth('viewMaterial'), elearningController.viewM
 router.post('/complete/:materialId', auth('completeMaterial'), elearningController.completeMaterial);
 
 // Route for fetching eLearning progress (shows all materials with progress for the logged-in trainee)
-router.get('/progress', auth('get_elearning_progress'), elearningController.getProgress);
+router.get('/progress/:trainee_id', auth('get_elearning_progress'), elearningController.getProgress);
 
 // Add new e-learning material
 router.post("/add", auth("add_elearning_material"), elearningController.addLearningMaterial);

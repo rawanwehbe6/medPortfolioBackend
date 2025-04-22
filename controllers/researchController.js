@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 const fs = require('fs');
 const path = require('path');
-
+const moment = require("moment");
 // Create Research
 const createResearch = async (req, res) => {
   try {
@@ -11,6 +11,17 @@ const createResearch = async (req, res) => {
     if (!title || !date || !description || !userId || !req.file) {
       return res.status(400).json({ error: "Missing required fields: title, date, description, or file." });
     }
+
+    // Only accept MM/DD/YYYY
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
+      return res.status(400).json({
+        message: "Invalid date format. Please use MM/DD/YYYY."
+      });
+    }
+    
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
+
     // Get the file extension from the original filename
     const ext = path.extname(req.file.originalname);
     let filename = req.file.filename;
@@ -29,7 +40,7 @@ const createResearch = async (req, res) => {
 
     const [result] = await pool.execute(
       "INSERT INTO research (User_ID, Title, Date, Description, File_Path) VALUES (?, ?, ?, ?, ?)",
-      [userId, title, date, description, filePath]
+      [userId, title, formattedDate, description, filePath]
     );
 
     //rimastesting
@@ -54,7 +65,7 @@ const updateResearch = async (req, res) => {
       if (!userId || !id || !title || !date || !description) {
         return res.status(400).json({ error: "Missing required fields: userId, id, title, date, or description." });
       }
-  
+      
       // Check if the research exists
       const [existingResearches] = await pool.execute(
         "SELECT * FROM research WHERE Research_ID = ? AND User_ID = ?",
@@ -64,6 +75,15 @@ const updateResearch = async (req, res) => {
       if (existingResearches.length === 0) {
         return res.status(404).json({ error: "Research not found or does not belong to the user." });
       }
+
+    // Parse & validate MM/DD/YYYY only
+    const parsedDate = moment(date, "MM/DD/YYYY", true);
+    if (!parsedDate.isValid()) {
+      return res.status(400).json({
+        message: "Invalid date format. Please use MM/DD/YYYY."
+      });
+    }
+    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
   
       // Handle file upload if provided
       let filePath = existingResearches[0].File_Path; // Use the existing file path if no new file is uploaded
@@ -87,7 +107,7 @@ const updateResearch = async (req, res) => {
       // Update the research record
       await pool.execute(
         "UPDATE research SET Title = ?, Date = ?, Description = ?, File_Path = ? WHERE Research_ID = ? AND User_ID = ?",
-        [title, date, description, filePath, id, userId]
+        [title, formattedDate, description, filePath, id, userId]
       );
       
       // Optionally, you can generate a URL for the updated file
@@ -123,11 +143,12 @@ const deleteResearch = async (req, res) => {
   
       // Handle file deletion
       const filePath = existingResearches[0].File_Path;
-      const fileToDelete = path.join(__dirname, '..', 'uploads', filePath); // Fix path here
-  
-      // Check if the file exists before attempting to delete it
-      if (fs.existsSync(fileToDelete)) {
-        fs.unlinkSync(fileToDelete); // Delete the file
+      if(filePath){
+        const fileToDelete = path.join(__dirname, '..', 'uploads', filePath);
+        // Check if the file exists before attempting to delete it
+        if (fs.existsSync(fileToDelete)) {
+          fs.unlinkSync(fileToDelete); // Delete the file
+        }
       }
   
       // Delete the record from the database
@@ -155,7 +176,7 @@ const getResearch = async (req, res) => {
     const [researches] = await pool.execute(`
       SELECT 
         Research_ID, Title,
-        DATE_FORMAT(Date, '%Y-%m-%d') AS Date,
+        DATE_FORMAT(Date, '%m/%d/%Y') AS Date,
         Description, File_Path
       FROM research
       WHERE User_ID = ?
