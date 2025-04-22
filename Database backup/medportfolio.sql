@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 21, 2025 at 05:54 PM
+-- Generation Time: Apr 22, 2025 at 03:57 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -366,13 +366,20 @@ CREATE TABLE `first_year_rotations` (
   `to_date` date DEFAULT NULL,
   `total_duration` varchar(50) DEFAULT NULL,
   `area_of_rotation` text DEFAULT NULL,
-  `overall_performance` text DEFAULT NULL,
+  `overall_performance` enum('B','M','E') NOT NULL,
   `supervisor_id` int(11) DEFAULT NULL,
   `supervisor_signature` varchar(255) DEFAULT NULL,
   `is_signed` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `first_year_rotations`
+--
+
+INSERT INTO `first_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `to_date`, `total_duration`, `area_of_rotation`, `overall_performance`, `supervisor_id`, `supervisor_signature`, `is_signed`, `created_at`, `updated_at`) VALUES
+(1, 26, '2025-10-03', '2025-12-02', '5', 'test', '', 30, 'rima', 1, '2025-04-20 23:12:23', '2025-04-20 23:24:58');
 
 -- --------------------------------------------------------
 
@@ -1186,6 +1193,13 @@ CREATE TABLE `trainee_elearning_material_progress` (
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `trainee_elearning_material_progress`
+--
+
+INSERT INTO `trainee_elearning_material_progress` (`id`, `trainee_id`, `material_id`, `status`, `completed_at`) VALUES
+(2, 26, 11, 'completed', '2025-04-21 13:43:03');
+
 -- --------------------------------------------------------
 
 --
@@ -1834,6 +1848,12 @@ ALTER TABLE `fellow_resident_evaluation`
   ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
+-- Indexes for table `first_year_rotations`
+--
+ALTER TABLE `first_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`);
+
+--
 -- Indexes for table `functions`
 --
 ALTER TABLE `functions`
@@ -1933,10 +1953,28 @@ ALTER TABLE `research_publications`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `rotation_1st_year_config`
+--
+ALTER TABLE `rotation_1st_year_config`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `rotation_2nd_year_config`
+--
+ALTER TABLE `rotation_2nd_year_config`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `second_year_rotations`
+--
+ALTER TABLE `second_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`);
 
 --
 -- Indexes for table `seminars`
@@ -2118,6 +2156,12 @@ ALTER TABLE `fellow_resident_evaluation`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT for table `first_year_rotations`
+--
+ALTER TABLE `first_year_rotations`
+  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
@@ -2200,6 +2244,18 @@ ALTER TABLE `research`
 --
 ALTER TABLE `research_publications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `rotation_1st_year_config`
+--
+ALTER TABLE `rotation_1st_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `rotation_2nd_year_config`
+--
+ALTER TABLE `rotation_2nd_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `rotation_3rd_year_config`
