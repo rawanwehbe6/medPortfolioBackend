@@ -59,12 +59,14 @@ const getFormCountsByTrainee = async (req, res) => {
     { table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
     { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
     { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed" },
-    { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete"},
+    { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete" },
     { table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
     { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const result = {};
+  let totalSent = 0;
+  let totalCompleted = 0;
 
   try {
     for (const form of formTypes) {
@@ -78,8 +80,16 @@ const getFormCountsByTrainee = async (req, res) => {
       const [[{ sent }]] = await pool.execute(sentQuery, [traineeId]);
       const [[{ completed }]] = await pool.execute(completeQuery, [traineeId]);
 
+      totalSent += sent;
+      totalCompleted += completed;
+
       result[table] = { sent, completed };
     }
+
+    result.total = {
+      totalSent,
+      totalCompleted
+    };
 
     res.status(200).json({ traineeId, formStatus: result });
   } catch (error) {
