@@ -1,7 +1,7 @@
 const pool = require('../config/db');
 const fs = require('fs');
 const path = require('path');
-const moment = require("moment");
+
 // Create Research
 const createResearch = async (req, res) => {
   try {
@@ -11,16 +11,6 @@ const createResearch = async (req, res) => {
     if (!title || !date || !description || !userId || !req.file) {
       return res.status(400).json({ error: "Missing required fields: title, date, description, or file." });
     }
-
-    // Only accept MM/DD/YYYY
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Get the file extension from the original filename
     const ext = path.extname(req.file.originalname);
@@ -40,7 +30,7 @@ const createResearch = async (req, res) => {
 
     const [result] = await pool.execute(
       "INSERT INTO research (User_ID, Title, Date, Description, File_Path) VALUES (?, ?, ?, ?, ?)",
-      [userId, title, formattedDate, description, filePath]
+      [userId, title, date, description, filePath]
     );
 
     //rimastesting
@@ -76,15 +66,6 @@ const updateResearch = async (req, res) => {
         return res.status(404).json({ error: "Research not found or does not belong to the user." });
       }
 
-    // Parse & validate MM/DD/YYYY only
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-  
       // Handle file upload if provided
       let filePath = existingResearches[0].File_Path; // Use the existing file path if no new file is uploaded
       if (req.file) {
@@ -107,7 +88,7 @@ const updateResearch = async (req, res) => {
       // Update the research record
       await pool.execute(
         "UPDATE research SET Title = ?, Date = ?, Description = ?, File_Path = ? WHERE Research_ID = ? AND User_ID = ?",
-        [title, formattedDate, description, filePath, id, userId]
+        [title, date, description, filePath, id, userId]
       );
       
       // Optionally, you can generate a URL for the updated file

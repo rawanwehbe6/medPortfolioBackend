@@ -44,17 +44,6 @@ const addCourse = async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-
-    // Only accept MM/DD/YYYY
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-
     let certificate = null;
 
     if (req.file) {
@@ -75,7 +64,7 @@ const addCourse = async (req, res) => {
 
     await db.query(
       "INSERT INTO eduactcourses (user_id, title, date, institution, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
-      [user_id, title, formattedDate, institution, description, certificate]
+      [user_id, title, date, institution, description, certificate]
     );
 
     const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
@@ -97,15 +86,6 @@ const updateCourse = async (req, res) => {
     if (!title || !date || !institution || !description) {
       return res.status(400).json({ message: "All fields are required." });
     }
-
-    // 2. Parse & validate MM/DD/YYYY only
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Check if course exists and belongs to user
     const [course] = await db.query(
@@ -144,7 +124,7 @@ const updateCourse = async (req, res) => {
 
     await db.query(
       "UPDATE eduactcourses SET title = ?, date = ?, institution = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
-      [title, formattedDate, institution, description, certificate, id, user_id]
+      [title, date, institution, description, certificate, id, user_id]
     );
     const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
 
@@ -207,15 +187,6 @@ const addWorkshop = async (req, res) => {
       });
     }
 
-     // Only accept MM/DD/YYYY format
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({ 
-        error: "Invalid date format. Please use MM/DD/YYYY." 
-      });
-    }
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-
     let certificate = null;
 
     if (req.file) {
@@ -239,7 +210,7 @@ const addWorkshop = async (req, res) => {
       `INSERT INTO eduactworkshops 
        (user_id, title, date, organizer, description, certificate) 
        VALUES (?, ?, ?, ?, ?, ?)`,
-      [user_id, title, formattedDate, organizer, description, certificate]
+      [user_id, title, date, organizer, description, certificate]
     );
    
     const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
@@ -273,14 +244,6 @@ const updateWorkshop = async (req, res) => {
     if (!userId || !id || !title || !date || !organizer || !description) {
       return res.status(400).json({ message: "Missing required fields: userId, id, title, date, organizer, or description." });
     }
-
-  // Only accept MM/DD/YYYY format
-  const parsedDate = moment(date, "MM/DD/YYYY", true);
-  if (!parsedDate.isValid()) {
-    return res.status(400).json({ error: "Invalid date format. Please use MM/DD/YYYY." });
-  }
-  const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-
 
     // Check if the workshop exists
     const [existing] = await db.query(
@@ -319,7 +282,7 @@ const updateWorkshop = async (req, res) => {
 
     await db.query(
       "UPDATE eduactworkshops SET title = ?, date = ?, organizer = ?, description = ?, certificate = ? WHERE id = ? AND user_id = ?",
-      [title, formattedDate, organizer, description, certificate, id, userId]
+      [title, date, organizer, description, certificate, id, userId]
     );
 
     const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
@@ -382,15 +345,6 @@ const addConference = async (req, res) => {
             return res.status(400).json({ message: "All fields are required." });
         }
         
-         // Validate and format date (MM/DD/YYYY only)
-        const parsedDate = moment(date, "MM/DD/YYYY", true);
-        if (!parsedDate.isValid()) {
-          return res.status(400).json({
-            error: "Invalid date format. Please use MM/DD/YYYY."
-          });
-        }
-        const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-
         let certificate = null;
 
         if (req.file) {
@@ -411,7 +365,7 @@ const addConference = async (req, res) => {
 
             await db.query(
             "INSERT INTO eduactconferences (User_ID, title, date, host, description, certificate) VALUES (?, ?, ?, ?, ?, ?)",
-            [user_id, title, formattedDate, host, description, certificate]
+            [user_id, title, date, host, description, certificate]
         );
         
         const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;
@@ -432,15 +386,6 @@ const updateConference = async (req, res) => {
     if (!userId || !id || !title || !date || !host || !description) {
       return res.status(400).json({ message: "Missing required fields: userId, id, title, date, host, or description." });
     }
-
-    // --- ONLY MM/DD/YYYY allowed here ---
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        error: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Check if the conference exists
     const [existing] = await db.query(
@@ -478,7 +423,7 @@ const updateConference = async (req, res) => {
 
     await db.query(
       "UPDATE eduactconferences SET title = ?, date = ?, host = ?, description = ?, certificate = ? WHERE id = ? AND User_ID = ?",
-      [title, formattedDate, host, description, certificate, id, userId]
+      [title, date, host, description, certificate, id, userId]
     );
 
     const fullUrl = certificate ? `${req.protocol}://${req.get('host')}/${certificate}` : null;

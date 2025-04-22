@@ -19,20 +19,11 @@ const addSurgicalExperience = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Only accept MM/DD/YYYY
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
     // Execute the SQL query to insert the surgical experience
     await pool.execute(
         "INSERT INTO surgical_experiences (User_ID, Procedure_Name, Date, Role, Clinic, Description) VALUES (?, ?, ?, ?, ?, ?)",
-        [userId, procedureName, formattedDate, role, clinic, description]
+        [userId, procedureName, date, role, clinic, description]
       );      
 
     res.status(201).json({ message: "Surgical experience added successfully" });
@@ -71,15 +62,6 @@ const updateSurgicalExperience = async (req, res) => {
         return res.status(404).json({ error: "Surgical experience not found or does not belong to the user." });
       }
       
-      // Only accept MM/DD/YYYY
-    const parsedDate = moment(date, "MM/DD/YYYY", true);
-    if (!parsedDate.isValid()) {
-      return res.status(400).json({
-        message: "Invalid date format. Please use MM/DD/YYYY."
-      });
-    }
-    
-    const formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
 
       // Prepare the SQL update query
       const updateQuery = `
@@ -90,7 +72,7 @@ const updateSurgicalExperience = async (req, res) => {
 
   
       // Execute the SQL query to update the surgical experience
-      await pool.execute(updateQuery, [procedureName, formattedDate, role, clinic, description, id, userId]);
+      await pool.execute(updateQuery, [procedureName, date, role, clinic, description, id, userId]);
   
       res.status(200).json({ message: "Surgical experience updated successfully" });
     } catch (err) {
