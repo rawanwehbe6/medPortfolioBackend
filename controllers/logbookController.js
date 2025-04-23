@@ -1,6 +1,9 @@
 const pool = require("../config/db");
 const { get } = require("../routes/authRoutes");
 const moment = require("moment");
+const form_helper = require('../middleware/form_helper');
+
+
 // Create logbook profile (POST)
 const createLogbookProfile = async (req, res) => {
   try {
@@ -462,7 +465,7 @@ const deleteRotation3rdYearConfig = async (req, res) => {
 const createThirdYearRotationDetails = async (req, res) => {
   const { /*role,*/ userId } = req.user;
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
-  
+
   /*if (role !== 2){
     return res.status(403).json({ message: 'Only a trainee can create their third year rotation entry.' });
   }*/
@@ -476,34 +479,14 @@ const createThirdYearRotationDetails = async (req, res) => {
 
   try {
 
-    let formattedDate1 = null;
-            if (req.body.from_date) {
-                const parsedDate = moment(req.body.from_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
-                
-                if (parsedDate.isValid()) {
-                    formattedDate1 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-                } else {
-                    return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
-                }
-      }
 
-      let formattedDate2 = null;
-              if (req.body.to_date) {
-                  const parsedDate = moment(req.body.to_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
-                  
-                  if (parsedDate.isValid()) {
-                      formattedDate2 = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-                  } else {
-                      return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
-                  }
-                }
     const [result] = await pool.execute(
       `INSERT INTO third_year_rotations (
         trainee_id, from_date, to_date, total_duration,
         area_of_rotation, overall_performance
       ) VALUES (?, ?, ?, ?, ?, ?)`,
       [
-        userId, formattedDate1, formattedDate2, total_duration,area_of_rotation, overall_performance
+        userId, from_date, to_date, total_duration,area_of_rotation, overall_performance
       ]
     );
 
@@ -518,6 +501,7 @@ const updateThirdYearRotationDetails = async (req, res) => {
   const { rotation_id } = req.params; // Ensure that rotation_id is being passed in the URL
   const { role, userId } = req.user;  // Get user role and ID from the request (assumed from auth)
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance } = req.body;
+  console.log(userId, from_date, to_date, total_duration, area_of_rotation, overall_performance);
 
   try {
     console.log("DEBUG — Supervisor Signing Rotation:", {
@@ -1090,7 +1074,8 @@ const updateFirstYearRotationDetails = async (req, res) => {
   const { rotation_id } = req.params; // Ensure that rotation_id is being passed in the URL
   const { role, userId } = req.user;  // Get user role and ID from the request (assumed from auth)
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance } = req.body;
-
+  
+  console.log(userId, from_date, to_date, total_duration, area_of_rotation, overall_performance);
   try {
     console.log("DEBUG — Supervisor Signing Rotation:", {
       rotation_id, // Make sure rotation_id is properly logged
@@ -1126,7 +1111,7 @@ const updateFirstYearRotationDetails = async (req, res) => {
         area_of_rotation = ?, overall_performance = ?
         WHERE rotation_id = ?`,
         [
-          updatedFields.from_date, updatedFields.to_date, updatedFields.total_duration, updatedFields.area_of_rotation, updatedFields.overall_performance, updatedFields.rotation_id
+          updatedFields.from_date, updatedFields.to_date, updatedFields.total_duration, updatedFields.area_of_rotation, updatedFields.overall_performance, rotation_id
         ]
       );
       return res.status(200).json({ message: 'Rotation details updated successfully' });
@@ -1184,8 +1169,8 @@ const getFirstYearRotationDetailsById = async (req, res) => {
     const [result] = await pool.execute(
       `SELECT trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
-      FROM third_year_rotations WHERE trainee_id = ?`,
-      [trainee_id]
+      FROM third_year_rotations WHERE rotation_id = ?`,
+      [rotation_id]
     );
 
     if (result.length === 0) {
