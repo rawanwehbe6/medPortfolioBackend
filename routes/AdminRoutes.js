@@ -12,8 +12,8 @@ router.get('/educational-supervisors', auth("get_Educational_Supervisors"), admi
 router.get('/clinical-supervisors-or-clinics', auth("get_Clinical_Supervisors_Or_Clinics"), admin.getClinicalSupervisorsOrClinics);
 router.get('/users', auth("get_All_Users_With_Roles"), admin.getAllUsersWithRoles);
 router.get('/roles', auth("get_User_Types"), admin.getAllRoles);
-router.get('/functions/trainee', auth("get_role_functions"), admin.getTraineeFunctions);
-router.get('/functions/admin', auth("get_role_functions"), admin.getAdminFunctions);
-router.get('/functions/supervisor', auth("get_role_functions"), admin.getSupervisorFunctions);
+router.get('/functions/trainee', auth("assign_roles"), admin.getTraineeFunctions);
+router.get('/functions/admin', auth("assign_roles"), admin.getAdminFunctions);
+router.get('/functions/supervisor', auth("assign_roles"), admin.getSupervisorFunctions);
 
 module.exports = router;

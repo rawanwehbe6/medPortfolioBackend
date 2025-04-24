@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 24, 2025 at 10:25 PM
+-- Generation Time: Apr 25, 2025 at 01:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -511,7 +511,8 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
-('get_role_functions', 134, 1, 0, 0),
+('add_user_type', 133, 1, 0, 0),
+('assign_roles', 134, 1, 0, 0),
 ('trainee_view_completed_forms', 135, 0, 1, 0),
 ('view_supervisee_form_statuses', 136, 0, 0, 1),
 ('supervisor_view_drafts', 137, 0, 0, 1),
@@ -1722,7 +1723,17 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (10, 56),
 (10, 57),
 (10, 58),
-(10, 59);
+(10, 59),
+(11, 10),
+(11, 12),
+(11, 14),
+(11, 15),
+(11, 16),
+(11, 17),
+(11, 18),
+(11, 22),
+(11, 23),
+(11, 134);
 
 -- --------------------------------------------------------
 
@@ -2061,7 +2072,8 @@ ALTER TABLE `users`
 -- Indexes for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD UNIQUE KEY `Name` (`Name`);
 
 --
 -- Indexes for table `usertype_functions`

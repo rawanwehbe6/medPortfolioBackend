@@ -332,41 +332,91 @@ const deleteUserType = async (req, res) => {
   }
 };
 
+const updateUsertypeFunctions = async (req, res) => {
+  const { usertypeName, newFunctionIds } = req.body;
+  const currentUserId = req.user.userId;
 
-
-//Assign roles to user type
-const assignFunctionToUserType = async (req, res) => {
-  const { usertypeName, functionName } = req.body;
-  console.log("Assigning Function:", { usertypeName, functionName });
-  
   try {
-    // Get usertype ID
-    const [usertype] = await pool.execute('SELECT Id FROM usertypes WHERE Name = ?', [usertypeName]);
-    if (usertype.length === 0) {
+    const [[usertype]] = await pool.execute('SELECT Id, Type FROM usertypes WHERE Name = ?', [usertypeName]);
+    if (!usertype) {
       return res.status(404).json({ message: 'User type not found' });
     }
-    const usertypeId = usertype[0].Id;
 
-    // Get function ID
-    const [func] = await pool.execute('SELECT Id FROM functions WHERE Name = ?', [functionName]);
-    if (func.length === 0) {
-      return res.status(404).json({ message: 'Function not found' });
-    }
-    const functionId = func[0].Id;
+    const usertypeId = usertype.Id;
+    const usertypeType = usertype.Type;
 
-    // Check if the assignment already exists
-    const [existingAssignment] = await pool.execute('SELECT * FROM usertype_functions WHERE UsertypeId = ? AND FunctionsId = ?', [usertypeId, functionId]);
-    if (existingAssignment.length > 0) {
-      return res.status(400).json({ message: 'Function already assigned to this user type' });
+    const [[currentUser]] = await pool.execute(
+      'SELECT role FROM users WHERE User_ID = ?',
+      [currentUserId]
+    );
+    if (!currentUser) {
+      return res.status(403).json({ message: 'Unauthorized: User not found' });
     }
 
-    // Insert new function assignment
-    await pool.execute("INSERT INTO usertype_functions (UsertypeId, FunctionsId) VALUES (?, ?)", [usertypeId, functionId]);
+    const currentUsertypeId = currentUser.role;
 
-    res.status(201).json({ message: 'Function assigned to user type successfully' });
+    if (currentUsertypeId === usertypeId) {
+      return res.status(403).json({ message: 'Forbidden: You cannot edit your own user type' });
+    }
+
+    const [currentAssignments] = await pool.execute(
+      'SELECT FunctionsId FROM usertype_functions WHERE UsertypeId = ?',
+      [usertypeId]
+    );
+    const currentFunctionIds = currentAssignments.map(r => r.FunctionsId);
+
+    let userAllowedFunctionIds = [];
+    
+    if (currentUsertypeId === 1) {
+      const [rows] = await pool.execute('SELECT Id FROM functions');
+      userAllowedFunctionIds = rows.map(r => r.Id);
+    } else {
+      const [rows] = await pool.execute(
+        `SELECT FunctionsId FROM usertype_functions WHERE UsertypeId = ?`,
+        [currentUsertypeId]
+      );
+      userAllowedFunctionIds = rows.map(r => r.FunctionsId);
+    }
+
+    const [allFunctions] = await pool.execute('SELECT Id, Admin, Trainee, Supervisor FROM functions');
+    const filteredNewFunctionIds = newFunctionIds
+      .filter(id => userAllowedFunctionIds.includes(id))
+      .filter(id => {
+        const func = allFunctions.find(f => f.Id === id);
+        if (!func) return false;
+        if (usertypeType === 'Admin') return func.Admin === 1;
+        if (usertypeType === 'Trainee') return func.Trainee === 1;
+        if (usertypeType === 'Supervisor') return func.Supervisor === 1;
+        return false;
+      });
+
+    const functionsToKeepUnchanged = currentFunctionIds.filter(id => !userAllowedFunctionIds.includes(id));
+    
+    const modifiableCurrent = currentFunctionIds.filter(id => userAllowedFunctionIds.includes(id));
+    const toDelete = modifiableCurrent.filter(id => !filteredNewFunctionIds.includes(id));
+    const toAdd = filteredNewFunctionIds.filter(id => !currentFunctionIds.includes(id));
+
+    if (toDelete.length > 0) {
+      await pool.execute(
+        `DELETE FROM usertype_functions WHERE UsertypeId = ? AND FunctionsId IN (${toDelete.map(() => '?').join(',')})`,
+        [usertypeId, ...toDelete]
+      );
+    }
+
+    if (toAdd.length > 0) {
+      const insertValues = toAdd.map(id => [usertypeId, id]);
+      await pool.query(
+        "INSERT INTO usertype_functions (UsertypeId, FunctionsId) VALUES ?",
+        [insertValues]
+      );
+    }
+
+    res.status(200).json({ 
+      message: 'User type functions updated successfully'
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during function assignment' });
+    res.status(500).json({ error: 'Server error during update' });
   }
 };
 
@@ -499,9 +549,9 @@ module.exports = {
   addUserType,
   updateUserType,
   deleteUserType,
-  assignFunctionToUserType,
   forgotPassword,
   resetPasswordWithToken,
   contactUs,
-  preLoginContact
+  preLoginContact,
+  updateUsertypeFunctions
 };

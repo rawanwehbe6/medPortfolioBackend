@@ -300,19 +300,43 @@ const getTraineeFunctions = async (req, res) => {
     res.status(500).json({ error: 'Server error fetching trainee functions' });
   }
 };
+
 const getAdminFunctions = async (req, res) => {
+  const currentUserId = req.user.userId;
+
   try {
-    const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Admin = 1');
+    const [currentUser] = await pool.execute(
+      'SELECT role FROM users WHERE User_ID = ?',
+      [currentUserId]
+    );
+
+    if (currentUser.length === 0) {
+      return res.status(403).json({ message: 'Unauthorized: User not found' });
+    }
+
+    const currentUsertypeId = currentUser[0].role;
+
+    const [rows] = await pool.execute(
+      `SELECT f.Id, f.Name
+       FROM functions f
+       INNER JOIN usertype_functions uf ON f.Id = uf.FunctionsId
+       WHERE f.Admin = 1 AND uf.UsertypeId = ?`,
+      [currentUsertypeId]
+    );
+
     const functions = rows.map(f => ({
       id: f.Id,
       name: formatFunctionName(f.Name),
     }));
+
     res.status(200).json(functions);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error fetching admin functions' });
   }
 };
+
+
 const getSupervisorFunctions = async (req, res) => {
   try {
     const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Supervisor = 1');
