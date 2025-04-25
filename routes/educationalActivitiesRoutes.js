@@ -15,7 +15,6 @@ const {
     getWorkshops,
     getConferences
   } = require("../controllers/educationalActivitiesController");
-const authenticate = require("../middleware/authMiddleware");
 const auth = require("../middleware/auth");
 
 router.post("/addCourse", auth("trainee_add_course"), upload.single('certificate'), addCourse);

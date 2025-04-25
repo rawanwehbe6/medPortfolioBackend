@@ -19,6 +19,7 @@ const addSurgicalExperience = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
+
     // Execute the SQL query to insert the surgical experience
     await pool.execute(
         "INSERT INTO surgical_experiences (User_ID, Procedure_Name, Date, Role, Clinic, Description) VALUES (?, ?, ?, ?, ?, ?)",
@@ -60,7 +61,8 @@ const updateSurgicalExperience = async (req, res) => {
       if (existingExperiences.length === 0) {
         return res.status(404).json({ error: "Surgical experience not found or does not belong to the user." });
       }
-  
+      
+
       // Prepare the SQL update query
       const updateQuery = `
   UPDATE surgical_experiences
@@ -121,7 +123,7 @@ const updateSurgicalExperience = async (req, res) => {
     }
 
     const [experiences] = await pool.execute(
-      "SELECT * FROM surgical_experiences WHERE User_ID = ?",
+      "SELECT Experience_ID, User_ID, Procedure_Name, DATE_FORMAT(Date, '%m/%d/%Y') AS Date, Role, Clinic, Description, created_at, updated_at FROM surgical_experiences WHERE User_ID = ?",
       [userId]
     );
 

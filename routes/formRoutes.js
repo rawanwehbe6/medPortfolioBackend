@@ -130,7 +130,7 @@ router.post('/mini-cex/:id/sign', auth("sign_mini_cex"), handleFileUpload, miniC
 router.post('/mini-cex/:formId/send', auth("send_mini_cex_to_trainee"), miniCexController.sendMiniCEXToTrainee);
 router.get('/mini-cex/:id', auth("get_mini_cex_by_id"), miniCexController.getMiniCEXById);
 router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.deleteMiniCEXById);
-
+router.get('/clinical/:id', auth("get_mini_cex_by_id"), miniCexController.getClinical);
 
 // DOPS Routes
 router.post('/dops', auth("create_dops"), dopsController.createDOPS);

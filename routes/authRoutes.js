@@ -15,7 +15,8 @@ router.post("/add-user-type", auth("add_user_type"), authController.addUserType)
 router.put("/update-user-type/:id", auth("update_user_type"), authController.updateUserType);
 router.delete("/delete-user-type/:id", auth("delete_user_type"), authController.deleteUserType);
 
-router.post('/assign-function-to-user-type', auth("assign_roles"), authController.assignFunctionToUserType);
+router.post('/assign-function-to-user-type', auth("assign_roles"), authController.updateUsertypeFunctions);
+
 router.post('/forgot-password', forgotPassword);
 router.post("/resetPassWithToken", resetPasswordWithToken);
 router.post("/contact", auth("contact_us"), authController.contactUs);

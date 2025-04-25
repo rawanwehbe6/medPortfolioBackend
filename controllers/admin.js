@@ -1,4 +1,11 @@
 const pool = require('../config/db'); // Database connection
+const formatFunctionName = (name) => {
+  return name
+    .replace(/_/g, ' ')                      // Replace underscores with space
+    .replace(/([a-z])([A-Z])/g, '$1 $2')     // Insert space before capital letters
+    .replace(/\s+/g, ' ')                    // Normalize multiple spaces
+    .trim();
+};
 
 const addSupervisorSuperviseeRelation = async (req, res) => {
     try {
@@ -59,9 +66,13 @@ const updateSupervisorSuperviseeRelation = async (req, res) => {
             "SELECT role FROM users WHERE User_ID = ?",
             [newSupervisorId]
         );
-
-        if (supervisor.length === 0 || supervisor[0].role !== 3) {
-            return res.status(403).json({ message: "Invalid supervisor. Supervisor must have role 3." });
+        const [usertype] = await pool.execute(
+            "SELECT Type FROM usertypes WHERE Id = ?",
+            [supervisor[0].role]
+        );
+        console.log(usertype);
+        if (supervisor.length === 0 || usertype[0].Type !== "Supervisor") {
+            return res.status(403).json({ message: "Invalid not supervisor." });
         }
 
         // Update the supervisor assignment
@@ -92,7 +103,7 @@ const deleteSupervisorSuperviseeRelation = async (req, res) => {
         );
 
         if (existingRelation.length === 0) {
-            return res.status(404).json({ message: "Supervisor-supervisee relationship not found." });
+            return res.status(200).json({ message: "Supervisor-supervisee relationship not found." });
         }
 
         // Delete the relationship
@@ -276,6 +287,69 @@ const getAllRoles = async (req, res) => {
     });
   }
 };
+const getTraineeFunctions = async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Trainee = 1');
+    const functions = rows.map(f => ({
+      id: f.Id,
+      name: formatFunctionName(f.Name),
+    }));
+    res.status(200).json(functions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching trainee functions' });
+  }
+};
+
+const getAdminFunctions = async (req, res) => {
+  const currentUserId = req.user.userId;
+
+  try {
+    const [currentUser] = await pool.execute(
+      'SELECT role FROM users WHERE User_ID = ?',
+      [currentUserId]
+    );
+
+    if (currentUser.length === 0) {
+      return res.status(403).json({ message: 'Unauthorized: User not found' });
+    }
+
+    const currentUsertypeId = currentUser[0].role;
+
+    const [rows] = await pool.execute(
+      `SELECT f.Id, f.Name
+       FROM functions f
+       INNER JOIN usertype_functions uf ON f.Id = uf.FunctionsId
+       WHERE f.Admin = 1 AND uf.UsertypeId = ?`,
+      [currentUsertypeId]
+    );
+
+    const functions = rows.map(f => ({
+      id: f.Id,
+      name: formatFunctionName(f.Name),
+    }));
+
+    res.status(200).json(functions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching admin functions' });
+  }
+};
+
+
+const getSupervisorFunctions = async (req, res) => {
+  try {
+    const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Supervisor = 1');
+    const functions = rows.map(f => ({
+      id: f.Id,
+      name: formatFunctionName(f.Name),
+    }));
+    res.status(200).json(functions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error fetching supervisor functions' });
+  }
+};
 
 
 module.exports = { 
@@ -287,5 +361,8 @@ module.exports = {
     getEducationalSupervisors,
     getClinicalSupervisorsOrClinics,
     getAllUsersWithRoles,
-    getAllRoles 
+    getAllRoles ,
+    getTraineeFunctions,
+    getAdminFunctions,
+    getSupervisorFunctions
 };

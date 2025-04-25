@@ -173,7 +173,7 @@ const completeMaterial = async (req, res) => {
 
 // Retrieves all eLearning materials with the current trainee's progress
 const getProgress = async (req, res) => {
-  const trainee_id = req.user.userId;
+  const {trainee_id} = req.params;
 
   try {
     const sql = `
@@ -185,7 +185,18 @@ const getProgress = async (req, res) => {
       ORDER BY em.uploaded_at DESC
     `;
     const [rows] = await pool.execute(sql, [trainee_id]);
-    res.status(200).json(rows);
+
+    // Count total and completed
+    const total = rows.length;
+    const completed = rows.filter(item => item.status === 'completed').length;
+    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    res.status(200).json({
+      progress_percentage: percentage,
+      total_materials: total,
+      completed_materials: completed,
+      rows
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during fetching progress' });

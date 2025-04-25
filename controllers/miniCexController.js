@@ -389,5 +389,50 @@ const deleteMiniCEXById = async (req, res) => {
     }
 };
 
-
-module.exports = { createMiniCEX, sendMiniCEXToTrainee, updateMiniCEX, signMiniCEX, getMiniCEXById, deleteMiniCEXById};
+const getClinical = async (req, res) => {
+    try {
+      const { id } = req.params;
+  
+      const [result] = await pool.execute(
+        `SELECT 
+            mc.supervisor_name,
+            mc.trainee_name,
+            mc.resident_level,
+            mc.evaluation_date,
+            mc.setting,
+            mc.patient_problem,
+            mc.patient_age,
+            mc.patient_sex,
+            mc.patient_type,
+            mc.complexity,
+            mc.focus,
+            mc.medical_interviewing,
+            mc.physical_exam,
+            mc.professionalism,
+            mc.clinical_judgment,
+            mc.counseling_skills,
+            mc.efficiency,
+            mc.overall_competence,
+            mc.evaluator_satisfaction,
+            mc.resident_satisfaction,
+            mc.comments,
+            mc.residentFellow,
+            mc.evaluator_signature_path,
+            mc.trainee_signature_path
+         FROM mini_cex mc
+         WHERE mc.id = ?`,
+        [id]
+      );
+  
+      if (result.length === 0) {
+        return res.status(404).json({ message: "Clinical (Mini-CEX) form not found" });
+      }
+  
+      res.status(200).json(result[0]);
+    } catch (err) {
+      console.error("Database Error:", err);
+      res.status(500).json({ error: "Error fetching Clinical form" });
+    }
+  };
+  
+module.exports = { createMiniCEX, sendMiniCEXToTrainee, updateMiniCEX, signMiniCEX, getMiniCEXById, deleteMiniCEXById, getClinical};

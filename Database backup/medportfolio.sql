@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 18, 2025 at 03:15 PM
+-- Generation Time: Apr 25, 2025 at 10:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -349,7 +349,8 @@ CREATE TABLE `fellow_resident_evaluation` (
   `suggestions` text DEFAULT NULL,
   `sent` tinyint(4) DEFAULT 0,
   `completed` tinyint(4) DEFAULT 0,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `supervisor_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -365,13 +366,20 @@ CREATE TABLE `first_year_rotations` (
   `to_date` date DEFAULT NULL,
   `total_duration` varchar(50) DEFAULT NULL,
   `area_of_rotation` text DEFAULT NULL,
-  `overall_performance` text DEFAULT NULL,
+  `overall_performance` enum('B','M','E') NOT NULL,
   `supervisor_id` int(11) DEFAULT NULL,
   `supervisor_signature` varchar(255) DEFAULT NULL,
   `is_signed` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `first_year_rotations`
+--
+
+INSERT INTO `first_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `to_date`, `total_duration`, `area_of_rotation`, `overall_performance`, `supervisor_id`, `supervisor_signature`, `is_signed`, `created_at`, `updated_at`) VALUES
+(1, 26, '2025-10-03', '2025-12-02', '5', 'test', '', 30, 'rima', 1, '2025-04-20 23:12:23', '2025-04-20 23:24:58');
 
 -- --------------------------------------------------------
 
@@ -403,7 +411,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('supervisor_get_trainees', 9, 0, 0, 1),
 ('get_contact_messages', 10, 1, 0, 0),
 ('trainee_add_course', 11, 0, 1, 0),
-('contact_us', 12, 1, 1, 1),
+('contact_us', 12, 0, 1, 1),
 ('trainee_update_course', 14, 1, 1, 0),
 ('trainee_delete_course', 15, 1, 1, 0),
 ('trainee_add_workshop', 16, 1, 1, 0),
@@ -503,44 +511,51 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
+('add_user_type', 133, 1, 0, 0),
+('assign_roles', 134, 1, 0, 0),
+('trainee_view_completed_forms', 135, 0, 1, 0),
+('view_supervisee_form_statuses', 136, 0, 0, 1),
+('supervisor_view_drafts', 137, 0, 0, 1),
+('view_completed_forms', 138, 0, 0, 1),
+('view_sent_forms', 139, 0, 0, 1),
 ('update_user_type', 140, 1, 0, 0),
 ('delete_user_type', 141, 1, 0, 0),
 ('view_form_status', 142, 0, 0, 1),
-('trainee_view_forms', 143, 0, 1, 0),
+('trainee_view_sent_forms', 143, 0, 1, 0),
 ('getFormsProgressForTrainee', 144, 1, 1, 0),
 ('getLatestUpdatedForm', 145, 1, 1, 0),
 ('view_portfolio_images', 146, 0, 1, 1),
 ('create_teachings', 147, 1, 1, 1),
-('get_teachings', 148,1,1,1),
-('delete_teachings',149,1,1,1),
-('sign_teachings',150,1,0,1),
-('update_teachings',173,1,1,1),
-('create_researchPub',151,1,1,1),
-('get_researchPub',152,1,1,1),
-('delete_researchPub',153,1,1,1),
-('sign_researchPub',154,1,0,1),
-('update_researchPub',174,1,1,1), 
-('create_depActivities',155,1,1,1),
-('get_depActivities',156,1,1,1),
-('delete_depActivities',157,1,1,1),
-('sign_depActivities',158,1,0,1),
-('update_depActivities',175,1,1,1),
-('create_miscellaneous-Activities',159,1,1,1),
-('get_miscellaneous-Activities',160,1,1,1),
-('delete_miscellaneous-Activities',161,1,1,1),
-('sign_miscellaneous-Activities',162,1,0,1),
-('update_miscellaneous-Activities',176,1,1,1),
-('get_miscellaneous-ActivitiesByID',163,1,1,1),
-('create_case_presentation',164,1,1,1),
-('get_case_presentation',165,1,1,1),
-('delete_case_presentation',166,1,1,1),
-('sign_case_presentation',167,1,0,1),
-('update_case_presentation',177,1,1,1),
-('create_seminars',168,1,1,1),
-('get_seminars',169,1,1,1),
-('delete_seminars',170,1,1,1),
-('sign_seminars',171,1,0,1),
-('update_seminars',178,1,1,1);
+('get_teachings', 148, 1, 1, 1),
+('delete_teachings', 149, 1, 1, 1),
+('sign_teachings', 150, 1, 0, 1),
+('create_researchPub', 151, 1, 1, 1),
+('get_researchPub', 152, 1, 1, 1),
+('delete_researchPub', 153, 1, 1, 1),
+('sign_researchPub', 154, 1, 0, 1),
+('create_depActivities', 155, 1, 1, 1),
+('get_depActivities', 156, 1, 1, 1),
+('delete_depActivities', 157, 1, 1, 1),
+('sign_depActivities', 158, 1, 0, 1),
+('create_miscellaneous-Activities', 159, 1, 1, 1),
+('get_miscellaneous-Activities', 160, 1, 1, 1),
+('delete_miscellaneous-Activities', 161, 1, 1, 1),
+('sign_miscellaneous-Activities', 162, 1, 0, 1),
+('get_miscellaneous-ActivitiesByID', 163, 1, 1, 1),
+('create_case_presentation', 164, 1, 1, 1),
+('get_case_presentation', 165, 1, 1, 1),
+('delete_case_presentation', 166, 1, 1, 1),
+('sign_case_presentation', 167, 1, 0, 1),
+('create_seminars', 168, 1, 1, 1),
+('get_seminars', 169, 1, 1, 1),
+('delete_seminars', 170, 1, 1, 1),
+('sign_seminars', 171, 1, 0, 1),
+('update_teachings', 173, 1, 1, 1),
+('update_researchPub', 174, 1, 1, 1),
+('update_depActivities', 175, 1, 1, 1),
+('update_miscellaneous-Activities', 176, 1, 1, 1),
+('update_case_presentation', 177, 1, 1, 1),
+('update_seminars', 178, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -610,7 +625,8 @@ CREATE TABLE `journal_club_assessment` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `sent` tinyint(1) DEFAULT NULL,
   `complete` tinyint(1) DEFAULT 0,
-  `resident_id` int(11) DEFAULT NULL
+  `resident_id` int(11) DEFAULT NULL,
+  `supervisor_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -1181,6 +1197,13 @@ CREATE TABLE `trainee_elearning_material_progress` (
   `completed_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `trainee_elearning_material_progress`
+--
+
+INSERT INTO `trainee_elearning_material_progress` (`id`, `trainee_id`, `material_id`, `status`, `completed_at`) VALUES
+(2, 26, 11, 'completed', '2025-04-21 13:43:03');
+
 -- --------------------------------------------------------
 
 --
@@ -1272,7 +1295,6 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
-(1, 12),
 (1, 14),
 (1, 15),
 (1, 16),
@@ -1286,34 +1308,33 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (1, 148),
 (1, 149),
 (1, 150),
-(1,151),
-(1,152),
-(1,153),
-(1,154),
-(1,155),
-(1,156),
-(1,157),
-(1,158),
-(1,159),
-(1,160),
-(1,161),
-(1,162),
-(1,163),
-(1,164),
-(1,165),
-(1,166),
-(1,167),
-(1,168),
-(1,169),
-(1,170),
-(1,171),
-(1,172),
-(1,173),
-(1,174),
-(1,175),
-(1,176),
-(1,177),
-(1,178),
+(1, 151),
+(1, 152),
+(1, 153),
+(1, 154),
+(1, 155),
+(1, 156),
+(1, 157),
+(1, 158),
+(1, 159),
+(1, 160),
+(1, 161),
+(1, 162),
+(1, 163),
+(1, 164),
+(1, 165),
+(1, 166),
+(1, 167),
+(1, 168),
+(1, 169),
+(1, 170),
+(1, 171),
+(1, 173),
+(1, 174),
+(1, 175),
+(1, 176),
+(1, 177),
+(1, 178),
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1401,6 +1422,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 110),
 (2, 111),
 (2, 112),
+(2, 135),
 (2, 143),
 (2, 144),
 (2, 145),
@@ -1408,28 +1430,28 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 147),
 (2, 148),
 (2, 149),
-(2,151),
-(2,152),
-(2,153),
-(2,155),
-(2,156),
-(2,157),
-(2,159),
-(2,160),
-(2,161),
-(2,164),
-(2,165),
-(2,166),
-(2,163),
-(2,168),
-(2,169),
-(2,170),
-(2,173),
-(2,175),
-(2,176),
-(2,177),
-(2,178),
-(2,174),
+(2, 151),
+(2, 152),
+(2, 153),
+(2, 155),
+(2, 156),
+(2, 157),
+(2, 159),
+(2, 160),
+(2, 161),
+(2, 163),
+(2, 164),
+(2, 165),
+(2, 166),
+(2, 168),
+(2, 169),
+(2, 170),
+(2, 173),
+(2, 174),
+(2, 175),
+(2, 176),
+(2, 177),
+(2, 178),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1489,40 +1511,43 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 136),
+(3, 137),
+(3, 138),
+(3, 139),
 (3, 142),
 (3, 146),
 (3, 147),
 (3, 148),
 (3, 149),
 (3, 150),
-(3,151),
-(3,152),
-(3,153),
-(3,154),
-(3,155),
-(3,156),
-(3,157),
-(3,158),
-(3,159),
-(3,160),
-(3,161),
-(3,162),
-(3,163),
-(3,164),
-(3,165),
-(3,166),
-(3,167),
-(3,168),
-(3,169),
-(3,170),
-(3,171),
-(3,172),
-(3,173),
-(3,174),
-(3,175),
-(3,176),
-(3,177),
-(3,178),
+(3, 151),
+(3, 152),
+(3, 153),
+(3, 154),
+(3, 155),
+(3, 156),
+(3, 157),
+(3, 158),
+(3, 159),
+(3, 160),
+(3, 161),
+(3, 162),
+(3, 163),
+(3, 164),
+(3, 165),
+(3, 166),
+(3, 167),
+(3, 168),
+(3, 169),
+(3, 170),
+(3, 171),
+(3, 173),
+(3, 174),
+(3, 175),
+(3, 176),
+(3, 177),
+(3, 178),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1576,40 +1601,43 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 136),
+(4, 137),
+(4, 138),
+(4, 139),
 (4, 142),
 (4, 146),
 (4, 147),
 (4, 148),
 (4, 149),
 (4, 150),
-(4,151),
-(4,152),
-(4,153),
-(4,154),
-(4,155),
-(4,156),
-(4,157),
-(4,158),
-(4,159),
-(4,160),
-(4,161),
-(4,162),
-(4,163),
-(4,164),
-(4,165),
-(4,166),
-(4,167),
-(4,168),
-(4,169),
-(4,170),
-(4,171),
-(4,172),
-(4,173),
-(4,175),
-(4,176),
-(4,177),
-(4,178),
-(4,174),
+(4, 151),
+(4, 152),
+(4, 153),
+(4, 154),
+(4, 155),
+(4, 156),
+(4, 157),
+(4, 158),
+(4, 159),
+(4, 160),
+(4, 161),
+(4, 162),
+(4, 163),
+(4, 164),
+(4, 165),
+(4, 166),
+(4, 167),
+(4, 168),
+(4, 169),
+(4, 170),
+(4, 171),
+(4, 173),
+(4, 174),
+(4, 175),
+(4, 176),
+(4, 177),
+(4, 178),
 (5, 9),
 (5, 24),
 (5, 25),
@@ -1662,6 +1690,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 136),
+(5, 137),
+(5, 138),
+(5, 139),
 (5, 142),
 (5, 146),
 (6, 1),
@@ -1690,7 +1722,17 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (10, 56),
 (10, 57),
 (10, 58),
-(10, 59);
+(10, 59),
+(11, 10),
+(11, 12),
+(11, 14),
+(11, 15),
+(11, 16),
+(11, 17),
+(11, 18),
+(11, 22),
+(11, 23),
+(11, 134);
 
 -- --------------------------------------------------------
 
@@ -1819,7 +1861,14 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `fellow_resident_evaluation`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fellow_id` (`fellow_id`);
+  ADD KEY `fellow_id` (`fellow_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
+
+--
+-- Indexes for table `first_year_rotations`
+--
+ALTER TABLE `first_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`);
 
 --
 -- Indexes for table `functions`
@@ -1840,7 +1889,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 --
 ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_resident_id` (`resident_id`);
+  ADD KEY `fk_resident_id` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `logbook_profile_info`
@@ -1920,10 +1970,28 @@ ALTER TABLE `research_publications`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Indexes for table `rotation_1st_year_config`
+--
+ALTER TABLE `rotation_1st_year_config`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `rotation_2nd_year_config`
+--
+ALTER TABLE `rotation_2nd_year_config`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `second_year_rotations`
+--
+ALTER TABLE `second_year_rotations`
+  ADD PRIMARY KEY (`rotation_id`);
 
 --
 -- Indexes for table `seminars`
@@ -2003,7 +2071,8 @@ ALTER TABLE `users`
 -- Indexes for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  ADD PRIMARY KEY (`Id`);
+  ADD PRIMARY KEY (`Id`),
+  ADD UNIQUE KEY `Name` (`Name`);
 
 --
 -- Indexes for table `usertype_functions`
@@ -2105,10 +2174,16 @@ ALTER TABLE `fellow_resident_evaluation`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
+-- AUTO_INCREMENT for table `first_year_rotations`
+--
+ALTER TABLE `first_year_rotations`
+  MODIFY `rotation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=147;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=179;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -2189,6 +2264,18 @@ ALTER TABLE `research_publications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `rotation_1st_year_config`
+--
+ALTER TABLE `rotation_1st_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `rotation_2nd_year_config`
+--
+ALTER TABLE `rotation_2nd_year_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
@@ -2234,7 +2321,7 @@ ALTER TABLE `third_year_rotations`
 -- AUTO_INCREMENT for table `trainee_elearning_material_progress`
 --
 ALTER TABLE `trainee_elearning_material_progress`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `trainee_portfolio_images`
@@ -2323,7 +2410,8 @@ ALTER TABLE `eduactworkshops`
 -- Constraints for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`),
+  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `grand_round_presentation_assessment`
@@ -2336,7 +2424,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
+  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
 
 --
 -- Constraints for table `logbook_profile_info`

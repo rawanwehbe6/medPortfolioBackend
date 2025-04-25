@@ -11,6 +11,7 @@ const createResearch = async (req, res) => {
     if (!title || !date || !description || !userId || !req.file) {
       return res.status(400).json({ error: "Missing required fields: title, date, description, or file." });
     }
+
     // Get the file extension from the original filename
     const ext = path.extname(req.file.originalname);
     let filename = req.file.filename;
@@ -54,7 +55,7 @@ const updateResearch = async (req, res) => {
       if (!userId || !id || !title || !date || !description) {
         return res.status(400).json({ error: "Missing required fields: userId, id, title, date, or description." });
       }
-  
+      
       // Check if the research exists
       const [existingResearches] = await pool.execute(
         "SELECT * FROM research WHERE Research_ID = ? AND User_ID = ?",
@@ -64,7 +65,7 @@ const updateResearch = async (req, res) => {
       if (existingResearches.length === 0) {
         return res.status(404).json({ error: "Research not found or does not belong to the user." });
       }
-  
+
       // Handle file upload if provided
       let filePath = existingResearches[0].File_Path; // Use the existing file path if no new file is uploaded
       if (req.file) {
@@ -123,11 +124,12 @@ const deleteResearch = async (req, res) => {
   
       // Handle file deletion
       const filePath = existingResearches[0].File_Path;
-      const fileToDelete = path.join(__dirname, '..', 'uploads', filePath); // Fix path here
-  
-      // Check if the file exists before attempting to delete it
-      if (fs.existsSync(fileToDelete)) {
-        fs.unlinkSync(fileToDelete); // Delete the file
+      if(filePath){
+        const fileToDelete = path.join(__dirname, '..', 'uploads', filePath);
+        // Check if the file exists before attempting to delete it
+        if (fs.existsSync(fileToDelete)) {
+          fs.unlinkSync(fileToDelete); // Delete the file
+        }
       }
   
       // Delete the record from the database
@@ -155,7 +157,7 @@ const getResearch = async (req, res) => {
     const [researches] = await pool.execute(`
       SELECT 
         Research_ID, Title,
-        DATE_FORMAT(Date, '%Y-%m-%d') AS Date,
+        DATE_FORMAT(Date, '%m/%d/%Y') AS Date,
         Description, File_Path
       FROM research
       WHERE User_ID = ?
