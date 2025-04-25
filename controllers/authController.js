@@ -4,30 +4,33 @@ const pool = require('../config/db');// Database connection
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-// Register new users (Only Admins Can Add Users)
 const registerUser = async (req, res) => {
   const { name, email, password, role, BAU_ID } = req.body;
- console.log("Received Data:", { name, email, password, role , BAU_ID});
+  console.log("Received Data:", { name, email, password, role, BAU_ID });
   try {
-    // Check if user already exists
-    const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [email]);
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM USERS WHERE Email = ?",
+      [email]
+    );
     if (existingUser.length > 0) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash the password for security
     const hashedPassword = await bcrypt.hash(password, 10);
-    const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
+    const [roles] = await pool.execute(
+      "SELECT id FROM USERtypes WHERE Name = ?",
+      [role]
+    );
 
     await pool.execute(
       "INSERT INTO USERS (Name, Email, Password, Role, BAU_ID) VALUES (?, ?, ?, ?, ?)",
       [name, email, hashedPassword, roles[0].id, BAU_ID || null]
     );
 
-    res.status(201).json({ message: 'User registered successfully' });
+    res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during registration' });
+    res.status(500).json({ error: "Server error during registration" });
   }
 };
 
@@ -68,18 +71,21 @@ async function login(req, res) {
     res.json({ message: "Login successful", token, role: user.Role });
   } catch (err) {
     console.error("Error during login:", err);
-    res.status(500).json({ error: "Server error during login", details: err.message });
+    res
+      .status(500)
+      .json({ error: "Server error during login", details: err.message });
   }
 }
-
-
 
 // Reset Password
 const resetPassword = async (req, res) => {
   try {
     // Extract token from header
-    const token = req.headers.authorization?.split(" ")[1]; 
-    if (!token) return res.status(401).json({ message: "Unauthorized: No token provided" });
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token)
+      return res
+        .status(401)
+        .json({ message: "Unauthorized: No token provided" });
 
     // Verify JWT token
     let decoded;
@@ -98,14 +104,19 @@ const resetPassword = async (req, res) => {
     }
 
     // Fetch user from the database
-    const [users] = await pool.execute("SELECT Password FROM USERS WHERE User_ID = ?", [userId]);
-    if (users.length === 0) return res.status(404).json({ message: "User not found" });
+    const [users] = await pool.execute(
+      "SELECT Password FROM USERS WHERE User_ID = ?",
+      [userId]
+    );
+    if (users.length === 0)
+      return res.status(404).json({ message: "User not found" });
 
     const user = users[0];
 
     // Validate old password
     const validOldPassword = await bcrypt.compare(oldPassword, user.Password);
-    if (!validOldPassword) return res.status(400).json({ message: "Old password is incorrect" });
+    if (!validOldPassword)
+      return res.status(400).json({ message: "Old password is incorrect" });
 
     // Check if new password matches confirmation
     if (newPassword !== confirmPassword) {
@@ -116,7 +127,10 @@ const resetPassword = async (req, res) => {
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
     // Update the password in the database
-    const [updateResult] = await pool.execute("UPDATE USERS SET Password = ? WHERE User_ID = ?", [hashedNewPassword, userId]);
+    const [updateResult] = await pool.execute(
+      "UPDATE USERS SET Password = ? WHERE User_ID = ?",
+      [hashedNewPassword, userId]
+    );
 
     if (updateResult.affectedRows === 0) {
       return res.status(500).json({ message: "Failed to reset password" });
@@ -131,97 +145,102 @@ const resetPassword = async (req, res) => {
 
 //Update user
 const updateUser = async (req, res) => {
-  const { newEmail, name, password, role,BAU_ID } = req.body;
-  const { id } = req.params; // Get user ID from URL parameter
+  const { newEmail, name, password, role, BAU_ID } = req.body;
+  const { id } = req.params;
   console.log(req.body);
   try {
-    // Check if user exists by ID
-    const [existingUser] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
+    const [existingUser] = await pool.execute(
+      "SELECT * FROM USERS WHERE User_ID = ?",
+      [id]
+    );
     if (existingUser.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // If changing email, check if new email is already taken
     if (newEmail) {
-      const [emailCheck] = await pool.execute('SELECT * FROM USERS WHERE Email = ?', [newEmail]);
+      const [emailCheck] = await pool.execute(
+        "SELECT * FROM USERS WHERE Email = ?",
+        [newEmail]
+      );
       console.log(emailCheck);
-      if (emailCheck.length > 0 && emailCheck[0].User_ID!=id) {
-        return res.status(400).json({ message: 'Email already in use' });
+      if (emailCheck.length > 0 && emailCheck[0].User_ID != id) {
+        return res.status(400).json({ message: "Email already in use" });
       }
     }
-    // Hash new password if provided
     let hashedPassword = null;
-    if (password && password.trim() !== '') {
+    if (password && password.trim() !== "") {
       hashedPassword = await bcrypt.hash(password, 10);
     }
 
-    // Construct update query dynamically
     const updates = [];
     const values = [];
 
     if (newEmail) {
-      updates.push('Email = ?');
+      updates.push("Email = ?");
       values.push(newEmail);
     }
     if (name) {
-      updates.push('Name = ?');
+      updates.push("Name = ?");
       values.push(name);
     }
     if (hashedPassword) {
-      updates.push('Password = ?');
+      updates.push("Password = ?");
       values.push(hashedPassword);
     }
     if (role) {
-      const [roles] = await pool.execute('SELECT id FROM USERtypes WHERE Name = ?', [role]);
-      updates.push('Role = ?');
+      const [roles] = await pool.execute(
+        "SELECT id FROM USERtypes WHERE Name = ?",
+        [role]
+      );
+      updates.push("Role = ?");
       values.push(roles[0].id);
     }
     if (BAU_ID) {
-      updates.push('BAU_ID = ?');
+      updates.push("BAU_ID = ?");
       values.push(BAU_ID);
     }
-    // Ensure at least one field is updated
     if (updates.length === 0) {
-      return res.status(400).json({ message: 'No valid fields to update' });
+      return res.status(400).json({ message: "No valid fields to update" });
     }
 
-    // Execute the update query
-    values.push(id); // Use ID to match the correct user
-    const query = `UPDATE USERS SET ${updates.join(', ')} WHERE User_ID = ?`;
-console.log(query, values);
+    values.push(id);
+    const query = `UPDATE USERS SET ${updates.join(", ")} WHERE User_ID = ?`;
+    console.log(query, values);
     await pool.execute(query, values);
-    
 
-    res.json({ message: 'User updated successfully' });
+    res.json({ message: "User updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during update' });
+    res.status(500).json({ error: "Server error during update" });
   }
 };
 
 //Delete user
 const deleteUser = async (req, res) => {
-  const { id } = req.params; // Get user ID from URL parameter
+  const { id } = req.params;
 
   try {
-    // Check if the user exists by User_ID
-    const [users] = await pool.execute('SELECT * FROM USERS WHERE User_ID = ?', [id]);
+    const [users] = await pool.execute(
+      "SELECT * FROM USERS WHERE User_ID = ?",
+      [id]
+    );
     if (users.length === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Delete the user from the database
-    const [deleteResult] = await pool.execute('DELETE FROM USERS WHERE User_ID = ?', [id]);
+    const [deleteResult] = await pool.execute(
+      "DELETE FROM USERS WHERE User_ID = ?",
+      [id]
+    );
 
-    // Ensure the user was actually deleted
     if (deleteResult.affectedRows === 0) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: 'User deleted successfully' });
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during user deletion' });
+    res.status(500).json({ error: "Server error during user deletion" });
   }
 };
 
@@ -232,103 +251,147 @@ const addUserType = async (req, res) => {
 
   const validTypes = ["Admin", "Supervisor", "Trainee"];
   if (!validTypes.includes(type)) {
-    return res.status(400).json({ message: "Invalid type. Must be Admin, Supervisor, or Trainee." });
+    return res
+      .status(400)
+      .json({
+        message: "Invalid type. Must be Admin, Supervisor, or Trainee.",
+      });
   }
 
   try {
-    const [existingType] = await pool.execute('SELECT * FROM usertypes WHERE Name = ?', [name]);
+    const [existingType] = await pool.execute(
+      "SELECT * FROM usertypes WHERE Name = ?",
+      [name]
+    );
     if (existingType.length > 0) {
-      return res.status(400).json({ message: 'User type already exists' });
+      return res.status(400).json({ message: "User type already exists" });
     }
 
-    await pool.execute("INSERT INTO usertypes (Name, Type) VALUES (?, ?)", [name, type]);
-    res.status(201).json({ message: 'User type added successfully' });
-
+    await pool.execute("INSERT INTO usertypes (Name, Type) VALUES (?, ?)", [
+      name,
+      type,
+    ]);
+    res.status(201).json({ message: "User type added successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during user type addition' });
+    res.status(500).json({ error: "Server error during user type addition" });
   }
 };
-
 
 const updateUserType = async (req, res) => {
   const { id } = req.params;
   const { name, type } = req.body;
-  const user = req.user.role; // Assuming req.user is set via authentication middleware
+  const user = req.user.role;
 
-  console.log("Updating UserType ID:", id, "New Name:", name, "New Type:", type);
+  console.log(
+    "Updating UserType ID:",
+    id,
+    "New Name:",
+    name,
+    "New Type:",
+    type
+  );
 
-  // Prevent a user from updating their own usertype
   if (Number(user) === Number(id)) {
-    return res.status(403).json({ message: "You cannot update your own user type." });
+    return res
+      .status(403)
+      .json({ message: "You cannot update your own user type." });
   }
   if (1 === Number(id)) {
-    return res.status(403).json({ message: "You cannot update The main admin." });
+    return res
+      .status(403)
+      .json({ message: "You cannot update The main admin." });
   }
   const validTypes = ["Admin", "Supervisor", "Trainee"];
   if (!validTypes.includes(type)) {
-    return res.status(400).json({ message: "Invalid type. Must be Admin, Supervisor, or Trainee." });
+    return res
+      .status(400)
+      .json({
+        message: "Invalid type. Must be Admin, Supervisor, or Trainee.",
+      });
   }
 
   try {
-    const [existing] = await pool.execute('SELECT * FROM usertypes WHERE Id = ?', [id]);
+    const [existing] = await pool.execute(
+      "SELECT * FROM usertypes WHERE Id = ?",
+      [id]
+    );
     if (existing.length === 0) {
-      return res.status(404).json({ message: 'User type not found' });
+      return res.status(404).json({ message: "User type not found" });
     }
-
+    if (existing[0].Type !== type) {
+      await pool.execute(
+        "DELETE FROM usertype_functions WHERE UsertypeID = ?",
+        [existing[0].Id]
+      );
+    }
     const [nameConflict] = await pool.execute(
-      'SELECT * FROM usertypes WHERE Name = ? AND Id != ?', [name, id]
+      "SELECT * FROM usertypes WHERE Name = ? AND Id != ?",
+      [name, id]
     );
     if (nameConflict.length > 0) {
-      return res.status(400).json({ message: 'Another user type with this name already exists' });
+      return res
+        .status(400)
+        .json({ message: "Another user type with this name already exists" });
     }
 
-    await pool.execute('UPDATE usertypes SET Name = ?, Type = ? WHERE Id = ?', [name, type, id]);
-    res.status(200).json({ message: 'User type updated successfully' });
-
+    await pool.execute("UPDATE usertypes SET Name = ?, Type = ? WHERE Id = ?", [
+      name,
+      type,
+      id,
+    ]);
+    res.status(200).json({ message: "User type updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during user type update' });
+    res.status(500).json({ error: "Server error during user type update" });
   }
 };
 
-
 const deleteUserType = async (req, res) => {
   const { id } = req.params;
-  const userRoleId = req.user.role; // Assuming this is the current user's user type ID
+  const userRoleId = req.user.role;
 
   console.log("Deleting UserType ID:", id);
 
-  // Prevent deleting your own user type
   if (Number(userRoleId) === Number(id)) {
-    return res.status(403).json({ message: "You cannot delete your own user type." });
+    return res
+      .status(403)
+      .json({ message: "You cannot delete your own user type." });
   }
 
-  // Prevent deleting the main admin
   if (Number(id) === 1) {
-    return res.status(403).json({ message: "You cannot delete the main admin user type." });
+    return res
+      .status(403)
+      .json({ message: "You cannot delete the main admin user type." });
   }
 
   try {
-    // Check if the user type exists
-    const [existing] = await pool.execute('SELECT * FROM usertypes WHERE Id = ?', [id]);
+    const [existing] = await pool.execute(
+      "SELECT * FROM usertypes WHERE Id = ?",
+      [id]
+    );
     if (existing.length === 0) {
-      return res.status(404).json({ message: 'User type not found' });
+      return res.status(404).json({ message: "User type not found" });
     }
 
-    // Optional: check if any users are using this user type
-    const [usersUsingType] = await pool.execute('SELECT * FROM users WHERE Role = ?', [id]);
+    const [usersUsingType] = await pool.execute(
+      "SELECT * FROM users WHERE Role = ?",
+      [id]
+    );
     if (usersUsingType.length > 0) {
-      return res.status(400).json({ message: 'Cannot delete a user type that is currently assigned to users.' });
+      return res
+        .status(400)
+        .json({
+          message:
+            "Cannot delete a user type that is currently assigned to users.",
+        });
     }
 
-    // Perform delete
-    await pool.execute('DELETE FROM usertypes WHERE Id = ?', [id]);
-    res.status(200).json({ message: 'User type deleted successfully' });
-
+    await pool.execute("DELETE FROM usertypes WHERE Id = ?", [id]);
+    res.status(200).json({ message: "User type deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error during user type deletion' });
+    res.status(500).json({ error: "Server error during user type deletion" });
   }
 };
 
