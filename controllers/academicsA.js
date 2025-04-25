@@ -59,7 +59,7 @@ const deleteCasePresentation = async (req, res) => {
 const getCasePresentations = async (req, res) => {
   try {
     const [rows] = await pool.execute(
-      `SELECT id, date, diagnosis_problem, moderator_signature FROM case_presentations`
+      `SELECT id, date, diagnosis_problem, presented_attended, moderator_signature FROM case_presentations`
     );
 
     res.status(200).json(rows);
