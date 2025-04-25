@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2025 at 10:42 AM
+-- Generation Time: Apr 25, 2025 at 07:34 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -513,7 +513,6 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('delete_procedure_summary', 112, 0, 1, 0),
 ('add_user_type', 133, 1, 0, 0),
 ('assign_roles', 134, 1, 0, 0),
-('trainee_view_completed_forms', 135, 0, 1, 0),
 ('view_supervisee_form_statuses', 136, 0, 0, 1),
 ('supervisor_view_drafts', 137, 0, 0, 1),
 ('view_completed_forms', 138, 0, 0, 1),
@@ -521,7 +520,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('update_user_type', 140, 1, 0, 0),
 ('delete_user_type', 141, 1, 0, 0),
 ('view_form_status', 142, 0, 0, 1),
-('trainee_view_sent_forms', 143, 0, 1, 0),
+('trainee_view_forms', 143, 0, 1, 0),
 ('getFormsProgressForTrainee', 144, 1, 1, 0),
 ('getLatestUpdatedForm', 145, 1, 1, 0),
 ('view_portfolio_images', 146, 0, 1, 1),
@@ -1422,7 +1421,6 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 110),
 (2, 111),
 (2, 112),
-(2, 135),
 (2, 143),
 (2, 144),
 (2, 145),
@@ -2529,7 +2527,7 @@ ALTER TABLE `users`
 --
 ALTER TABLE `usertype_functions`
   ADD CONSTRAINT `usertype_functions_ibfk_1` FOREIGN KEY (`UsertypeId`) REFERENCES `usertypes` (`Id`),
-  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`);
+  ADD CONSTRAINT `usertype_functions_ibfk_2` FOREIGN KEY (`FunctionsId`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user_procedure_logs`
