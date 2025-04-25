@@ -188,6 +188,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
   }
 
   const authorized = await isSupervisorOfTrainee(supervisorId, traineeId);
+  console.log(authorized, supervisorId, traineeId);
   if (!authorized) {
     return res.status(403).json({ error: "Forbidden: You are not supervising this trainee" });
   }

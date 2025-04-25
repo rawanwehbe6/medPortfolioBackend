@@ -389,9 +389,7 @@ const updateUsertypeFunctions = async (req, res) => {
         if (usertypeType === 'Supervisor') return func.Supervisor === 1;
         return false;
       });
-
-    const functionsToKeepUnchanged = currentFunctionIds.filter(id => !userAllowedFunctionIds.includes(id));
-    
+      
     const modifiableCurrent = currentFunctionIds.filter(id => userAllowedFunctionIds.includes(id));
     const toDelete = modifiableCurrent.filter(id => !filteredNewFunctionIds.includes(id));
     const toAdd = filteredNewFunctionIds.filter(id => !currentFunctionIds.includes(id));

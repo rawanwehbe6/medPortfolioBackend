@@ -4,51 +4,73 @@ const form_helper = require('../middleware/form_helper');
 // Create new Seminar Assessment form (only for supervisors/admins)
 const createSeminarAssessment = async (req, res) => {
     try {
-        role  = req.user.role;
-        supervisor_id=req.user.userId;
-        const {
-            resident_id, 
-            date_of_presentation,
-            topic,
-            content,
-            presentation_skills,
-            audio_visual_aids,
-            communication,
-            handling_questions,
-            audience_management,
-            references,
-            major_positive_feature,
-            suggested_areas_for_improvement,
-            draft_send
-        } = req.body;
-        const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
-        const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
+      role = req.user.role;
+      supervisor_id = req.user.userId;
+      const {
+        resident_id,
+        date_of_presentation,
+        topic,
+        content,
+        presentation_skills,
+        audio_visual_aids,
+        communication,
+        handling_questions,
+        audience_management,
+        references,
+        major_positive_feature,
+        suggested_areas_for_improvement,
+        draft_send,
+      } = req.body;
+      const [rows] = await db.execute(
+        `SELECT Name FROM users WHERE User_id = ?`,
+        [resident_id]
+      );
+      const resident_fellow_name = rows[0].Name;
 
-        // Only assessor signature allowed on creation
-        const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
+      // Only assessor signature allowed on creation
+      const assessor_signature_path = req.files?.signature
+        ? req.files.signature[0].path
+        : null;
 
-        const [insertResult] = await db.execute(
-            `INSERT INTO seminar_assessment 
+      const [insertResult] = await db.execute(
+        `INSERT INTO seminar_assessment 
             (resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
             topic, content, presentation_skills, audio_visual_aids,
             communication, handling_questions, audience_management,
             \`references\`, major_positive_feature, suggested_areas_for_improvement,
             assessor_signature_path,sent) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
-                topic, content, presentation_skills, audio_visual_aids,
-                communication, handling_questions, audience_management,
-                references, major_positive_feature, suggested_areas_for_improvement,
-                assessor_signature_path, draft_send
-            ]
+        [
+          resident_id,
+          supervisor_id,
+          resident_fellow_name,
+          date_of_presentation,
+          topic,
+          content,
+          presentation_skills,
+          audio_visual_aids,
+          communication,
+          handling_questions,
+          audience_management,
+          references,
+          major_positive_feature,
+          suggested_areas_for_improvement,
+          assessor_signature_path,
+          draft_send,
+        ]
+      );
+      const formId = insertResult.insertId; // Get the newly inserted form ID
+      if (Number(draft_send) === 1) {
+        await form_helper.sendFormToTrainee(
+          supervisor_id,
+          "seminar_assessment",
+          formId
         );
-        const formId = insertResult.insertId; // Get the newly inserted form ID
-        if (Number(draft_send) === 1) {
-            await form_helper.sendFormToTrainee(supervisor_id, "seminar_assessment",formId);
-        }
+      }
 
-        res.status(201).json({ message: "Seminar Assessment form created successfully" });
+      res
+        .status(201)
+        .json({ message: "Seminar Assessment form created successfully" });
     } catch (err) {
         console.error("Database Error:", err);
         res.status(500).json({ error: "Server error while creating Seminar Assessment form" });
