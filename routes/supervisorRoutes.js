@@ -9,5 +9,10 @@ router.get('/form_status/supervisees', auth("view_supervisee_form_statuses"), su
 router.get('/form-sent/:traineeId',auth("view_sent_forms"),supervisor.getSentFormIdsForTrainee);
 router.get('/form-completed/:traineeId',auth("view_completed_forms"),supervisor.getCompletedFormIdsForTrainee);
 router.get('/draft-forms/:traineeId', auth("supervisor_view_drafts"), supervisor.getDraftFormsForTraineeBySupervisor);
+router.get(
+  "/user-data/:traineeId",
+  auth("supervisor_view_portfolio"),
+  supervisor.handleGetUserData
+);
 
 module.exports = router;

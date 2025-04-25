@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2025 at 07:34 PM
+-- Generation Time: Apr 25, 2025 at 10:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -513,6 +513,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('delete_procedure_summary', 112, 0, 1, 0),
 ('add_user_type', 133, 1, 0, 0),
 ('assign_roles', 134, 1, 0, 0),
+('supervisor_view_portfolio', 135, 0, 0, 1),
 ('view_supervisee_form_statuses', 136, 0, 0, 1),
 ('supervisor_view_drafts', 137, 0, 0, 1),
 ('view_completed_forms', 138, 0, 0, 1),
@@ -1509,6 +1510,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 135),
 (3, 136),
 (3, 137),
 (3, 138),
@@ -1599,6 +1601,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 135),
 (4, 136),
 (4, 137),
 (4, 138),
@@ -1688,6 +1691,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 135),
 (5, 136),
 (5, 137),
 (5, 138),
