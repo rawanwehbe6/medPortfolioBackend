@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2025 at 01:00 AM
+-- Generation Time: Apr 25, 2025 at 10:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -411,7 +411,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('supervisor_get_trainees', 9, 0, 0, 1),
 ('get_contact_messages', 10, 1, 0, 0),
 ('trainee_add_course', 11, 0, 1, 0),
-('contact_us', 12, 1, 1, 1),
+('contact_us', 12, 0, 1, 1),
 ('trainee_update_course', 14, 1, 1, 0),
 ('trainee_delete_course', 15, 1, 1, 0),
 ('trainee_add_workshop', 16, 1, 1, 0),
@@ -1295,7 +1295,6 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
-(1, 12),
 (1, 14),
 (1, 15),
 (1, 16),
