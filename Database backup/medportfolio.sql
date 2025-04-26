@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 25, 2025 at 10:45 PM
+-- Generation Time: Apr 26, 2025 at 12:55 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -511,6 +511,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
+('trainee-supervisor_get_forms', 132, 0, 1, 1),
 ('add_user_type', 133, 1, 0, 0),
 ('assign_roles', 134, 1, 0, 0),
 ('supervisor_view_portfolio', 135, 0, 0, 1),
@@ -1277,7 +1278,8 @@ INSERT INTO `usertypes` (`Name`, `Id`, `Type`) VALUES
 ('update', 7, 'Admin'),
 ('delete', 8, 'Admin'),
 ('test', 10, 'Admin'),
-('TestUserType', 11, 'Admin');
+('TestUserType', 11, 'Admin'),
+('Admin13', 13, 'Admin');
 
 -- --------------------------------------------------------
 
@@ -1422,6 +1424,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 110),
 (2, 111),
 (2, 112),
+(2, 132),
 (2, 143),
 (2, 144),
 (2, 145),
@@ -1510,6 +1513,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 132),
 (3, 135),
 (3, 136),
 (3, 137),
@@ -1601,6 +1605,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 132),
 (4, 135),
 (4, 136),
 (4, 137),
@@ -1691,6 +1696,7 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 132),
 (5, 135),
 (5, 136),
 (5, 137),
@@ -1734,7 +1740,8 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (11, 18),
 (11, 22),
 (11, 23),
-(11, 134);
+(11, 134),
+(13, 12);
 
 -- --------------------------------------------------------
 
@@ -2341,7 +2348,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `user_procedure_logs`

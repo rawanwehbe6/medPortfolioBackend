@@ -13,33 +13,34 @@ const surgicalExperienceRoutes = require('./routes/surgicalExperienceRoutes');
 const bodyParser = require('body-parser');
 const researchRoutes = require('./routes/researchRoutes');
 const supervisor = require('./routes/supervisorRoutes');
-const trainee = require('./routes/TraineeRoutes');
-const admin = require('./routes/AdminRoutes');
-const formRoutes = require('./routes/formRoutes');
-const messagesRoutes = require('./routes/messages_notificationsRoutes');
-const taskRoutes = require('./routes/taskRoutes');
-const portfolioImageRoutes = require('./routes/portfolioImageRoutes');
-const logbookRoutes = require('./routes/logbookRoutes');
+const portfolio = require("./routes/portfolioRoutes");
+const trainee = require("./routes/TraineeRoutes");
+const admin = require("./routes/AdminRoutes");
+const formRoutes = require("./routes/formRoutes");
+const messagesRoutes = require("./routes/messages_notificationsRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const portfolioImageRoutes = require("./routes/portfolioImageRoutes");
+const logbookRoutes = require("./routes/logbookRoutes");
 //rimas testing
-const path = require('path');
+const path = require("path");
 
 // Use express.json() to parse incoming JSON requests
-app.use(express.json());  // This should be placed before any route handling
+app.use(express.json()); // This should be placed before any route handling
 app.use(bodyParser.json());
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 
 // Mount the authentication routes
-app.use('/auth', authRoutes);  // Any routes prefixed with '/auth' will be handled by authRoutes
-app.use('/api/keyCompetencies', keyCompetenciesRoutes);
-app.use('/api/Accomplishment', AccomplishmentRoutes);
-app.use('/api/surgical-experiences', surgicalExperienceRoutes);
-app.use('/api', researchRoutes);
-app.use('/api/supervisor', supervisor);
-app.use('/api/trainee', trainee);
-app.use('/api/admin', admin);
-app.use('/api/messages', messagesRoutes);
-app.use('/api/tasks', taskRoutes);
-
+app.use("/auth", authRoutes); // Any routes prefixed with '/auth' will be handled by authRoutes
+app.use("/api/keyCompetencies", keyCompetenciesRoutes);
+app.use("/api/Accomplishment", AccomplishmentRoutes);
+app.use("/api/surgical-experiences", surgicalExperienceRoutes);
+app.use("/api", researchRoutes);
+app.use("/api/supervisor", supervisor);
+app.use("/api/trainee", trainee);
+app.use("/api/admin", admin);
+app.use("/api/messages", messagesRoutes);
+app.use("/api/tasks", taskRoutes);
+app.use("/api/portfolio", portfolio);
 // Define a simple route
 app.get("/", (req, res) => {
     res.send("Hello, Express!");
