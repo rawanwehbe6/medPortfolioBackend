@@ -9,159 +9,93 @@ const isSupervisorOfTrainee = async (supervisorId, traineeId) => {
   const [rows] = await pool.execute(query, [supervisorId, traineeId]);
   return rows.length > 0;
 };
-const getUserData = async (userId) => {
+const getUserData = async (traineeId) => {
   try {
-    if (!userId) {
-      return {
-        error: "Unauthorized access: User ID is required.",
-        status: 403,
-      };
+    // Get all portfolio components for the trainee
+    const [
+      portfolioImages,
+      skills,
+      research,
+      surgicalExperience,
+      accomplishments,
+      courses,
+      workshops,
+      conferences,
+    ] = await Promise.all([
+      // Get portfolio images
+      pool.query(
+        "SELECT id, image_path FROM trainee_portfolio_images WHERE trainee_id = ?",
+        [traineeId]
+      ),
+
+      // Get skills
+      pool.query(
+        "SELECT Skill_ID, Skill_Name FROM user_skills WHERE User_ID = ?",
+        [traineeId]
+      ),
+
+      // Get research
+      pool.query("SELECT * FROM research WHERE User_ID = ?", [traineeId]),
+
+      // Get surgical experience
+      pool.query("SELECT * FROM surgical_experiences WHERE User_ID = ?", [
+        traineeId,
+      ]),
+
+      // Get accomplishments
+      pool.query("SELECT * FROM accomplishments WHERE User_ID = ?", [
+        traineeId,
+      ]),
+
+      // Get courses
+      pool.query("SELECT * FROM eduactcourses WHERE User_ID = ?", [traineeId]),
+
+      // Get workshops
+      pool.query("SELECT * FROM eduactworkshops WHERE User_ID = ?", [
+        traineeId,
+      ]),
+
+      // Get conferences
+      pool.query("SELECT * FROM eduactconferences WHERE User_ID = ?", [
+        traineeId,
+      ]),
+    ]);
+
+    // Add full URL to the first portfolio image (to match the second function's format)
+    let profilePictureData = [];
+
+    if (portfolioImages[0] && portfolioImages[0].length > 0) {
+      profilePictureData = [
+        {
+          id: portfolioImages[0][0].id,
+          image_url: `${process.env.BASE_URL || "http://localhost:3000"}/${
+            portfolioImages[0][0].image_path
+          }`,
+        },
+      ];
     }
 
-    // Get courses
-    const [courses] = await pool.query(
-      `
-      SELECT 
-        id, title, 
-        DATE_FORMAT(date, '%m/%d/%Y') AS date, 
-        institution, description, certificate
-      FROM eduactcourses
-      WHERE user_id = ?
-      ORDER BY date DESC
-    `,
-      [userId]
-    );
+    // Structure the data for the response
+    const userData = {
+      profilePicture: profilePictureData[0] || null,
+      skills: skills[0], // Keep [0] to maintain current structure
+      research: research[0],
+      surgicalExperience: surgicalExperience[0],
+      accomplishments: accomplishments[0],
+      courses: courses[0],
+      workshops: workshops[0],
+      conferences: conferences[0],
+    };
 
-    const coursesWithUrl = courses.map((course) => ({
-      ...course,
-      certificate_url: course.certificate
-        ? `${process.env.BASE_URL}/${course.certificate}`
-        : null,
-    }));
-
-    // Get workshops
-    const [workshops] = await pool.query(
-      `
-      SELECT 
-        id, title, 
-        DATE_FORMAT(date, '%m/%d/%Y') AS date, 
-        organizer, description, certificate 
-      FROM eduactworkshops 
-      WHERE user_id = ? 
-      ORDER BY date DESC
-    `,
-      [userId]
-    );
-
-    const workshopsWithUrl = workshops.map((workshop) => ({
-      ...workshop,
-      certificate_url: workshop.certificate
-        ? `${process.env.BASE_URL}/${workshop.certificate}`
-        : null,
-    }));
-
-    // Get conferences
-    const [conferences] = await pool.query(
-      `
-      SELECT 
-        id, title, 
-        DATE_FORMAT(date, '%m/%d/%Y') AS date, 
-        host, description, certificate
-      FROM eduactconferences
-      WHERE User_ID = ?
-      ORDER BY date DESC
-    `,
-      [userId]
-    );
-
-    const conferencesWithUrl = conferences.map((conference) => ({
-      ...conference,
-      certificate_url: conference.certificate
-        ? `${process.env.BASE_URL}/${conference.certificate}`
-        : null,
-    }));
-
-    // Get accomplishments
-    const [accomplishments] = await pool.query(
-      `
-      SELECT * FROM accomplishments
-      WHERE User_ID = ?
-      ORDER BY id DESC
-    `,
-      [userId]
-    );
-
-    const accomplishmentsWithUrl = accomplishments.map((item) => ({
-      ...item,
-      file_path_url: item.file_path
-        ? `${process.env.BASE_URL}/${item.file_path}`
-        : null,
-    }));
-
-    // Get surgical experiences
-    const [surgicalExperiences] = await pool.query(
-      `
-      SELECT 
-        Experience_ID, User_ID, Procedure_Name, 
-        DATE_FORMAT(Date, '%m/%d/%Y') AS Date, 
-        Role, Clinic, Description, created_at, updated_at 
-      FROM surgical_experiences
-      WHERE User_ID = ?
-      ORDER BY Date DESC
-    `,
-      [userId]
-    );
-
-    // Get research papers
-    const [research] = await pool.query(
-      `
-      SELECT 
-        Research_ID, Title,
-        DATE_FORMAT(Date, '%m/%d/%Y') AS Date,
-        Description, File_Path
-      FROM research
-      WHERE User_ID = ?
-      ORDER BY Date DESC
-    `,
-      [userId]
-    );
-
-    const researchWithUrl = research.map((item) => ({
-      ...item,
-      image_url: item.File_Path
-        ? `${process.env.BASE_URL}/${item.File_Path}`
-        : null,
-    }));
-
-    // Get skills
-    const [skills] = await pool.query(
-      `
-      SELECT Skill_ID, Skill_Name 
-      FROM user_skills 
-      WHERE User_ID = ?
-    `,
-      [userId]
-    );
-
-    // Return all data as a structured object
     return {
       status: 200,
-      data: {
-        courses: coursesWithUrl,
-        workshops: workshopsWithUrl,
-        conferences: conferencesWithUrl,
-        accomplishments: accomplishmentsWithUrl,
-        surgicalExperiences,
-        research: researchWithUrl,
-        skills,
-      },
+      data: userData,
     };
   } catch (error) {
-    console.error("Error in getUserData:", error);
+    console.error("Error fetching user data:", error);
     return {
       status: 500,
-      error: "Error fetching user data.",
-      details: error.message,
+      error: "An error occurred while fetching user data.",
     };
   }
 };
