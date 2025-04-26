@@ -16,12 +16,29 @@ const getFormById = async (req, res) => {
     const { formName, formId } = req.body;
     const { userId, role } = req.user;
 
-    if (!traineeId || !formName || !formId) {
+    if (!formName || !formId) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    const isTraineeSelf = Number(traineeId) === Number(userId);
-    const isSupervisor = await isSupervisorOfTrainee(userId, traineeId);
+    let effectiveTraineeId = traineeId;
+    try {
+      const [existing] = await pool.execute(
+        "SELECT Type FROM usertypes WHERE Id = ?",
+        [role]
+      );
+
+      if (existing.length > 0 && existing[0].Type === "Trainee") {
+        effectiveTraineeId = userId;
+      }
+    } catch (err) {
+      console.error("Error checking user type:", err);
+    }
+
+    const isTraineeSelf = Number(effectiveTraineeId) === Number(userId);
+    const isSupervisor = await isSupervisorOfTrainee(
+      userId,
+      effectiveTraineeId
+    );
 
     if (!isTraineeSelf && !isSupervisor && role !== 1) {
       return res.status(403).json({
@@ -223,7 +240,7 @@ const getFormById = async (req, res) => {
     const form = results[0];
     const formTraineeId = form[field];
 
-    if (Number(formTraineeId) !== Number(traineeId)) {
+    if (Number(formTraineeId) !== Number(effectiveTraineeId)) {
       return res.status(403).json({
         error: "This form does not belong to the specified trainee",
       });
