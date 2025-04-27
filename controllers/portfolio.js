@@ -12,8 +12,7 @@ const isSupervisorOfTrainee = async (supervisorId, traineeId) => {
 
 const getFormById = async (req, res) => {
   try {
-    const { traineeId } = req.params;
-    const { formName, formId } = req.body;
+    const { formName, formId, traineeId } = req.body;
     const { userId, role } = req.user;
 
     if (!formName || !formId) {

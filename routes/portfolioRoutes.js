@@ -3,7 +3,7 @@ const auth = require("../middleware/auth");
 const portfolio = require("../controllers/portfolio");
 const router = express.Router();
 router.get(
-  "/formbyid/:traineeId",
+  "/formbyid",
   auth("trainee-supervisor_get_forms"),
   portfolio.getFormById
 );

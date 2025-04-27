@@ -157,6 +157,7 @@ const getUsersBySupervisor = async (req, res) => {
     res.status(200).json({
       success: true,
       count: users.length,
+      max_forms: users.length * 18,
       data: users,
     });
   } catch (error) {
