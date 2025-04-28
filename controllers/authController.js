@@ -418,6 +418,13 @@ const updateUsertypeFunctions = async (req, res) => {
 
     const currentUsertypeId = currentUser.role;
 
+    if (1 === Number(usertypeId)) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: You cannot edit main admin user type" });
+    }
+
+
     if (currentUsertypeId === usertypeId) {
       return res.status(403).json({ message: 'Forbidden: You cannot edit your own user type' });
     }

@@ -3,107 +3,155 @@ const upload = require('../middleware/multerConfig');
 const form_helper = require('../middleware/form_helper');
 // Create new Mortality & Morbidity form (only for supervisors/admins)
 const createMortalityMorbidityForm = async (req, res) => {
-    try {
-         role = req.user.role;
-        supervisor_id=req.user.userId;
-        const {
-            resident_id, date_of_presentation,
-            diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
-            assessment_analysis, review_of_literature, recommendations,
-            handling_questions, overall_performance, major_positive_feature,
-            suggested_areas_for_improvement,draft_send
-        } = req.body;
-        const [rows] = await db.execute(`SELECT Name FROM users WHERE User_id = ?`, [resident_id]);
-        const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
-        // Only assessor signature allowed on creation
-        const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : null;
+  try {
+    role = req.user.role;
+    supervisor_id = req.user.userId;
+    const {
+      resident_id,
+      date_of_presentation,
+      diagnosis,
+      cause_of_death_morbidity,
+      brief_introduction,
+      patient_details,
+      assessment_analysis,
+      review_of_literature,
+      recommendations,
+      handling_questions,
+      overall_performance,
+      major_positive_feature,
+      suggested_areas_for_improvement,
+      draft_send,
+    } = req.body;
+    const [rows] = await db.execute(
+      `SELECT Name FROM users WHERE User_id = ?`,
+      [resident_id]
+    );
+    const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
+    // Only assessor signature allowed on creation
+    const assessor_signature_path = req.files?.signature
+      ? req.files.signature[0].path
+      : null;
 
-        const [insertResult] = await db.execute(
-            `INSERT INTO mortality_morbidity_review_assessment 
+    const [insertResult] = await db.execute(
+      `INSERT INTO mortality_morbidity_review_assessment 
             (resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
             suggested_areas_for_improvement, assessor_signature_path, sent) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
-                diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
-                assessment_analysis, review_of_literature, recommendations,
-                handling_questions, overall_performance, major_positive_feature,
-                suggested_areas_for_improvement, assessor_signature_path,draft_send
-            ]
-        );
-        const formId = insertResult.insertId; // Get the newly inserted form ID
-        if (Number(draft_send) === 1) {
-            await form_helper.sendFormToTrainee(supervisor_id, "mortality_morbidity_review_assessment",formId);
-        }
-
-        res.status(201).json({ message: "Mortality & Morbidity form created successfully" });
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while creating Mortality & Morbidity form" });
+      [
+        resident_id,
+        supervisor_id,
+        resident_fellow_name,
+        date_of_presentation ?? null,
+        diagnosis ?? null,
+        cause_of_death_morbidity ?? null,
+        brief_introduction ?? null,
+        patient_details ?? null,
+        assessment_analysis ?? null,
+        review_of_literature ?? null,
+        recommendations ?? null,
+        handling_questions ?? null,
+        overall_performance ?? null,
+        major_positive_feature ?? null,
+        suggested_areas_for_improvement ?? null,
+        assessor_signature_path ?? null,
+        draft_send,
+      ]
+    );
+    const formId = insertResult.insertId; // Get the newly inserted form ID
+    if (Number(draft_send) === 1) {
+      await form_helper.sendFormToTrainee(
+        supervisor_id,
+        "mortality_morbidity_review_assessment",
+        formId
+      );
     }
+
+    res
+      .status(201)
+      .json({ message: "Mortality & Morbidity form created successfully" });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res
+      .status(500)
+      .json({
+        error: "Server error while creating Mortality & Morbidity form",
+      });
+  }
 };
 
 // Update Mortality & Morbidity form
 const updateMortalityMorbidityForm = async (req, res) => {
   try {
-    role=req.user.role;
-    userId=req.user.userId; 
-      const { id } = req.params;
+    role = req.user.role;
+    userId = req.user.userId;
+    const { id } = req.params;
 
-      // Get existing record first
-      const [existingRecord] = await db.execute(
-          `SELECT * FROM mortality_morbidity_review_assessment WHERE id = ?`,
-          [id]
-      );
+    // Get existing record first
+    const [existingRecord] = await db.execute(
+      `SELECT * FROM mortality_morbidity_review_assessment WHERE id = ?`,
+      [id]
+    );
 
-      if (existingRecord.length === 0) {
-          return res.status(404).json({ error: "Mortality & Morbidity form not found" });
+    if (existingRecord.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Mortality & Morbidity form not found" });
+    }
+
+    const currentRecord = existingRecord[0];
+    let updateQuery = "";
+    let updateValues = [];
+    const hasAccess = await form_helper.auth(
+      "Trainee",
+      "update_mortality_morbidity_form"
+    )(req, res);
+    const hasAccessS = await form_helper.auth(
+      "Supervisor",
+      "update_mortality_morbidity_form"
+    )(req, res);
+    console.log(hasAccess, hasAccessS, userId);
+    if (hasAccess) {
+      // Residents can only update their own forms
+      if (currentRecord.resident_id !== userId) {
+        return res.status(403).json({ message: "Unauthorized access" });
       }
 
-      const currentRecord = existingRecord[0];
-      let updateQuery = "";
-      let updateValues = [];
-        const hasAccess = await form_helper.auth('Trainee', 'update_mortality_morbidity_form')(req, res);
-        const hasAccessS = await form_helper.auth('Supervisor', 'update_mortality_morbidity_form')(req, res);
-        console.log(hasAccess,hasAccessS,userId);
-        if (hasAccess) {
-          // Residents can only update their own forms
-          if (currentRecord.resident_id !== userId) {
-              return res.status(403).json({ message: "Unauthorized access" });
-          }
+      // Residents can only update their name and signature
+      const resident_signature_path = req.files?.signature
+        ? req.files.signature[0].path
+        : existingRecord[0].resident_signature;
 
-          // Residents can only update their name and signature
-          const resident_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].resident_signature;
+      const [old_send] = await db.execute(
+        `SELECT resident_signature_path FROM mortality_morbidity_review_assessment WHERE id = ?`,
+        [id]
+      );
 
-          const [old_send] =await db.execute(
-            `SELECT resident_signature_path FROM mortality_morbidity_review_assessment WHERE id = ?`,
-            [id]
-            ); 
-
-          updateQuery = `UPDATE mortality_morbidity_review_assessment 
-                         SET resident_signature_path = ? ,completed = ?
+      updateQuery = `UPDATE mortality_morbidity_review_assessment 
+                         SET resident_signature_path = ? 
                          WHERE id = ?`;
-          updateValues = [
-              resident_signature_path,1,
-              id
-          ];
-           if(old_send[0].resident_signature_path===null)
-            await form_helper.sendSignatureToSupervisor(userId, "mortality_morbidity_review_assessment",id);
+      updateValues = [resident_signature_path, id];
+      if (old_send[0].resident_signature_path === null)
+        await form_helper.sendSignatureToSupervisor(
+          userId,
+          "mortality_morbidity_review_assessment",
+          id
+        );
+    } else if (hasAccessS) {
+      // Admin or supervisor roles
+      // Supervisors can update all fields except resident signature and name
+      const assessor_signature_path = req.files?.signature
+        ? req.files.signature[0].path
+        : existingRecord[0].assessor_signature;
 
-      } else if (hasAccessS) {  // Admin or supervisor roles
-          // Supervisors can update all fields except resident signature and name
-          const assessor_signature_path = req.files?.signature ? req.files.signature[0].path : existingRecord[0].assessor_signature;
+      const [old_send] = await db.execute(
+        `SELECT sent FROM mortality_morbidity_review_assessment WHERE id = ?`,
+        [id]
+      );
 
-        const [old_send] =await db.execute(
-            `SELECT sent FROM mortality_morbidity_review_assessment WHERE id = ?`,
-            [id]
-        ); 
-
-
-          updateQuery = `UPDATE mortality_morbidity_review_assessment 
+      updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET diagnosis = ?, 
                              cause_of_death_morbidity = ?,
                              brief_introduction = ?,
@@ -117,38 +165,68 @@ const updateMortalityMorbidityForm = async (req, res) => {
                              suggested_areas_for_improvement = ?,
                              assessor_signature_path = ? ,sent = ?
                          WHERE id = ?`;
-          updateValues = [
-              req.body.diagnosis || currentRecord.diagnosis,
-              req.body.cause_of_death_morbidity || currentRecord.cause_of_death_morbidity,
-              req.body.brief_introduction || currentRecord.brief_introduction,
-              req.body.patient_details || currentRecord.patient_details,
-              req.body.assessment_analysis || currentRecord.assessment_analysis,
-              req.body.review_of_literature || currentRecord.review_of_literature,
-              req.body.recommendations || currentRecord.recommendations,
-              req.body.handling_questions || currentRecord.handling_questions,
-              req.body.overall_performance || currentRecord.overall_performance,
-              req.body.major_positive_feature || currentRecord.major_positive_feature,
-              req.body.suggested_areas_for_improvement || currentRecord.suggested_areas_for_improvement,
-              assessor_signature_path,
-              req.body.draft_send || currentRecord.sent,
-              id
-          ];
+      updateValues = [
+        req.body.diagnosis ?? currentRecord.diagnosis ?? null,
+        req.body.cause_of_death_morbidity ??
+          currentRecord.cause_of_death_morbidity ??
+          null,
+        req.body.brief_introduction ?? currentRecord.brief_introduction ?? null,
+        req.body.patient_details ?? currentRecord.patient_details ?? null,
+        req.body.assessment_analysis ??
+          currentRecord.assessment_analysis ??
+          null,
+        req.body.review_of_literature ??
+          currentRecord.review_of_literature ??
+          null,
+        req.body.recommendations ?? currentRecord.recommendations ?? null,
+        req.body.handling_questions ?? currentRecord.handling_questions ?? null,
+        req.body.overall_performance ??
+          currentRecord.overall_performance ??
+          null,
+        req.body.major_positive_feature ??
+          currentRecord.major_positive_feature ??
+          null,
+        req.body.suggested_areas_for_improvement ??
+          currentRecord.suggested_areas_for_improvement ??
+          null,
+        assessor_signature_path,
+        req.body.draft_send ?? currentRecord.sent ?? null,
+        id,
+      ];
 
-          if (Number(req.body.draft_send) === 1&& Number(old_send[0].sent)=== 0) {
-
-              await form_helper.sendFormToTrainee(userId, "mortality_morbidity_review_assessment",id);
-            }
-
-      } else {
-          return res.status(403).json({ message: "Permission denied" });
+      if (Number(req.body.draft_send) === 1 && Number(old_send[0].sent) === 0) {
+        await form_helper.sendFormToTrainee(
+          userId,
+          "mortality_morbidity_review_assessment",
+          id
+        );
       }
+    } else {
+      return res.status(403).json({ message: "Permission denied" });
+    }
 
-      await db.execute(updateQuery, updateValues);
-      res.status(200).json({ message: "Mortality & Morbidity form updated successfully" });
+    await db.execute(updateQuery, updateValues);
+    const [updatedRecord] = await db.execute(
+      `SELECT resident_signature_path, assessor_signature_path FROM mortality_morbidity_review_assessment WHERE id = ?`,
+      [id]
+    );
 
+    const { resident_signature_path, assessor_signature_path } =
+      updatedRecord[0];
+    if (resident_signature_path && assessor_signature_path) {
+      await db.execute(
+        `UPDATE mortality_morbidity_review_assessment SET completed = 1 WHERE id = ?`,
+        [id]
+      );
+    }
+    res
+      .status(200)
+      .json({ message: "Mortality & Morbidity form updated successfully" });
   } catch (err) {
-      console.error("Database Error:", err);
-      res.status(500).json({ error: "Server error while updating Mortality & Morbidity form" });
+    console.error("Database Error:", err);
+    res.status(500).json({
+      error: "Server error while updating Mortality & Morbidity form",
+    });
   }
 };
 

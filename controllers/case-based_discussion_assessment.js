@@ -57,7 +57,7 @@ const createForm = async (req, res) => {
     );
 
     const formId = insertResult.insertId;
-    if (Number(values.sent) === 1) {
+    if (Number(draft_send) === 1) {
       await form_helper.sendFormToTrainee(
         values.supervisor_id,
         "case_based_discussion_assessment",
@@ -128,13 +128,12 @@ const updateForm = async (req, res) => {
       );
 
       updateQuery = `UPDATE case_based_discussion_assessment 
-                     SET resident_comment = ?, resident_signature = ?, completed = ? 
+                     SET resident_comment = ?, resident_signature = ?
                      WHERE id = ?`;
 
       updateValues = [
         resident_comment || existingRecord[0].resident_comment || null,
         residentSignature,
-        1,
         id,
       ];
 
@@ -194,6 +193,18 @@ const updateForm = async (req, res) => {
     // Execute the update query only if it's been set
     if (updateQuery && updateValues.length > 0) {
       await pool.execute(updateQuery, updateValues);
+      const [updatedRecord] = await pool.execute(
+        `SELECT resident_signature, assessor_signature FROM case_based_discussion_assessment WHERE id = ?`,
+        [id]
+      );
+
+      const { resident_signature, assessor_signature } = updatedRecord[0];
+      if (resident_signature && assessor_signature) {
+        await pool.execute(
+          `UPDATE case_based_discussion_assessment SET completed = 1 WHERE id = ?`,
+          [id]
+        );
+      }
       res.status(200).json({ message: "Form updated successfully" });
     } else {
       res.status(400).json({ error: "No valid update parameters provided" });
