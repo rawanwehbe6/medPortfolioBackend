@@ -273,4 +273,92 @@ const getFormById = async (req, res) => {
   }
 };
 
-module.exports = { getFormById };
+const getCompletedFormsById = async (req, res) => {
+  try {
+    const { traineeId } = req.body;
+    const { userId, role } = req.user;
+
+    if (!traineeId) {
+      return res.status(400).json({ error: "Missing required parameters" });
+    }
+
+    let effectiveTraineeId = traineeId;
+
+    try {
+      const [existing] = await pool.execute(
+        "SELECT Type FROM usertypes WHERE Id = ?",
+        [role]
+      );
+
+      if (existing.length > 0 && existing[0].Type === "Trainee") {
+        effectiveTraineeId = userId;
+      }
+    } catch (err) {
+      console.error("Error checking user type:", err);
+    }
+
+    const isTraineeSelf = Number(effectiveTraineeId) === Number(userId);
+    const isSupervisor = await isSupervisorOfTrainee(
+      userId,
+      effectiveTraineeId
+    );
+
+    if (!isTraineeSelf && !isSupervisor && role !== 1) {
+      return res.status(403).json({
+        error:
+          "Permission denied: You can only access your own forms or forms of trainees you supervise",
+      });
+    }
+
+    const formTables = {
+      grand_round_presentation_assessment: {
+        query: `SELECT id FROM grand_round_presentation_assessment WHERE resident_id = ? AND completed = 1`,
+      },
+      case_based_discussion_assessment: {
+        query: `SELECT id FROM case_based_discussion_assessment WHERE resident_id = ? AND completed = 1`,
+      },
+      dops: {
+        query: `SELECT id FROM dops WHERE trainee_id = ? AND is_draft = 0`,
+      },
+      fellow_resident_evaluation: {
+        query: `SELECT id FROM fellow_resident_evaluation WHERE fellow_id = ? AND completed = 1`,
+      },
+      journal_club_assessment: {
+        query: `SELECT id FROM journal_club_assessment WHERE resident_id = ? AND complete = 1`,
+      },
+      mini_cex: {
+        query: `SELECT id FROM mini_cex WHERE trainee_id = ? AND is_draft = 0`,
+      },
+      mortality_morbidity_review_assessment: {
+        query: `SELECT id FROM mortality_morbidity_review_assessment WHERE resident_id = ? AND completed = 1`,
+      },
+      seminar_assessment: {
+        query: `SELECT id FROM seminar_assessment WHERE resident_id = ? AND completed = 1`,
+      },
+    };
+
+    const formsResult = {};
+
+    for (const [formName, { query }] of Object.entries(formTables)) {
+      try {
+        const [results] = await pool.execute(query, [effectiveTraineeId]);
+        formsResult[formName] = results.map((row) => row.id);
+      } catch (err) {
+        console.error(`Error fetching ${formName}:`, err);
+        formsResult[formName] = [];
+      }
+    }
+
+    res.status(200).json({
+      traineeId: effectiveTraineeId,
+      Forms: formsResult,
+    });
+  } catch (err) {
+    console.error("Server Error:", err);
+    res
+      .status(500)
+      .json({ error: "Server error while fetching completed forms" });
+  }
+};
+
+module.exports = { getFormById, getCompletedFormsById };

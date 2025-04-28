@@ -7,4 +7,9 @@ router.get(
   auth("trainee-supervisor_get_forms"),
   portfolio.getFormById
 );
+router.get(
+  "/completedforms",
+  auth("trainee-supervisor_get_forms"),
+  portfolio.getCompletedFormsById
+);
 module.exports = router;
