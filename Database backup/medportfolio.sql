@@ -560,7 +560,11 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('create_keyCompetency', 179, 0, 1, 0),
 ('get_keyCompetency', 180, 0, 1, 0),
 ('delete_keyCompetency', 181, 0, 1, 0),
-('update_keyCompetency', 183, 0, 1, 0);
+('update_keyCompetency', 183, 0, 1, 0),
+('create_research',184, 0, 1, 0),
+('get_research', 185, 0, 1, 0),
+('delete_research', 186, 0, 1, 0),
+('update_research', 187, 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -1433,6 +1437,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 181),
 (2, 182),
 (2, 183),
+(2,184),
+(2,185),
+(2,186),
+(2,187),
 (3, 9),
 (3, 12),
 (3, 24),
