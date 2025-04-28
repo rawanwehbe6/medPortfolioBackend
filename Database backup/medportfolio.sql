@@ -564,7 +564,11 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('create_research',184, 0, 1, 0),
 ('get_research', 185, 0, 1, 0),
 ('delete_research', 186, 0, 1, 0),
-('update_research', 187, 0, 1, 0);
+('update_research', 187, 0, 1, 0),
+('create_surgicalExperience', 188, 0, 1, 0),
+('get_surgicalExperience', 189, 0, 1, 0),
+('delete_surgicalExperience', 190, 0, 1, 0),
+('update_surgicalExperience', 191, 0, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -1441,6 +1445,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2,185),
 (2,186),
 (2,187),
+(2,188),
+(2,189),
+(2,190),
+(2,191),
 (3, 9),
 (3, 12),
 (3, 24),
