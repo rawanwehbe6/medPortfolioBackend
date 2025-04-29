@@ -1,6 +1,6 @@
 const express = require('express');
 const key = require('../controllers/keyCompetencies');
-const auth = require('../middleware/verifyToken.js');
+const auth = require('../middleware/auth.js');
 const router = express.Router();
 // Define routes for skills
 router.post('/create', auth('create_keyCompetency'), key.createSkill);
