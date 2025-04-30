@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 26, 2025 at 12:55 PM
+-- Generation Time: May 01, 2025 at 01:03 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -41,7 +41,8 @@ CREATE TABLE `accomplishments` (
 
 INSERT INTO `accomplishments` (`id`, `title`, `description`, `file_path`, `User_ID`) VALUES
 (3, 'test2', 'test', '/uploads/1741390401930.jpg', 22),
-(6, 'test', 'test', NULL, 31);
+(6, 'test', 'test', NULL, 31),
+(7, 'test', 'test', 'uploads/1745867548353.png', 22);
 
 -- --------------------------------------------------------
 
@@ -98,7 +99,8 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 (4, 22, 1, '2025-03-30', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1743292148327.png', 0, 0, '2025-04-16 18:24:27'),
 (5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1744411343092.jpg', 'uploads\\1743549471199.jpg', 1, 1, '2025-04-16 18:24:27'),
 (6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-04-16 18:24:27'),
-(8, 22, 31, '2025-04-12', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', NULL, NULL, NULL, 1, 0, '2025-04-16 18:24:27');
+(8, 22, 31, '2025-04-12', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', NULL, NULL, NULL, 1, 0, '2025-04-16 18:24:27'),
+(9, 22, 28, '2025-04-28', 'Flu', NULL, 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-04-28 19:14:29');
 
 -- --------------------------------------------------------
 
@@ -384,6 +386,28 @@ INSERT INTO `first_year_rotations` (`rotation_id`, `trainee_id`, `from_date`, `t
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `forbidden_logs`
+--
+
+CREATE TABLE `forbidden_logs` (
+  `User_ID` int(15) NOT NULL,
+  `User_Name` varchar(500) NOT NULL,
+  `Function_ID` int(15) NOT NULL,
+  `Function_Name` varchar(500) NOT NULL,
+  `timestamp` date NOT NULL DEFAULT current_timestamp(),
+  `cumulative` int(5) DEFAULT 1
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `forbidden_logs`
+--
+
+INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_Name`, `timestamp`, `cumulative`) VALUES
+(22, 'test', 2, 'update_user', '2025-05-01', 1);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `functions`
 --
 
@@ -526,49 +550,37 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('getFormsProgressForTrainee', 144, 1, 1, 0),
 ('getLatestUpdatedForm', 145, 1, 1, 0),
 ('view_portfolio_images', 146, 0, 1, 1),
-('create_teachings', 147, 0, 1, 1),
-('get_teachings', 148, 0, 1, 1),
-('delete_teachings', 149, 0, 1, 1),
-('sign_teachings', 150, 0, 0, 1),
-('create_researchPub', 151, 0, 1, 1),
-('get_researchPub', 152, 0, 1, 1),
-('delete_researchPub', 153, 0, 1, 1),
-('sign_researchPub', 154, 0, 0, 1),
-('create_depActivities', 155, 0, 1, 1),
-('get_depActivities', 156, 0, 1, 1),
-('delete_depActivities', 157, 0, 1, 1),
-('sign_depActivities', 158, 0, 0, 1),
-('create_miscellaneous-Activities', 159, 0, 1, 1),
-('get_miscellaneous-Activities', 160, 0, 1, 1),
-('delete_miscellaneous-Activities', 161, 0, 1, 1),
-('sign_miscellaneous-Activities', 162, 0, 0, 1),
-('get_miscellaneous-ActivitiesByID', 163, 0, 1, 1),
-('create_case_presentation', 164, 0, 1, 1),
-('get_case_presentation', 165, 0, 1, 1),
-('delete_case_presentation', 166, 0, 1, 1),
-('sign_case_presentation', 167, 0, 0, 1),
-('create_seminars', 168, 0, 1, 1),
-('get_seminars', 169, 0, 1, 1),
-('delete_seminars', 170, 0, 1, 1),
-('sign_seminars', 171, 0, 0, 1),
-('update_teachings', 173, 0, 1, 1),
-('update_researchPub', 174, 0, 1, 1),
-('update_depActivities', 175, 0, 1, 1),
-('update_miscellaneous-Activities', 176, 0, 1, 1),
-('update_case_presentation', 177, 0, 1, 1),
-('update_seminars', 178, 0, 1, 1),
-('create_keyCompetency', 179, 0, 1, 0),
-('get_keyCompetency', 180, 0, 1, 0),
-('delete_keyCompetency', 181, 0, 1, 0),
-('update_keyCompetency', 183, 0, 1, 0),
-('create_research',184, 0, 1, 0),
-('get_research', 185, 0, 1, 0),
-('delete_research', 186, 0, 1, 0),
-('update_research', 187, 0, 1, 0),
-('create_surgicalExperience', 188, 0, 1, 0),
-('get_surgicalExperience', 189, 0, 1, 0),
-('delete_surgicalExperience', 190, 0, 1, 0),
-('update_surgicalExperience', 191, 0, 1, 0);
+('create_teachings', 147, 1, 1, 1),
+('get_teachings', 148, 1, 1, 1),
+('delete_teachings', 149, 1, 1, 1),
+('sign_teachings', 150, 1, 0, 1),
+('create_researchPub', 151, 1, 1, 1),
+('get_researchPub', 152, 1, 1, 1),
+('delete_researchPub', 153, 1, 1, 1),
+('sign_researchPub', 154, 1, 0, 1),
+('create_depActivities', 155, 1, 1, 1),
+('get_depActivities', 156, 1, 1, 1),
+('delete_depActivities', 157, 1, 1, 1),
+('sign_depActivities', 158, 1, 0, 1),
+('create_miscellaneous-Activities', 159, 1, 1, 1),
+('get_miscellaneous-Activities', 160, 1, 1, 1),
+('delete_miscellaneous-Activities', 161, 1, 1, 1),
+('sign_miscellaneous-Activities', 162, 1, 0, 1),
+('get_miscellaneous-ActivitiesByID', 163, 1, 1, 1),
+('create_case_presentation', 164, 1, 1, 1),
+('get_case_presentation', 165, 1, 1, 1),
+('delete_case_presentation', 166, 1, 1, 1),
+('sign_case_presentation', 167, 1, 0, 1),
+('create_seminars', 168, 1, 1, 1),
+('get_seminars', 169, 1, 1, 1),
+('delete_seminars', 170, 1, 1, 1),
+('sign_seminars', 171, 1, 0, 1),
+('update_teachings', 173, 1, 1, 1),
+('update_researchPub', 174, 1, 1, 1),
+('update_depActivities', 175, 1, 1, 1),
+('update_miscellaneous-Activities', 176, 1, 1, 1),
+('update_case_presentation', 177, 1, 1, 1),
+('update_seminars', 178, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -603,8 +615,10 @@ CREATE TABLE `grand_round_presentation_assessment` (
 
 INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervisor_id`, `date`, `diagnosis`, `case_complexity`, `history_taking`, `physical_examination`, `provisional_diagnosis`, `treatment`, `future_planning`, `assessor_comment`, `resident_comment`, `resident_signature`, `assessor_signature`, `sent`, `completed`, `updated_at`) VALUES
 (1, 22, 28, '2025-04-02', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', NULL, NULL, 'uploads\\1743542547183.png', 1, 0, '2025-04-16 18:24:27'),
-(2, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1744409038385.jpg', 'uploads\\1743542642230.png', 1, 1, '2025-04-16 18:24:27'),
-(4, 22, 28, '2025-04-12', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1744410861909.jpg', NULL, 1, 1, '2025-04-16 18:24:27');
+(2, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1745863968486.png', 'uploads\\1743542642230.png', 1, 1, '2025-04-28 18:12:48'),
+(4, 22, 28, '2025-04-12', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1744410861909.jpg', NULL, 1, 1, '2025-04-16 18:24:27'),
+(5, 22, 28, '2025-04-28', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1745863983430.png', 'uploads\\1745864041001.png', 1, 1, '2025-04-28 18:14:01'),
+(6, 22, 28, '2025-04-28', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1745864057846.png', 'uploads\\1745864048007.png', 1, 1, '2025-04-28 18:14:17');
 
 -- --------------------------------------------------------
 
@@ -692,7 +706,8 @@ CREATE TABLE `messages` (
 INSERT INTO `messages` (`id`, `subject`, `message`, `trainee_id`, `supervisor_id`, `date`) VALUES
 (2, 'Training Schedule', 'Your next training session is on Monday.', 23, 28, '2025-03-29 23:51:53'),
 (3, 'Training Schedule', 'Your next training session is on Monday.', 22, 28, '2025-03-29 23:54:53'),
-(4, 'Training Schedule', 'Your next training session is on Monday.', 22, 31, '2025-04-11 21:03:23');
+(4, 'Training Schedule', 'Your next training session is on Monday.', 22, 31, '2025-04-11 21:03:23'),
+(5, 'hi', '<script>alert()</script>', 22, 29, '2025-04-29 11:07:13');
 
 -- --------------------------------------------------------
 
@@ -742,7 +757,7 @@ CREATE TABLE `mini_cex` (
 --
 
 INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `sent_to_trainee`, `residentFellow`, `updated_at`) VALUES
-(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, 1, NULL, '2025-04-16 18:24:27');
+(4, 30, 'rimastest', 22, 'test', '', '2025-01-04', '', NULL, NULL, '', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, NULL, NULL, 'uploads\\1743467698943.PNG', NULL, 0, 1, 1, 1, NULL, '2025-04-30 14:05:51');
 
 -- --------------------------------------------------------
 
@@ -846,7 +861,12 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (23, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-04-11 22:02:59'),
 (24, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-11 22:04:28'),
 (25, 22, 31, 'Your case based discussion assessment form has been sent to you by TEST roles for review.', 0, '2025-04-11 22:36:10'),
-(26, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-14 21:27:22');
+(26, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-04-14 21:27:22'),
+(27, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-28 18:13:03'),
+(28, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-04-28 18:13:26'),
+(29, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-04-28 18:14:08'),
+(30, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-28 18:14:17'),
+(31, 22, 28, 'Your case based discussion assessment form has been sent to you by supervisor for review.', 0, '2025-04-28 19:14:29');
 
 -- --------------------------------------------------------
 
@@ -1309,16 +1329,6 @@ CREATE TABLE `usertype_functions` (
 --
 
 INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
-(1, 14),
-(1, 15),
-(1, 16),
-(1, 17),
-(1, 18),
-(1, 22),
-(1, 23),
-(1, 144),
-(1, 145),
-
 (2, 4),
 (2, 5),
 (2, 6),
@@ -1436,18 +1446,6 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 176),
 (2, 177),
 (2, 178),
-(2, 179),
-(2, 180),
-(2, 181),
-(2, 183),
-(2,184),
-(2,185),
-(2,186),
-(2,187),
-(2,188),
-(2,189),
-(2,190),
-(2,191),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1874,6 +1872,13 @@ ALTER TABLE `first_year_rotations`
   ADD PRIMARY KEY (`rotation_id`);
 
 --
+-- Indexes for table `forbidden_logs`
+--
+ALTER TABLE `forbidden_logs`
+  ADD KEY `Function_ID` (`Function_ID`),
+  ADD KEY `User_ID` (`User_ID`);
+
+--
 -- Indexes for table `functions`
 --
 ALTER TABLE `functions`
@@ -2108,7 +2113,7 @@ ALTER TABLE `user_skills`
 -- AUTO_INCREMENT for table `accomplishments`
 --
 ALTER TABLE `accomplishments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `bau`
@@ -2120,7 +2125,7 @@ ALTER TABLE `bau`
 -- AUTO_INCREMENT for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `case_presentations`
@@ -2192,7 +2197,7 @@ ALTER TABLE `functions`
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `journal_club_assessment`
@@ -2210,7 +2215,7 @@ ALTER TABLE `logbook_profile_info`
 -- AUTO_INCREMENT for table `messages`
 --
 ALTER TABLE `messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `mini_cex`
@@ -2234,7 +2239,7 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`
@@ -2415,6 +2420,13 @@ ALTER TABLE `eduactworkshops`
 ALTER TABLE `fellow_resident_evaluation`
   ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`),
   ADD CONSTRAINT `fellow_resident_evaluation_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+
+--
+-- Constraints for table `forbidden_logs`
+--
+ALTER TABLE `forbidden_logs`
+  ADD CONSTRAINT `forbidden_logs_ibfk_1` FOREIGN KEY (`Function_ID`) REFERENCES `functions` (`Id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `forbidden_logs_ibfk_2` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `grand_round_presentation_assessment`
