@@ -216,13 +216,13 @@ const getFormCountsByTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    {
-      table: "dops",
-      idCol: "trainee_id",
-      sentCol: "is_sent_to_trainee",
-      completeCol: "is_draft",
-      inverseCompleted: true,
-    },
+    // {
+    //   table: "dops",
+    //   idCol: "trainee_id",
+    //   sentCol: "is_sent_to_trainee",
+    //   completeCol: "is_draft",
+    //   inverseCompleted: true,
+    // },
   ];
 
   const result = {};
@@ -298,7 +298,7 @@ const getSentFormIdsForTrainee = async (req, res) => {
     },
     { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent" },
     { table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee" },
-    { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee" },
+    // { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee" },
   ];
 
   const result = {};
@@ -368,12 +368,12 @@ const getCompletedFormIdsForTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverse: true,
     },
-    {
-      table: "dops",
-      idCol: "trainee_id",
-      completeCol: "is_draft",
-      inverse: true,
-    },
+    // {
+    //   table: "dops",
+    //   idCol: "trainee_id",
+    //   completeCol: "is_draft",
+    //   inverse: true,
+    // },
   ];
 
   const result = {};
@@ -420,13 +420,13 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
         draftCol: "is_draft",
         value: 1,
       },
-      {
-        table: "dops",
-        traineeCol: "trainee_id",
-        supervisorCol: "supervisor_id",
-        draftCol: "is_draft",
-        value: 1,
-      },
+      // {
+      //   table: "dops",
+      //   traineeCol: "trainee_id",
+      //   supervisorCol: "supervisor_id",
+      //   draftCol: "is_draft",
+      //   value: 1,
+      // },
       {
         table: "journal_club_assessment",
         traineeCol: "resident_id",
@@ -552,13 +552,13 @@ const getFormCountsBySupervisor = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    {
-      table: "dops",
-      idCol: "trainee_id",
-      sentCol: "is_sent_to_trainee",
-      completeCol: "is_draft",
-      inverseCompleted: true,
-    },
+    // {
+    //   table: "dops",
+    //   idCol: "trainee_id",
+    //   sentCol: "is_sent_to_trainee",
+    //   completeCol: "is_draft",
+    //   inverseCompleted: true,
+    // },
   ];
 
   try {

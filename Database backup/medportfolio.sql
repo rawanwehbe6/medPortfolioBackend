@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2025 at 12:18 AM
+-- Generation Time: May 02, 2025 at 12:36 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -751,14 +751,14 @@ CREATE TABLE `mini_cex` (
   `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
   `residentFellow` varchar(255) DEFAULT NULL,
-  `is_sent_to_trainee` tinyint(4) DEFAULT 0
+  `sent_to_trainee` tinyint(4) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mini_cex`
 --
 
-INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `residentFellow`, `is_sent_to_trainee`) VALUES
+INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `residentFellow`, `sent_to_trainee`) VALUES
 (4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, NULL, 0),
 (5, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 4, 5, 5, 4, 4, 5, 4, 30, 15, 5, NULL, NULL, 'uploads\\1746039394745.PNG', NULL, 0, 1, 1, NULL, 0),
 (6, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 2, 2, 5, 5, 4, 4, 3, 30, 5, 5, NULL, NULL, 'http://localhost:3000/uploads/1746093640604.PNG', NULL, 0, 1, 1, NULL, 0),

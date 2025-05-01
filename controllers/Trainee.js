@@ -3,18 +3,69 @@ const pool = require('../config/db');
 const getFormsProgressForTrainee = async (req, res) => {
   const traineeId = req.user.userId;
   if (!traineeId) {
-    return res.status(401).json({ error: "Unauthorized: trainee ID not found in token" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized: trainee ID not found in token" });
   }
 
   const formTypes = [
-    { name: "Case Based Discussion", table: "case_based_discussion_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 1 },
-    { name: "Grand Round Presentation", table: "grand_round_presentation_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 1 },
-    { name: "Mortality Morbidity Review", table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 4 },
-    { name: "Seminar Assessment", table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 5 },
-    { name: "Mini CEX", table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
-    { name: "DOPS", table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
-    { name: "Journal Club", table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete", required: 4 },
-    { name: "Performance", table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed", required: 1 }
+    {
+      name: "Case Based Discussion",
+      table: "case_based_discussion_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+      required: 1,
+    },
+    {
+      name: "Grand Round Presentation",
+      table: "grand_round_presentation_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+      required: 1,
+    },
+    {
+      name: "Mortality Morbidity Review",
+      table: "mortality_morbidity_review_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+      required: 4,
+    },
+    {
+      name: "Seminar Assessment",
+      table: "seminar_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+      required: 5,
+    },
+    {
+      name: "Mini CEX",
+      table: "mini_cex",
+      idCol: "resident_id",
+      sentCol: "sent_to_trainee",
+      completeCol: "is_signed_by_trainee",
+      required: 1,
+    },
+    // { name: "DOPS", table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
+    {
+      name: "Journal Club",
+      table: "journal_club_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "complete",
+      required: 4,
+    },
+    {
+      name: "Performance",
+      table: "fellow_resident_evaluation",
+      idCol: "fellow_id",
+      sentCol: "sent",
+      completeCol: "completed",
+      required: 1,
+    },
   ];
 
   try {
@@ -36,18 +87,21 @@ const getFormsProgressForTrainee = async (req, res) => {
       totalCompleted += completeCount;
       totalRequired += form.required;
 
-      const completionRate = sentCount > 0 ? Math.round((completeCount / sentCount) * 100) : 0;
+      const completionRate =
+        sentCount > 0 ? Math.round((completeCount / sentCount) * 100) : 0;
 
       formDetails.push({
         formName: form.name,
         sent: sentCount,
         completed: completeCount,
-        completionRate
+        completionRate,
       });
     }
 
-    const sentRate = totalRequired > 0 ? Math.round((totalSent / totalRequired) * 100) : 0;
-    const overallCompletionRate = totalSent > 0 ? Math.round((totalCompleted / totalSent) * 100) : 0;
+    const sentRate =
+      totalRequired > 0 ? Math.round((totalSent / totalRequired) * 100) : 0;
+    const overallCompletionRate =
+      totalSent > 0 ? Math.round((totalCompleted / totalSent) * 100) : 0;
 
     res.status(200).json({
       traineeId,
@@ -55,53 +109,103 @@ const getFormsProgressForTrainee = async (req, res) => {
         sent: totalSent,
         completed: totalCompleted,
         completionRate: overallCompletionRate,
-        sentRate: sentRate
+        sentRate: sentRate,
       },
-      forms: formDetails
+      forms: formDetails,
     });
   } catch (error) {
     console.error("Error fetching form progress:", error);
-    res.status(500).json({ error: "Server error while fetching form progress" });
+    res
+      .status(500)
+      .json({ error: "Server error while fetching form progress" });
   }
 };
 
 const getSentFormsForTrainee = async (req, res) => {
   const traineeId = req.user.userId;
   if (!traineeId) {
-    return res.status(401).json({ error: "Unauthorized: trainee ID not found in token" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized: trainee ID not found in token" });
   }
 
   const formTypes = [
-    { table: "case_based_discussion_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
-    { table: "grand_round_presentation_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
-    { table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
-    { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
-    { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed" },
-    { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete" },
-    { table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
-    { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
+    {
+      table: "case_based_discussion_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+    },
+    {
+      table: "grand_round_presentation_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+    },
+    {
+      table: "mortality_morbidity_review_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+    },
+    {
+      table: "seminar_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "completed",
+    },
+    {
+      table: "fellow_resident_evaluation",
+      idCol: "fellow_id",
+      sentCol: "sent",
+      completeCol: "completed",
+    },
+    {
+      table: "journal_club_assessment",
+      idCol: "resident_id",
+      sentCol: "sent",
+      completeCol: "complete",
+    },
+    {
+      table: "mini_cex",
+      idCol: "resident_id",
+      sentCol: "sent_to_trainee",
+      completeCol: "is_draft",
+      inverseCompleted: true,
+    },
+    // { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const Forms = {};
 
   try {
-    for (const { table, idCol, sentCol, completeCol, inverseCompleted } of formTypes) {
+    for (const {
+      table,
+      idCol,
+      sentCol,
+      completeCol,
+      inverseCompleted,
+    } of formTypes) {
       const sentQuery = `SELECT id FROM ${table} WHERE ${idCol} = ? AND ${sentCol} = 1`;
-      const completeCondition = inverseCompleted ? `${completeCol} = 0` : `${completeCol} = 1`;
+      const completeCondition = inverseCompleted
+        ? `${completeCol} = 0`
+        : `${completeCol} = 1`;
       const completeQuery = `SELECT id FROM ${table} WHERE ${idCol} = ? AND ${completeCondition}`;
 
       const [sentRows] = await pool.execute(sentQuery, [traineeId]);
       const [completeRows] = await pool.execute(completeQuery, [traineeId]);
 
-      const completedIds = new Set(completeRows.map(row => row.id));
-      const sentOnly = sentRows.filter(row => !completedIds.has(row.id)).map(row => row.id);
+      const completedIds = new Set(completeRows.map((row) => row.id));
+      const sentOnly = sentRows
+        .filter((row) => !completedIds.has(row.id))
+        .map((row) => row.id);
 
       Forms[table] = sentOnly;
     }
 
     res.status(200).json({
       traineeId,
-      Forms
+      Forms,
     });
   } catch (error) {
     console.error("Error fetching sent forms:", error);
@@ -111,114 +215,156 @@ const getSentFormsForTrainee = async (req, res) => {
 const getCompletedFormsForTrainee = async (req, res) => {
   const traineeId = req.user.userId;
   if (!traineeId) {
-    return res.status(401).json({ error: "Unauthorized: trainee ID not found in token" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized: trainee ID not found in token" });
   }
 
   const formTypes = [
-    { table: "case_based_discussion_assessment", idCol: "resident_id", completeCol: "completed" },
-    { table: "grand_round_presentation_assessment", idCol: "resident_id", completeCol: "completed" },
-    { table: "mortality_morbidity_review_assessment", idCol: "resident_id", completeCol: "completed" },
-    { table: "seminar_assessment", idCol: "resident_id", completeCol: "completed" },
-    { table: "fellow_resident_evaluation", idCol: "fellow_id", completeCol: "completed" },
-    { table: "journal_club_assessment", idCol: "resident_id", completeCol: "complete" },
-    { table: "mini_cex", idCol: "resident_id", completeCol: "is_draft", inverseCompleted: true },
-    { table: "dops", idCol: "trainee_id", completeCol: "is_draft", inverseCompleted: true }
+    {
+      table: "case_based_discussion_assessment",
+      idCol: "resident_id",
+      completeCol: "completed",
+    },
+    {
+      table: "grand_round_presentation_assessment",
+      idCol: "resident_id",
+      completeCol: "completed",
+    },
+    {
+      table: "mortality_morbidity_review_assessment",
+      idCol: "resident_id",
+      completeCol: "completed",
+    },
+    {
+      table: "seminar_assessment",
+      idCol: "resident_id",
+      completeCol: "completed",
+    },
+    {
+      table: "fellow_resident_evaluation",
+      idCol: "fellow_id",
+      completeCol: "completed",
+    },
+    {
+      table: "journal_club_assessment",
+      idCol: "resident_id",
+      completeCol: "complete",
+    },
+    {
+      table: "mini_cex",
+      idCol: "resident_id",
+      completeCol: "is_draft",
+      inverseCompleted: true,
+    },
+    // { table: "dops", idCol: "trainee_id", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const Forms = {};
 
   try {
     for (const { table, idCol, completeCol, inverseCompleted } of formTypes) {
-      const condition = inverseCompleted ? `${completeCol} = 0` : `${completeCol} = 1`;
+      const condition = inverseCompleted
+        ? `${completeCol} = 0`
+        : `${completeCol} = 1`;
       const query = `SELECT id FROM ${table} WHERE ${idCol} = ? AND ${condition}`;
       const [rows] = await pool.execute(query, [traineeId]);
 
-      Forms[table] = rows.map(row => row.id);
+      Forms[table] = rows.map((row) => row.id);
     }
 
     res.status(200).json({
       traineeId,
-      Forms
+      Forms,
     });
   } catch (error) {
     console.error("Error fetching completed forms:", error);
-    res.status(500).json({ error: "Server error while fetching completed forms" });
+    res
+      .status(500)
+      .json({ error: "Server error while fetching completed forms" });
   }
 };
 
 const getLatestUpdatedForm = async (req, res) => {
   const traineeId = req.user.userId;
   if (!traineeId) {
-    return res.status(401).json({ error: "Unauthorized: trainee ID not found in token" });
+    return res
+      .status(401)
+      .json({ error: "Unauthorized: trainee ID not found in token" });
   }
 
   // Array of all form queries with their respective names and ID columns
   const formQueries = [
     {
       name: "Mini CEX",
-      query: `SELECT 'Mini CEX' as form_name, updated_at FROM mini_cex WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Mini CEX' as form_name, updated_at FROM mini_cex WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Case Based Discussion",
-      query: `SELECT 'Case Based Discussion' as form_name, updated_at FROM case_based_discussion_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Case Based Discussion' as form_name, updated_at FROM case_based_discussion_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
-    {
-      name: "Direct Observation of Procedural Skills",
-      query: `SELECT 'DOPS' as form_name, updated_at FROM dops WHERE trainee_id = ? ORDER BY updated_at DESC LIMIT 1`
-    },
+    // {
+    //   name: "Direct Observation of Procedural Skills",
+    //   query: `SELECT 'DOPS' as form_name, updated_at FROM dops WHERE trainee_id = ? ORDER BY updated_at DESC LIMIT 1`
+    // },
     {
       name: "Fellow Resident Evaluation",
-      query: `SELECT 'Fellow Resident Evaluation' as form_name, updated_at FROM fellow_resident_evaluation WHERE fellow_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Fellow Resident Evaluation' as form_name, updated_at FROM fellow_resident_evaluation WHERE fellow_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Grand Round Presentation",
-      query: `SELECT 'Grand Round Presentation' as form_name, updated_at FROM grand_round_presentation_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Grand Round Presentation' as form_name, updated_at FROM grand_round_presentation_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Mortality Morbidity Review",
-      query: `SELECT 'Mortality Morbidity Review' as form_name, updated_at FROM mortality_morbidity_review_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Mortality Morbidity Review' as form_name, updated_at FROM mortality_morbidity_review_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Seminar Assessment",
-      query: `SELECT 'Seminar Assessment' as form_name, updated_at FROM seminar_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Seminar Assessment' as form_name, updated_at FROM seminar_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Journal Club",
-      query: `SELECT 'Journal Club' as form_name, updated_at FROM journal_club_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
-    }
+      query: `SELECT 'Journal Club' as form_name, updated_at FROM journal_club_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
+    },
   ];
 
   try {
     let latestForm = null;
-    
+
     // Execute all queries and find the most recent form
     for (const form of formQueries) {
       const [rows] = await pool.execute(form.query, [traineeId]);
       if (rows.length > 0) {
         const currentForm = {
           formName: form.name,
-          updatedAt: rows[0].updated_at
+          updatedAt: rows[0].updated_at,
         };
 
         // If we don't have a latest form yet or this one is newer
-        if (!latestForm || new Date(currentForm.updatedAt) > new Date(latestForm.updatedAt)) {
+        if (
+          !latestForm ||
+          new Date(currentForm.updatedAt) > new Date(latestForm.updatedAt)
+        ) {
           latestForm = currentForm;
         }
       }
     }
 
     if (!latestForm) {
-      return res.status(200).json({ 
-        message: "No forms found for this trainee"
+      return res.status(200).json({
+        message: "No forms found for this trainee",
       });
     }
 
     res.status(200).json({
-      latestForm
+      latestForm,
     });
   } catch (error) {
     console.error("Error fetching latest updated form:", error);
-    res.status(500).json({ error: "Server error while fetching latest updated form" });
+    res
+      .status(500)
+      .json({ error: "Server error while fetching latest updated form" });
   }
 };
 
