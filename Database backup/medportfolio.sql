@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 01, 2025 at 04:58 PM
+-- Generation Time: May 01, 2025 at 09:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -100,7 +100,8 @@ INSERT INTO `case_based_discussion_assessment` (`id`, `resident_id`, `supervisor
 (5, 22, 28, '2025-04-02', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', 'Updated Comment', 'uploads\\1744411343092.jpg', 'uploads\\1743549471199.jpg', 1, 1, '2025-04-16 18:24:27'),
 (6, 22, 28, '2025-04-02', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-04-16 18:24:27'),
 (8, 22, 31, '2025-04-12', 'Flu23', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment22', NULL, NULL, NULL, 1, 0, '2025-04-16 18:24:27'),
-(9, 22, 28, '2025-04-28', 'Flu', NULL, 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-04-28 19:14:29');
+(9, 22, 28, '2025-04-28', 'Flu', NULL, 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-04-28 19:14:29'),
+(10, 22, 28, '2025-05-01', 'Flu', NULL, 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 0, 0, '2025-05-01 18:56:23');
 
 -- --------------------------------------------------------
 
@@ -334,26 +335,33 @@ CREATE TABLE `fellow_resident_evaluation` (
   `fellow_id` int(11) DEFAULT NULL,
   `hospital` varchar(255) DEFAULT NULL,
   `date_of_rotation` date DEFAULT NULL,
-  `instructor_name` varchar(255) DEFAULT NULL,
-  `instructor_signature` varchar(255) DEFAULT NULL,
-  `punctuality` int(11) DEFAULT NULL,
-  `dependable` int(11) DEFAULT NULL,
-  `respectful` int(11) DEFAULT NULL,
-  `positive_interaction` int(11) DEFAULT NULL,
-  `self_learning` int(11) DEFAULT NULL,
-  `communication` int(11) DEFAULT NULL,
-  `history_taking` int(11) DEFAULT NULL,
-  `physical_examination` int(11) DEFAULT NULL,
-  `clinical_reasoning` int(11) DEFAULT NULL,
-  `application_knowledge` int(11) DEFAULT NULL,
+  `supervisor_name` varchar(255) DEFAULT NULL,
+  `supervisor_id` int(11) NOT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `punctuality` tinyint(4) DEFAULT NULL CHECK (`punctuality` >= 1 and `punctuality` <= 5),
+  `dependable` tinyint(4) DEFAULT NULL CHECK (`dependable` >= 1 and `dependable` <= 5),
+  `respectful` tinyint(4) DEFAULT NULL CHECK (`respectful` >= 1 and `respectful` <= 5),
+  `positive_interaction` tinyint(4) DEFAULT NULL CHECK (`positive_interaction` >= 1 and `positive_interaction` <= 5),
+  `self_learning` tinyint(4) DEFAULT NULL CHECK (`self_learning` >= 1 and `self_learning` <= 5),
+  `communication` tinyint(4) DEFAULT NULL CHECK (`communication` >= 1 and `communication` <= 5),
+  `history_taking` tinyint(4) DEFAULT NULL CHECK (`history_taking` >= 1 and `history_taking` <= 5),
+  `physical_examination` tinyint(4) DEFAULT NULL CHECK (`physical_examination` >= 1 and `physical_examination` <= 5),
+  `clinical_reasoning` tinyint(4) DEFAULT NULL CHECK (`clinical_reasoning` >= 1 and `clinical_reasoning` <= 5),
+  `application_knowledge` tinyint(4) DEFAULT NULL CHECK (`application_knowledge` >= 1 and `application_knowledge` <= 5),
   `overall_marks` int(11) DEFAULT NULL,
   `strengths` text DEFAULT NULL,
   `suggestions` text DEFAULT NULL,
-  `sent` tinyint(4) DEFAULT 0,
-  `completed` tinyint(4) DEFAULT 0,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `supervisor_id` int(11) NOT NULL
+  `sent` tinyint(1) DEFAULT 0,
+  `completed` tinyint(1) DEFAULT 0,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `fellow_resident_evaluation`
+--
+
+INSERT INTO `fellow_resident_evaluation` (`id`, `fellow_name`, `fellow_id`, `hospital`, `date_of_rotation`, `supervisor_name`, `supervisor_id`, `supervisor_signature`, `punctuality`, `dependable`, `respectful`, `positive_interaction`, `self_learning`, `communication`, `history_taking`, `physical_examination`, `clinical_reasoning`, `application_knowledge`, `overall_marks`, `strengths`, `suggestions`, `sent`, `completed`, `updated_at`) VALUES
+(2, 'test', 22, 'updates', '2024-12-12', 'supervisor', 28, 'uploads\\1746124902185.png', 3, 3, 3, 4, 5, 3, 3, 5, 5, 1, 70, '2', '3', 1, 1, '2025-05-01 18:41:42');
 
 -- --------------------------------------------------------
 
@@ -404,7 +412,11 @@ CREATE TABLE `forbidden_logs` (
 
 INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_Name`, `timestamp`, `cumulative`) VALUES
 (22, 'test', 2, 'update_user', '2025-05-01', 1),
-(22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1);
+(22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
+(22, 'test', 115, 'get_journal_club_form_by_id', '2025-05-01', 1),
+(22, 'test', 115, 'get_journal_club_form_by_id', '2025-05-01', 1),
+(22, 'test', 115, 'get_journal_club_form_by_id', '2025-05-01', 1),
+(22, 'test', 115, 'get_journal_club_form_by_id', '2025-05-01', 1);
 
 -- --------------------------------------------------------
 
@@ -536,6 +548,14 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
+('create_journal_club_form', 113, 0, 0, 1),
+('update_journal_club_form', 114, 0, 1, 1),
+('get_journal_club_form_by_id', 115, 0, 1, 1),
+('delete_journal_club_form_by_id', 116, 0, 0, 1),
+('create_fellow_resident_form', 117, 0, 0, 1),
+('update_fellow_resident_form', 118, 0, 1, 1),
+('get_fellow_resident_form_by_id', 119, 0, 1, 1),
+('delete_fellow_resident_form_by_id', 120, 0, 0, 1),
 ('trainee-supervisor_get_forms', 132, 0, 1, 1),
 ('add_user_type', 133, 1, 0, 0),
 ('assign_roles', 134, 1, 0, 0),
@@ -622,7 +642,9 @@ INSERT INTO `grand_round_presentation_assessment` (`id`, `resident_id`, `supervi
 (5, 22, 28, '2025-04-28', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1745863983430.png', 'uploads\\1745864041001.png', 1, 1, '2025-05-01 14:54:30', 'abc'),
 (6, 22, 28, '2025-04-28', 'Flu232', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment2', 'Updated Commentasasas', 'uploads\\1745864057846.png', 'uploads\\1745864048007.png', 1, 1, '2025-04-28 18:14:17', NULL),
 (7, 22, 28, '2025-05-01', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, NULL, 1, 0, '2025-05-01 14:45:41', NULL),
-(8, 22, 28, '2025-05-01', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1746111003312.png', 1, 0, '2025-05-01 14:50:03', 'If you see this message you integrated successfully');
+(8, 22, 28, '2025-05-01', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1746111003312.png', 1, 0, '2025-05-01 14:50:03', 'If you see this message you integrated successfully'),
+(9, 22, 28, '2025-05-01', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', 'Updated Commentasasas', 'uploads\\1746125605183.png', 'uploads\\1746125593639.png', 0, 1, '2025-05-01 18:53:25', 'If you see this message you integrated successfully'),
+(10, 22, 28, '2025-05-01', 'Flu', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'Good assessment', NULL, NULL, 'uploads\\1746125918111.png', 0, 0, '2025-05-01 18:58:38', 'If you see this message you integrated successfully');
 
 -- --------------------------------------------------------
 
@@ -635,20 +657,16 @@ CREATE TABLE `journal_club_assessment` (
   `resident_name` varchar(255) NOT NULL,
   `date` date NOT NULL,
   `article_reference` varchar(255) NOT NULL,
-  `paper_selection` varchar(255) DEFAULT NULL,
-  `background_knowledge` varchar(255) DEFAULT NULL,
-  `critical_analysis_methodology` text DEFAULT NULL,
-  `critical_analysis_results` text DEFAULT NULL,
-  `conclusions_drawn` text DEFAULT NULL,
-  `audio_visual_aids` text DEFAULT NULL,
-  `handling_questions` text DEFAULT NULL,
-  `overall_performance` text DEFAULT NULL,
+  `paper_selection` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `background_knowledge` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `critical_analysis_methodology` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `critical_analysis_results` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `conclusions_drawn` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
   `major_positive_feature` text DEFAULT NULL,
-  `suggested_article_selection` text DEFAULT NULL,
-  `suggested_critical_analysis` text DEFAULT NULL,
-  `suggested_slide_design` text DEFAULT NULL,
-  `suggested_presentation` text DEFAULT NULL,
-  `suggested_answering_questions` text DEFAULT NULL,
+  `comments` text DEFAULT NULL,
   `agreed_action_plan` text DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
   `assessor_signature` varchar(255) DEFAULT NULL,
@@ -659,6 +677,14 @@ CREATE TABLE `journal_club_assessment` (
   `resident_id` int(11) DEFAULT NULL,
   `supervisor_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `journal_club_assessment`
+--
+
+INSERT INTO `journal_club_assessment` (`id`, `resident_name`, `date`, `article_reference`, `paper_selection`, `background_knowledge`, `critical_analysis_methodology`, `critical_analysis_results`, `conclusions_drawn`, `audio_visual_aids`, `handling_questions`, `overall_performance`, `major_positive_feature`, `comments`, `agreed_action_plan`, `resident_signature`, `assessor_signature`, `created_at`, `updated_at`, `sent`, `complete`, `resident_id`, `supervisor_id`) VALUES
+(1, 'test', '2024-12-12', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', '1', '2', '7', 'uploads\\1746125458103.jpg', 'uploads\\1746125411214.png', '2025-05-01 18:50:11', '2025-05-01 18:50:58', 0, 1, 22, 28),
+(2, 'test', '2024-12-12', 'Moderate', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', '1', '2', '7', NULL, 'uploads\\1746125925188.png', '2025-05-01 18:58:45', '2025-05-01 18:58:45', 0, 0, 22, 28);
 
 -- --------------------------------------------------------
 
@@ -819,7 +845,8 @@ INSERT INTO `mortality_morbidity_review_assessment` (`id`, `resident_id`, `super
 (3, 22, 1, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743426406850.jpg', 0, 0, '2025-04-16 18:24:27'),
 (4, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743550239405.png', 1, 0, '2025-04-16 18:24:27'),
 (5, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, 'uploads\\1743550270964.png', 1, 0, '2025-04-16 18:24:27'),
-(6, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', 'uploads\\1744665412571.png', 'uploads\\1744665375228.png', 1, 1, '2025-04-16 18:24:27');
+(6, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', 'uploads\\1744665412571.png', 'uploads\\1744665375228.png', 1, 1, '2025-04-16 18:24:27'),
+(8, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, NULL, 0, 0, '2025-05-01 19:00:53');
 
 -- --------------------------------------------------------
 
@@ -873,7 +900,22 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (30, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-04-28 18:14:17'),
 (31, 22, 28, 'Your case based discussion assessment form has been sent to you by supervisor for review.', 0, '2025-04-28 19:14:29'),
 (32, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 14:45:41'),
-(33, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 14:50:03');
+(33, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 14:50:03'),
+(34, 22, 28, 'Your journal club assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 16:41:23'),
+(35, 22, 28, 'Your journal club assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 16:42:08'),
+(36, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 16:46:40'),
+(37, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:04:27'),
+(38, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:04:55'),
+(39, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:05:09'),
+(40, 22, 28, 'Your journal club assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 17:09:36'),
+(41, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:09:52'),
+(42, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:21:43'),
+(43, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:23:03'),
+(44, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 17:27:50'),
+(45, 22, 28, 'Your journal club assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 17:27:56'),
+(46, 28, 22, 'Your trainee test has signed the  journal club assessment form .', 0, '2025-05-01 18:50:58'),
+(47, 28, 22, 'Your trainee test has signed the  grand round presentation assessment form .', 0, '2025-05-01 18:53:25'),
+(48, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 19:01:41');
 
 -- --------------------------------------------------------
 
@@ -1111,7 +1153,9 @@ CREATE TABLE `seminar_assessment` (
 INSERT INTO `seminar_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `topic`, `content`, `presentation_skills`, `audio_visual_aids`, `communication`, `handling_questions`, `audience_management`, `references`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `sent`, `completed`, `updated_at`) VALUES
 (1, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550730360.png', 0, 0, '2025-04-16 18:24:27'),
 (3, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550772289.png', 1, 0, '2025-04-16 18:24:27'),
-(4, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1744666042025.jpg', 1, 0, '2025-04-16 18:24:27');
+(4, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1744666042025.jpg', 1, 0, '2025-04-16 18:24:27'),
+(5, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 1, 0, '2025-05-01 19:01:41'),
+(6, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 0, 0, '2025-05-01 19:01:57');
 
 -- --------------------------------------------------------
 
@@ -1423,6 +1467,9 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 110),
 (2, 111),
 (2, 112),
+(2, 114),
+(2, 115),
+(2, 119),
 (2, 132),
 (2, 143),
 (2, 144),
@@ -1512,6 +1559,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 113),
+(3, 114),
+(3, 115),
+(3, 116),
+(3, 117),
+(3, 118),
+(3, 119),
+(3, 120),
 (3, 132),
 (3, 135),
 (3, 136),
@@ -1604,6 +1659,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 113),
+(4, 114),
+(4, 115),
+(4, 116),
+(4, 117),
+(4, 118),
+(4, 119),
+(4, 120),
 (4, 132),
 (4, 135),
 (4, 136),
@@ -1695,6 +1758,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 113),
+(5, 114),
+(5, 115),
+(5, 116),
+(5, 117),
+(5, 118),
+(5, 119),
+(5, 120),
 (5, 132),
 (5, 135),
 (5, 136),
@@ -1869,8 +1940,8 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `fellow_resident_evaluation`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fellow_id` (`fellow_id`),
-  ADD KEY `supervisor_id` (`supervisor_id`);
+  ADD KEY `fellow_idx` (`fellow_id`),
+  ADD KEY `supervisor_idx` (`supervisor_id`);
 
 --
 -- Indexes for table `first_year_rotations`
@@ -1904,8 +1975,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 --
 ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_resident_id` (`resident_id`),
-  ADD KEY `supervisor_id` (`supervisor_id`);
+  ADD KEY `supervisor_id` (`supervisor_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `logbook_profile_info`
@@ -2132,7 +2203,7 @@ ALTER TABLE `bau`
 -- AUTO_INCREMENT for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `case_presentations`
@@ -2186,7 +2257,7 @@ ALTER TABLE `elearning_materials`
 -- AUTO_INCREMENT for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `first_year_rotations`
@@ -2204,13 +2275,13 @@ ALTER TABLE `functions`
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `logbook_profile_info`
@@ -2240,13 +2311,13 @@ ALTER TABLE `miscellaneous_activities`
 -- AUTO_INCREMENT for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`
@@ -2306,7 +2377,7 @@ ALTER TABLE `seminars`
 -- AUTO_INCREMENT for table `seminar_assessment`
 --
 ALTER TABLE `seminar_assessment`
-  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `surgical_experiences`
@@ -2425,8 +2496,8 @@ ALTER TABLE `eduactworkshops`
 -- Constraints for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`),
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `forbidden_logs`
@@ -2446,8 +2517,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
-  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `journal_club_assessment_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `logbook_profile_info`

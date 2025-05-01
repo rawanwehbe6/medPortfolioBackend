@@ -98,7 +98,11 @@ const updateForm = async (req, res) => {
     if (existingRecord.length === 0) {
       return res.status(404).json({ error: "Record not found" });
     }
-
+    if (Number(existingRecord[0].completed) === 1) {
+      return res
+        .status(403)
+        .json({ error: "You cannot edit a completed form" });
+    }
     const hasAccess = await form_helper.auth("Trainee", "update_cbda_form")(
       req,
       res
@@ -114,18 +118,16 @@ const updateForm = async (req, res) => {
     let updateValues = [];
 
     if (hasAccess) {
-      if (existingRecord[0].resident_id !== userId) {
+      if (
+        existingRecord[0].resident_id !== userId ||
+        Number(existingRecord[0].sent) === 0
+      ) {
         return res.status(403).json({ message: "Unauthorized access" });
       }
 
       let residentSignature = req.files?.signature
         ? req.files.signature[0].path
         : existingRecord[0].resident_signature;
-
-      const [old_send] = await pool.execute(
-        `SELECT resident_signature FROM case_based_discussion_assessment WHERE id = ?`,
-        [id]
-      );
 
       updateQuery = `UPDATE case_based_discussion_assessment 
                      SET resident_comment = ?, resident_signature = ?
@@ -136,13 +138,11 @@ const updateForm = async (req, res) => {
         residentSignature,
         id,
       ];
-
-      if (old_send[0].resident_signature === null)
-        await form_helper.sendSignatureToSupervisor(
-          userId,
-          "case_based_discussion_assessment",
-          id
-        );
+      await form_helper.sendSignatureToSupervisor(
+        userId,
+        "case_based_discussion_assessment",
+        id
+      );
     } else if (hasAccessS) {
       let assessorSignature = req.files?.signature
         ? req.files.signature[0].path

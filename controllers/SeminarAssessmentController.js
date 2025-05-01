@@ -96,7 +96,11 @@ const updateSeminarAssessment = async (req, res) => {
         .status(404)
         .json({ error: "Seminar Assessment form not found" });
     }
-
+    if (Number(existingRecord[0].completed) === 1) {
+      return res
+        .status(403)
+        .json({ error: "You cannot edit a completed form" });
+    }
     const currentRecord = existingRecord[0];
     let updateQuery = "";
     let updateValues = [];
@@ -111,7 +115,10 @@ const updateSeminarAssessment = async (req, res) => {
     console.log(hasAccess, hasAccessS, userId);
     if (hasAccess) {
       // Residents can only update their own forms
-      if (currentRecord.resident_id !== userId) {
+      if (
+        currentRecord.resident_id !== userId ||
+        Number(existingRecord[0].sent) === 0
+      ) {
         return res.status(403).json({ message: "Unauthorized access" });
       }
 
@@ -120,21 +127,15 @@ const updateSeminarAssessment = async (req, res) => {
         ? req.files.signature[0].path
         : existingRecord[0].resident_signature;
 
-      const [old_send] = await db.execute(
-        `SELECT resident_signature_path FROM seminar_assessment WHERE id = ?`,
-        [id]
-      );
-
       updateQuery = `UPDATE seminar_assessment 
                          SET resident_signature_path = ? 
                          WHERE id = ?`;
       updateValues = [resident_signature_path, id];
-      if (old_send[0].resident_signature_path === null)
-        await form_helper.sendSignatureToSupervisor(
-          userId,
-          "seminar_assessment",
-          id
-        );
+      await form_helper.sendSignatureToSupervisor(
+        userId,
+        "seminar_assessment",
+        id
+      );
     } else if (hasAccessS) {
       // Admin or supervisor roles
       // Supervisors can update all fields except resident signature and name
