@@ -388,10 +388,15 @@ const deleteMiniCEXById = async (req, res) => {
 
         const record = rows[0];
 
-        /*/ Allow only the supervisor who created the form or an admin to delete it
-        if (record.supervisor_id !== userId && role !== 1) {
-            return res.status(403).json({ message: "Permission denied: Only the evaluator or an admin can delete this Mini-CEX record." });
-        }*/
+       // Delete associated signature file if it exists
+       if (record.evaluator_signature_path) {
+        const filePath = path.join(__dirname, '..', record.evaluator_signature_path.replace(`${req.protocol}://${req.get('host')}/`, ''));
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log("Deleted signature file:", filePath);
+        }
+    }
 
         await pool.execute("DELETE FROM mini_cex WHERE id = ?", [id]);
         res.status(200).json({ message: "Mini-CEX record deleted successfully" });

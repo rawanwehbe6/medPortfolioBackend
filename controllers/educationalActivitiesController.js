@@ -3,37 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const moment = require("moment");
 
-/*//Ensure date is in the format mm/dd/yyyy
-const isValidDate = (date) => {
-    const regex = /^\d{1,2}\/\d{1,2}\/\d{4}$/; // MM/DD/YYYY format
-    if (!regex.test(date)) return "Invalid date format. Expected MM/DD/YYYY.";
-
-    const [month, day, year] = date.split('/').map(Number); // Convert to numbers
-
-    if (month < 1 || month > 12) return "Invalid month. Must be between 01 and 12.";
-    if (day < 1 || day > 31) return "Invalid day. Must be between 01 and 31.";
-
-    // Check valid days in months
-    const daysInMonth = {
-        1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30,
-        7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31
-    };
-
-    // Leap year check for February
-    if (month === 2 && ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0)) {
-        daysInMonth[2] = 29; // Leap year February has 29 days
-    }
-
-    if (day > daysInMonth[month]) return `Invalid day for the given month. ${month} has a maximum of ${daysInMonth[month]} days.`;
-
-    return null; // Date is valid
-};
-
-const formatDateToDatabaseFormat = (date) => {
-    const [month, day, year] = date.split('/').map(Number); // Split and convert to numbers
-    return `${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`; // Format as YYYY-MM-DD
-};*/
-
 //Add Course
 const addCourse = async (req, res) => {
   try {
