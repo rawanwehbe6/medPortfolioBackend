@@ -228,6 +228,10 @@ const updateMiniCEX = async (req, res) => {
                 return res.status(403).json({ error: "Form has not been sent to the trainee yet." });
             }
             
+            if (form[0].is_signed_by_trainee) {
+                return res.status(400).json({ message: "You have already signed this form and cannot edit." });
+            }
+            
             let trainee_signature_path = form[0].trainee_signature_path;
             const uploadedSignature = req.files && Array.isArray(req.files.signature)
               ? req.files.signature[0]

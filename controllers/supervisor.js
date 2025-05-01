@@ -297,7 +297,7 @@ const getSentFormIdsForTrainee = async (req, res) => {
       sentCol: "sent",
     },
     { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent" },
-    { table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee" },
+    { table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee" },
     { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee" },
   ];
 

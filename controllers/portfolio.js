@@ -327,7 +327,7 @@ const getCompletedFormsById = async (req, res) => {
         query: `SELECT id FROM journal_club_assessment WHERE resident_id = ? AND complete = 1`,
       },
       mini_cex: {
-        query: `SELECT id FROM mini_cex WHERE trainee_id = ? AND is_draft = 0`,
+        query: `SELECT id FROM mini_cex WHERE resident_id = ? AND is_draft = 0`,
       },
       mortality_morbidity_review_assessment: {
         query: `SELECT id FROM mortality_morbidity_review_assessment WHERE resident_id = ? AND completed = 1`,

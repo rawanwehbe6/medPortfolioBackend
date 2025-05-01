@@ -11,7 +11,7 @@ const getFormsProgressForTrainee = async (req, res) => {
     { name: "Grand Round Presentation", table: "grand_round_presentation_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 1 },
     { name: "Mortality Morbidity Review", table: "mortality_morbidity_review_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 4 },
     { name: "Seminar Assessment", table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed", required: 5 },
-    { name: "Mini CEX", table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
+    { name: "Mini CEX", table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
     { name: "DOPS", table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
     { name: "Journal Club", table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete", required: 4 },
     { name: "Performance", table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed", required: 1 }
@@ -78,7 +78,7 @@ const getSentFormsForTrainee = async (req, res) => {
     { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "completed" },
     { table: "fellow_resident_evaluation", idCol: "fellow_id", sentCol: "sent", completeCol: "completed" },
     { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent", completeCol: "complete" },
-    { table: "mini_cex", idCol: "trainee_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
+    { table: "mini_cex", idCol: "resident_id", sentCol: "sent_to_trainee", completeCol: "is_draft", inverseCompleted: true },
     { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
 
@@ -121,7 +121,7 @@ const getCompletedFormsForTrainee = async (req, res) => {
     { table: "seminar_assessment", idCol: "resident_id", completeCol: "completed" },
     { table: "fellow_resident_evaluation", idCol: "fellow_id", completeCol: "completed" },
     { table: "journal_club_assessment", idCol: "resident_id", completeCol: "complete" },
-    { table: "mini_cex", idCol: "trainee_id", completeCol: "is_draft", inverseCompleted: true },
+    { table: "mini_cex", idCol: "resident_id", completeCol: "is_draft", inverseCompleted: true },
     { table: "dops", idCol: "trainee_id", completeCol: "is_draft", inverseCompleted: true }
   ];
 
@@ -156,7 +156,7 @@ const getLatestUpdatedForm = async (req, res) => {
   const formQueries = [
     {
       name: "Mini CEX",
-      query: `SELECT 'Mini CEX' as form_name, updated_at FROM mini_cex WHERE trainee_id = ? ORDER BY updated_at DESC LIMIT 1`
+      query: `SELECT 'Mini CEX' as form_name, updated_at FROM mini_cex WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
     },
     {
       name: "Case Based Discussion",
