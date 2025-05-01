@@ -67,8 +67,15 @@ async function login(req, res) {
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
-
-    res.json({ message: "Login successful", token, role: user.Role });
+    const [roletype] = await pool.execute(
+      `SELECT Type FROM usertypes WHERE id = ? `,
+      [user.Role]
+    );
+    res.json({
+      message: "Login successful",
+      token,
+      Type: roletype[0].Type,
+    });
   } catch (err) {
     console.error("Error during login:", err);
     res

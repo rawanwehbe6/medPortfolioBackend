@@ -2,12 +2,12 @@ const express = require("express");
 const auth = require("../middleware/auth");
 const portfolio = require("../controllers/portfolio");
 const router = express.Router();
-router.get(
+router.post(
   "/formbyid",
   auth("trainee-supervisor_get_forms"),
   portfolio.getFormById
 );
-router.get(
+router.post(
   "/completedforms",
   auth("trainee-supervisor_get_forms"),
   portfolio.getCompletedFormsById
