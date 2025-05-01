@@ -14,6 +14,7 @@ const createForm = async (req, res) => {
       treatment,
       future_planning,
       assessor_comment,
+      AgreedAction,
       draft_send,
     } = req.body;
 
@@ -25,8 +26,8 @@ const createForm = async (req, res) => {
       `INSERT INTO grand_round_presentation_assessment 
         (resident_id, supervisor_id, diagnosis, case_complexity, history_taking, 
          physical_examination, provisional_diagnosis, treatment, future_planning, 
-         assessor_comment, assessor_signature, sent) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         assessor_comment, AgreedAction, assessor_signature, sent) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         resident_id,
         supervisor_id,
@@ -38,6 +39,7 @@ const createForm = async (req, res) => {
         treatment ?? null,
         future_planning ?? null,
         assessor_comment ?? null,
+        AgreedAction ?? null,
         assessor_signature ?? null,
         draft_send,
       ]
@@ -75,6 +77,7 @@ const updateForm = async (req, res) => {
       future_planning,
       assessor_comment,
       resident_comment,
+      AgreedAction,
       draft_send,
     } = req.body;
 
@@ -141,7 +144,7 @@ const updateForm = async (req, res) => {
       updateQuery = `UPDATE grand_round_presentation_assessment 
                            SET diagnosis = ?, case_complexity = ?, history_taking = ?, 
                                physical_examination = ?, provisional_diagnosis = ?, 
-                               treatment = ?, future_planning = ?, assessor_comment = ?, 
+                               treatment = ?, future_planning = ?, assessor_comment = ?,AgreedAction =?, 
                                assessor_signature = ?, sent = ?
                            WHERE id = ?`;
 
@@ -156,6 +159,7 @@ const updateForm = async (req, res) => {
         treatment ?? existingRecord[0].treatment ?? null,
         future_planning ?? existingRecord[0].future_planning ?? null,
         assessor_comment ?? existingRecord[0].assessor_comment ?? null,
+        AgreedAction ?? existingRecord[0].AgreedAction ?? null,
         assessorSignature ?? null,
         draft_send,
         id,

@@ -318,17 +318,13 @@ const getAdminFunctions = async (req, res) => {
 
     const [rows] = await pool.execute(
       `SELECT f.Id, f.Name
-       FROM functions f
-       INNER JOIN usertype_functions uf ON f.Id = uf.FunctionsId
-       WHERE f.Admin = 1 AND uf.UsertypeId = ?`,
-      [currentUsertypeId]
+       FROM functions f WHERE f.Admin = 1`
     );
 
-    const functions = rows.map(f => ({
+    const functions = rows.map((f) => ({
       id: f.Id,
       name: formatFunctionName(f.Name),
     }));
-
     res.status(200).json(functions);
   } catch (err) {
     console.error(err);
