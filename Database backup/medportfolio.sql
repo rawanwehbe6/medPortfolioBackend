@@ -723,7 +723,7 @@ CREATE TABLE `mini_cex` (
   `id` int(11) NOT NULL,
   `supervisor_id` int(11) DEFAULT NULL,
   `supervisor_name` varchar(255) DEFAULT NULL,
-  `trainee_id` int(11) DEFAULT NULL,
+  `resident_id` int(11) DEFAULT NULL,
   `trainee_name` varchar(255) DEFAULT NULL,
   `resident_level` enum('R-1/F-1','R-2/F-2','R-3/F-3') NOT NULL,
   `evaluation_date` date NOT NULL,
@@ -751,17 +751,18 @@ CREATE TABLE `mini_cex` (
   `is_signed_by_trainee` tinyint(1) DEFAULT 0,
   `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
-  `sent_to_trainee` tinyint(1) DEFAULT 0,
-  `residentFellow` varchar(255) DEFAULT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `residentFellow` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mini_cex`
 --
 
-INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `trainee_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `sent_to_trainee`, `residentFellow`, `updated_at`) VALUES
-(4, 30, 'rimastest', 22, 'test', '', '2025-01-04', '', NULL, NULL, '', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, NULL, NULL, 'uploads\\1743467698943.PNG', NULL, 0, 1, 1, 1, NULL, '2025-04-30 14:05:51');
+INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `residentFellow`) VALUES
+(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, NULL),
+(5, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 4, 5, 5, 4, 4, 5, 4, 30, 15, 5, NULL, NULL, 'uploads\\1746039394745.PNG', NULL, 0, 1, 1, NULL),
+(6, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 2, 2, 5, 5, 4, 4, 3, 30, 5, 5, NULL, NULL, 'http://localhost:3000/uploads/1746093640604.PNG', NULL, 0, 1, 1, NULL),
+(7, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-02-12', 'Ambulatory', 'Chronic headache', 22, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 2, 2, 5, 5, 4, 4, 3, 25, 5, 4, 8, 'good', 'http://localhost:3000/uploads/1746098872090.PNG', 'http://localhost:3000/uploads/1746110935481.PNG', 1, 1, 0, 'resident');
 
 -- --------------------------------------------------------
 
@@ -2227,7 +2228,7 @@ ALTER TABLE `messages`
 -- AUTO_INCREMENT for table `mini_cex`
 --
 ALTER TABLE `mini_cex`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `miscellaneous_activities`

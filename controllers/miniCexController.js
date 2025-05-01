@@ -1,6 +1,8 @@
 const pool = require("../config/db");
 const moment = require("moment");
 const form_helper = require('../middleware/form_helper');
+const path = require('path');
+const fs = require('fs');
 
 const createMiniCEX = async (req, res) => {
     try {
@@ -8,31 +10,81 @@ const createMiniCEX = async (req, res) => {
         const {
             medical_interviewing, physical_exam, professionalism, clinical_judgment,
             counseling_skills, efficiency, overall_competence, observer_time, feedback_time,
-            evaluator_satisfaction, trainee_id
+            evaluator_satisfaction, resident_id, draft_send
         } = req.body;
+
+        let evaluator_signature_path = null;
+
+        const signatureFile = req.files?.signature?.[0] || req.file;
+
+    // Handle signature file
+    if (signatureFile) {
+      const ext = path.extname(signatureFile.originalname);
+      let filename = signatureFile.filename;
+
+      if (!filename.endsWith(ext)) {
+        filename += ext;
+      }
+
+      const relativePath = `uploads/${filename}`;
+      const absoluteOldPath = path.join(__dirname, '..', 'uploads', signatureFile.filename);
+      const absoluteNewPath = path.join(__dirname, '..', relativePath);
+
+      fs.renameSync(absoluteOldPath, absoluteNewPath);
+
+      evaluator_signature_path = `${req.protocol}://${req.get('host')}/${relativePath}`;
+    }
+
+        // Set is_signed_by_supervisor flag if signature is uploaded
+        const is_signed_by_supervisor = evaluator_signature_path ? 1 : 0;
 
         // Fetch supervisor name
         const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [userId]);
-        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [trainee_id]);
+        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [resident_id]);
 
         if (!supervisor) {
             return res.status(400).json({ message: "Invalid supervisor ID" });
+        }
+        if (!trainee) {
+            return res.status(400).json({ message: "Invalid trainee ID" });
         }
 
         // Insert the new Mini-CEX form into the database
         const [result] = await pool.execute(
             `INSERT INTO mini_cex 
-            (supervisor_id, supervisor_name, trainee_id, trainee_name, medical_interviewing, physical_exam, 
+            (supervisor_id, supervisor_name, resident_id, trainee_name, medical_interviewing, physical_exam, 
             professionalism, clinical_judgment, counseling_skills, efficiency, overall_competence, 
-            observer_time, feedback_time, evaluator_satisfaction, sent_to_trainee) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            observer_time, feedback_time, evaluator_satisfaction, evaluator_signature_path, is_draft,
+            is_signed_by_supervisor) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
-                userId, supervisor.Name, trainee_id, trainee.Name, medical_interviewing, physical_exam, 
-                professionalism, clinical_judgment, counseling_skills, efficiency, overall_competence,
-                observer_time, feedback_time, evaluator_satisfaction, 0 // Initially not sent
+                userId, supervisor.Name, 
+                resident_id, trainee.Name, 
+                medical_interviewing ?? null, 
+                physical_exam ?? null, 
+                professionalism ?? null, 
+                clinical_judgment ?? null, 
+                counseling_skills  ?? null, 
+                efficiency ?? null, 
+                overall_competence  ?? null,
+                observer_time  ?? null, 
+                feedback_time  ?? null, 
+                evaluator_satisfaction  ?? null,
+                evaluator_signature_path ?? null,
+                draft_send,
+                is_signed_by_supervisor
             ]
         );
 
+        const formId = result.insertId;
+
+        if (Number(draft_send) === 1) {
+          await form_helper.sendFormToTrainee(
+            userId,
+            "mini_cex",
+            formId
+          );
+        }
         res.status(201).json({ message: "Mini-CEX form created successfully", formId: result.insertId });
 
     } catch (err) {
@@ -41,87 +93,34 @@ const createMiniCEX = async (req, res) => {
     }
 };
 
-
-const sendMiniCEXToTrainee = async (req, res) => {
-    try {
-        const { /*role,*/ userId } = req.user;
-        const { formId } = req.params; // The Mini-CEX form ID
-
-        /*
-        // Debug logs for formId and userId
-        console.log("Form ID:", formId);
-        console.log("User ID:", userId);
-        */
-       
-        // Ensure both formId and userId are valid
-        if (!formId || !userId) {
-            return res.status(400).json({ message: "Missing required parameters: formId or userId." });
-        }
-        /*
-        if (![3, 4, 5].includes(role)) {
-            return res.status(403).json({ message: "Permission denied: Only supervisors can send forms to trainees" });
-        }*/
-
-        // Check if form exists and belongs to the supervisor
-        const [[form]] = await pool.execute("SELECT trainee_id FROM mini_cex WHERE id = ? AND supervisor_id = ?", [formId, userId]);
-
-        if (!form) {
-            return res.status(404).json({ message: "Form not found or permission denied" });
-        }
-
-         /*
-         // Debug logs
-         console.log("Form Retrieved:", form);
-         console.log("User ID:", userId);
-         console.log("Trainee ID:", form.trainee_id);
-         */
-
-         // Ensure form.trainee_id and userId are not undefined before proceeding
-         if (form.trainee_id === undefined || userId === undefined) {
-            return res.status(400).json({ message: "Missing required parameters: trainee_id or userId." });
-        }
-
-        // Update the form to mark it as sent
-        await pool.execute("UPDATE mini_cex SET sent_to_trainee = 1 WHERE id = ?", [formId]);
-
-        // Send in-app notification to the trainee
-        await pool.execute(
-            "INSERT INTO notifications (user_id, sender_id, message) VALUES (?, ?, ?)",
-            [form.trainee_id, userId, "Your Mini-CEX form has been sent to you for review."]
-        );
-
-        res.status(200).json({ message: "Form sent to trainee successfully" });
-
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while sending Mini-CEX form to trainee" });
-    }
-};
-
-
 const updateMiniCEX = async (req, res) => {
     try {
-        const { role, userId } = req.user;
+        const { userId } = req.user;
         const { id } = req.params;
         const {
             residentFellow, resident_level, evaluation_date, setting, patient_problem, patient_age, patient_sex, patient_type, complexity,
             medical_interviewing, physical_exam, professionalism, clinical_judgment,
             counseling_skills, efficiency, overall_competence, observer_time, feedback_time,
-            evaluator_satisfaction, resident_satisfaction, comments, focus
+            evaluator_satisfaction, resident_satisfaction, comments, focus, draft_send
         } = req.body;
-
-        const safeValue = (value) => value === undefined ? null : value; 
+        console.log('Request Body:', req.body);
+        console.log('Request Files:', req.files);
+        
+        // Improved safe value function
+        /*const safeValue = (newVal, oldVal) => {
+            return newVal !== undefined && newVal !== null && newVal !== "" ? newVal : oldVal ?? null;
+        };*/
 
         // Fetch form data to check the current signature status
-        const [[form]] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [id]);
+        const [form] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [id]);
 
-        if (!form) {
+        if (form.length === 0) {
             return res.status(404).json({ message: "Form not found" });
-        }
+        }          
 
         // Fetch user names for notifications
-        const [[supervisor]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form.supervisor_id]);
-        const [[trainee]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form.trainee_id]);
+        const [[supervisor]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form[0].supervisor_id]);
+        const [[trainee]] = await pool.execute("SELECT Name, email FROM users WHERE User_ID = ?", [form[0].resident_id]);
 
         if (!supervisor || !trainee) {
             return res.status(404).json({ message: "Trainee or Supervisor not found" });
@@ -129,86 +128,198 @@ const updateMiniCEX = async (req, res) => {
 
         const hasAccess = await form_helper.auth('Trainee', 'update_mini_cex')(req, res);
         const hasAccessS = await form_helper.auth('Supervisor', 'update_mini_cex')(req, res);
-        console.log(hasAccess,hasAccessS,userId);
+        console.log(hasAccess, hasAccessS, userId);
 
         // Supervisor Updates (Roles 3, 4, 5)
         if (hasAccessS) {
-            if (form.is_signed_by_supervisor) {
-                return res.status(400).json({ message: "You have already signed this form and cannot edit." });
-            }
+            let evaluator_signature_path = form[0].evaluator_signature_path;
 
+            if (req.file) {
+                if (evaluator_signature_path) {
+                    // Delete old signature file if it exists
+                    const oldFilePath = path.join(__dirname, '..', evaluator_signature_path?.replace(`${req.protocol}://${req.get('host')}/`, ''));
+                
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+                }
+                // Rename and store new file
+                const ext = path.extname(req.file.originalname);
+                let filename = req.file.filename;
+                
+                if (!filename.endsWith(ext)) {
+                    filename += ext;
+                }
+                
+                const relativePath = `uploads/${filename}`;
+                const absoluteOldPath = path.join(__dirname, '..', 'uploads', req.file.filename);
+                const absoluteNewPath = path.join(__dirname, '..', relativePath);
+                
+                fs.renameSync(absoluteOldPath, absoluteNewPath);
+                
+                evaluator_signature_path = `${req.protocol}://${req.get('host')}/${relativePath}`;
+            }
+            
+            // Set is_signed_by_supervisor flag if new signature is uploaded
+            const is_signed_by_supervisor = req.files?.signature ? 1 : form.is_signed_by_supervisor || 0;
+            
+            const [old_send] = await pool.execute(
+                `SELECT is_draft AS sent FROM mini_cex WHERE id = ?`,
+                [id]
+            );
+            
+            // Default to current value if draft_send is undefined
+            //const finalDraftSend = draft_send !== undefined ? draft_send : form.is_draft;
+            
             const updateQuery = `
                 UPDATE mini_cex 
                 SET 
                     medical_interviewing = ?, physical_exam = ?, professionalism = ?, clinical_judgment = ?, 
                     counseling_skills = ?, efficiency = ?, overall_competence = ?, observer_time = ?, 
-                    feedback_time = ?, evaluator_satisfaction = ?
+                    feedback_time = ?, evaluator_satisfaction = ?, evaluator_signature_path = ?, is_draft = ?,
+                    is_signed_by_supervisor = ?
                 WHERE id = ?`;
 
             const updateValues = [
-                safeValue(medical_interviewing), safeValue(physical_exam), safeValue(professionalism), safeValue(clinical_judgment), safeValue(counseling_skills),
-                safeValue(efficiency), safeValue(overall_competence), safeValue(observer_time), safeValue(feedback_time), safeValue(evaluator_satisfaction), id
+                medical_interviewing ?? form[0].medical_interviewing ?? null,
+                physical_exam ?? form[0].physical_exam ?? null,
+                professionalism ?? form[0].professionalism ?? null,
+                clinical_judgment ?? form[0].clinical_judgment ?? null,
+                counseling_skills ?? form[0].counseling_skills ?? null,
+                efficiency ?? form[0].efficiency ?? null,
+                overall_competence ?? form[0].overall_competence ?? null,
+                observer_time ?? form[0].observer_time ?? null,
+                feedback_time ?? form[0].feedback_time ?? null,
+                evaluator_satisfaction ?? form[0].evaluator_satisfaction ?? null,
+                evaluator_signature_path,
+                draft_send, // Use the safely handled value here
+                is_signed_by_supervisor,
+                id
             ];
 
-
+            // Debug log
+            updateValues.forEach((val, i) => {
+                if (val === undefined) console.log(`Supervisor Update - updateValues[${i}] is undefined`);
+            });
 
             await pool.execute(updateQuery, updateValues);
+
+            // If form is being sent to trainee for the first time
+            if (Number(draft_send) === 1 && Number(old_send[0].sent) === 0) {
+                await form_helper.sendFormToTrainee(
+                    userId,
+                    "mini_cex",
+                    id
+                );
+            }
+            
+            
             return res.status(200).json({ message: "Mini-CEX form updated successfully" });
         }
 
         // Trainee Updates (Role 2)
         else if (hasAccess) {
-            
             // Ensure the current logged-in trainee is the one assigned to the form
-            if (form.trainee_id !== userId) {
+            if (form[0].resident_id !== userId) {
                 return res.status(403).json({ message: "You are not the assigned trainee for this form." });
             }
 
-            if (form.sent_to_trainee !== 1) {
+            if (form[0].is_draft === 0) {
                 return res.status(403).json({ error: "Form has not been sent to the trainee yet." });
             }
-
-            if (form.is_signed_by_trainee) {
-                return res.status(400).json({ message: "You have already signed this form and cannot edit." });
+            
+            let trainee_signature_path = form[0].trainee_signature_path;
+            const uploadedSignature = req.files && Array.isArray(req.files.signature)
+              ? req.files.signature[0]
+              : null;
+            
+            if (uploadedSignature) {
+                if (trainee_signature_path) {
+                    const oldFilePath = path.join(
+                        __dirname,
+                        '..',
+                        trainee_signature_path.replace(`${req.protocol}://${req.get('host')}/`, '')
+                    );
+            
+                    if (fs.existsSync(oldFilePath)) {
+                        fs.unlinkSync(oldFilePath);
+                    }
+                }
+            
+                // Rename and store new file
+                const ext = path.extname(uploadedSignature.originalname);
+                let filename = uploadedSignature.filename;
+            
+                if (!filename.endsWith(ext)) {
+                    filename += ext;
+                }
+            
+                const relativePath = `uploads/${filename}`;
+                const absoluteOldPath = path.join(__dirname, '..', 'uploads', uploadedSignature.filename);
+                const absoluteNewPath = path.join(__dirname, '..', relativePath);
+            
+                fs.renameSync(absoluteOldPath, absoluteNewPath);
+            
+                trainee_signature_path = `${req.protocol}://${req.get('host')}/${relativePath}`;
+                console.log("✅ Trainee signature path saved:", trainee_signature_path);
             }
             
-            // Check if evaluation_date exists and is valid
-let formattedDate = null;
-if (req.body.evaluation_date) {
-    const parsedDate = moment(req.body.evaluation_date, ["YYYY-MM-DD", "MM/DD/YYYY", "DD-MM-YYYY"], true);
-    
-    if (parsedDate.isValid()) {
-        formattedDate = parsedDate.format("YYYY-MM-DD HH:mm:ss");
-    } else {
-        return res.status(400).json({ error: "Invalid date format. Please use YYYY-MM-DD, MM/DD/YYYY, or DD-MM-YYYY." });
-    }
-}
-        
+          
+            // Set is_signed_by_trainee flag if new signature is uploaded
+            const is_signed_by_trainee = req.files?.signature ? 1 : form.is_signed_by_trainee || 0;
 
             const updateQuery = `
                 UPDATE mini_cex 
                 SET 
                     residentFellow = ?, resident_level = ?, evaluation_date = ?, setting = ?, patient_problem = ?, 
                     patient_age = ?, patient_sex = ?, patient_type = ?, complexity = ?,
-                    resident_satisfaction = ?, comments = ?, focus = ?
+                    resident_satisfaction = ?, comments = ?, focus = ?, trainee_signature_path = ?,
+                    is_signed_by_trainee = ?
                 WHERE id = ?`;
 
             const updateValues = [
-                safeValue(residentFellow), safeValue(resident_level), formattedDate, safeValue(setting),
-                safeValue(patient_problem), safeValue(patient_age), safeValue(patient_sex), 
-                safeValue(patient_type), safeValue(complexity), safeValue(resident_satisfaction), 
-                safeValue(comments), safeValue(focus), id
+                residentFellow ?? form[0].residentFellow ?? null,
+                resident_level ?? form[0].resident_level ?? null,
+                evaluation_date ?? form[0].evaluation_date ?? null,
+                setting ?? form[0].setting ?? null,
+                patient_problem ?? form[0].patient_problem ?? null,
+                patient_age ?? form[0].patient_age ?? null,
+                patient_sex ?? form[0].patient_sex ?? null,
+                patient_type ?? form[0].patient_type ?? null,
+                complexity ?? form[0].complexity ?? null,
+                resident_satisfaction ?? form[0].resident_satisfaction ?? null,
+                comments ?? form[0].comments ?? null,
+                focus ?? form[0].focus ?? null,
+                trainee_signature_path,
+                is_signed_by_trainee,
+                id
             ];
-
-
-        
+    
+            // Debug log
+            updateValues.forEach((val, i) => {
+                if (val === undefined) console.log(`Trainee Update - updateValues[${i}] is undefined`);
+            });
+          
             await pool.execute(updateQuery, updateValues);
+
+            const hasNewSignature = req.files?.signature && !form.is_signed_by_trainee;
+
+            // Notify supervisor if trainee just signed the form
+            if (hasNewSignature) {
+                await form_helper.sendSignatureToSupervisor(
+                    userId,
+                    "mini_cex",
+                    id
+                );
+            }
+            
+            // Check if both parties have signed and update is_draft if needed
+            await checkAndUpdateCompletionStatus(id);
+
             return res.status(200).json({ message: "Mini-CEX form updated successfully" });
         } else {
             return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
         }
-
-        //return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can update this form." });
 
     } catch (err) {
         console.error("Database Error:", err);
@@ -216,118 +327,25 @@ if (req.body.evaluation_date) {
     }
 };
 
-// Signing Function (Separate API)
-const signMiniCEX = async (req, res) => {
+// Helper function to check and update completion status
+const checkAndUpdateCompletionStatus = async (formId) => {
     try {
-        const { role, userId } = req.user;
-        const { id } = req.params;
-
-        // Fetch form data
-        const [[form]] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [id]);
-
-        if (!form) {
-            return res.status(404).json({ message: "Form not found" });
+        const [[form]] = await pool.execute(
+            "SELECT trainee_signature_path, evaluator_signature_path, is_signed_by_trainee, is_signed_by_supervisor FROM mini_cex WHERE id = ?", 
+            [formId]
+        );
+        
+        // If both parties have signed, mark the form as completed (is_draft = 0)
+        if (form.is_signed_by_trainee && form.is_signed_by_supervisor) {
+            await pool.execute(
+                "UPDATE mini_cex SET is_draft = 0 WHERE id = ?", 
+                [formId]
+            );
         }
-
-        // Fetch user names for notifications
-        const [[supervisor]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.supervisor_id]);
-        const [[trainee]] = await pool.execute("SELECT Name FROM users WHERE User_ID = ?", [form.trainee_id]);
-
-        if (!supervisor || !trainee) {
-            return res.status(404).json({ message: "Trainee or Supervisor not found" });
-        }
-
-        const hasAccess = await form_helper.auth('Trainee', 'sign_mini_cex')(req, res);
-        const hasAccessS = await form_helper.auth('Supervisor', 'sign_mini_cex')(req, res);
-        console.log(hasAccess,hasAccessS,userId);
-
-        // 🔹 Trainee Signs First
-        if (hasAccess) {
-            if (form.is_signed_by_trainee) {
-                return res.status(400).json({ message: "You have already signed this form." });
-            }
-
-            //const trainee_signature_path = req.file ? req.files.path : null;
-            
-            // Ensure signature is uploaded before processing
-            if (!req.files || !req.files.signature || req.files.signature.length === 0) {
-                return res.status(400).json({ message: "Signature file is required for trainee." });
-            }
-
-            // Get the signature file path
-            const trainee_signature_path = req.files.signature[0].path;
-
-            await pool.execute(`
-                UPDATE mini_cex 
-                SET trainee_signature_path = ?, is_signed_by_trainee = TRUE 
-                WHERE id = ?`, 
-                [trainee_signature_path, id]
-            );
-
-            // Notify Supervisor
-            await pool.execute(`
-                INSERT INTO notifications (user_id, sender_id, message) 
-                VALUES (?, ?, ?)`, 
-                [form.supervisor_id, userId, "Your trainee has signed the Mini-CEX form."]
-            );
-
-            return res.status(200).json({ message: "Mini-CEX form signed by trainee." });
-        }
-
-        // 🔹 Supervisor Signs Last
-        else if (hasAccessS) {
-            if (!form.is_signed_by_trainee) {
-                return res.status(400).json({ message: "The trainee must sign before you can sign." });
-            }
-
-            if (form.is_signed_by_supervisor) {
-                return res.status(400).json({ message: "You have already signed this form." });
-            }
-
-            //const evaluator_signature_path = req.file ? req.files.path : null;
-
-            // Ensure supervisor signature is uploaded
-            if (!req.files || !req.files.signature || req.files.signature.length === 0) {
-                return res.status(400).json({ message: "Signature file is required for supervisor." });
-            }
-
-            // Get the supervisor's signature file path
-            const evaluator_signature_path = req.files.signature[0].path;
-            
-            await pool.execute(`
-                UPDATE mini_cex 
-                SET evaluator_signature_path = ?, is_signed_by_supervisor = TRUE 
-                WHERE id = ?`, 
-                [evaluator_signature_path, id]
-            );
-
-            // 🔹 After Supervisor Signs, update is_draft to 0
-            await pool.execute(`
-                UPDATE mini_cex 
-                SET is_draft = 0 
-                WHERE id = ?`, 
-                [id]
-            );
-
-            // Notify Trainee
-            await pool.execute(`
-                INSERT INTO notifications (user_id, sender_id, message) 
-                VALUES (?, ?, ?)`, 
-                [form.trainee_id, userId, "Your supervisor has signed the Mini-CEX form."]
-            );
-
-            return res.status(200).json({ message: "Mini-CEX form signed by supervisor." });
-        }else{
-            return res.status(403).json({ message: "Permission denied: Only supervisor or trainee can sign this form." });
-
-        }
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while signing Mini-CEX form." });
+    } catch (error) {
+        console.error("Error checking completion status:", error);
     }
-};
-
-
+}; 
 const getMiniCEXById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -338,7 +356,7 @@ const getMiniCEXById = async (req, res) => {
                     u1.Name AS trainee_name, 
                     u2.Name AS supervisor_name
              FROM mini_cex mc
-             JOIN users u1 ON mc.trainee_id = u1.User_ID
+             JOIN users u1 ON mc.resident_id = u1.User_ID
              JOIN users u2 ON mc.supervisor_id = u2.User_ID
              WHERE mc.id = ?`,
             [id]
@@ -349,11 +367,6 @@ const getMiniCEXById = async (req, res) => {
         }
 
         const form = result[0];
-
-        /* / Check if the user is the supervisor or trainee assigned to the form
-        if (role !== 1 && form.supervisor_id !== userId && form.trainee_id !== userId) {
-            return res.status(403).json({ message: "Permission denied: You can only view forms assigned to you." });
-        }*/
 
         res.status(200).json(form);
     } catch (err) {
@@ -435,4 +448,4 @@ const getClinical = async (req, res) => {
     }
   };
   
-module.exports = { createMiniCEX, sendMiniCEXToTrainee, updateMiniCEX, signMiniCEX, getMiniCEXById, deleteMiniCEXById, getClinical};
+module.exports = { createMiniCEX, updateMiniCEX, getMiniCEXById, deleteMiniCEXById, getClinical};
