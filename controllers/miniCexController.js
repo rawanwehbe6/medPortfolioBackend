@@ -54,7 +54,7 @@ const createMiniCEX = async (req, res) => {
             `INSERT INTO mini_cex 
             (supervisor_id, supervisor_name, resident_id, trainee_name, medical_interviewing, physical_exam, 
             professionalism, clinical_judgment, counseling_skills, efficiency, overall_competence, 
-            observer_time, feedback_time, evaluator_satisfaction, evaluator_signature_path, is_draft,
+            observer_time, feedback_time, evaluator_satisfaction, evaluator_signature_path, is_sent_to_trainee,
             is_signed_by_supervisor) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
@@ -164,19 +164,16 @@ const updateMiniCEX = async (req, res) => {
             const is_signed_by_supervisor = req.files?.signature ? 1 : form.is_signed_by_supervisor || 0;
             
             const [old_send] = await pool.execute(
-                `SELECT is_draft AS sent FROM mini_cex WHERE id = ?`,
+                `SELECT is_sent_to_trainee AS sent FROM mini_cex WHERE id = ?`,
                 [id]
             );
-            
-            // Default to current value if draft_send is undefined
-            //const finalDraftSend = draft_send !== undefined ? draft_send : form.is_draft;
             
             const updateQuery = `
                 UPDATE mini_cex 
                 SET 
                     medical_interviewing = ?, physical_exam = ?, professionalism = ?, clinical_judgment = ?, 
                     counseling_skills = ?, efficiency = ?, overall_competence = ?, observer_time = ?, 
-                    feedback_time = ?, evaluator_satisfaction = ?, evaluator_signature_path = ?, is_draft = ?,
+                    feedback_time = ?, evaluator_satisfaction = ?, evaluator_signature_path = ?, is_sent_to trainee = ?,
                     is_signed_by_supervisor = ?
                 WHERE id = ?`;
 
@@ -224,14 +221,14 @@ const updateMiniCEX = async (req, res) => {
                 return res.status(403).json({ message: "You are not the assigned trainee for this form." });
             }
 
-            if (form[0].is_draft === 0) {
+            if (form[0].is_sent_to_trainee === 0) {
                 return res.status(403).json({ error: "Form has not been sent to the trainee yet." });
             }
             
             if (form[0].is_signed_by_trainee) {
                 return res.status(400).json({ message: "You have already signed this form and cannot edit." });
             }
-            
+
             let trainee_signature_path = form[0].trainee_signature_path;
             const uploadedSignature = req.files && Array.isArray(req.files.signature)
               ? req.files.signature[0]

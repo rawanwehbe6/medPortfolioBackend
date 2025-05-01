@@ -211,7 +211,7 @@ const getFormCountsByTrainee = async (req, res) => {
     },
     {
       table: "mini_cex",
-      idCol: "trainee_id",
+      idCol: "resident_id",
       sentCol: "sent_to_trainee",
       completeCol: "is_draft",
       inverseCompleted: true,
@@ -364,7 +364,7 @@ const getCompletedFormIdsForTrainee = async (req, res) => {
     },
     {
       table: "mini_cex",
-      idCol: "trainee_id",
+      idCol: "resident_id",
       completeCol: "is_draft",
       inverse: true,
     },
@@ -415,7 +415,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
     const formTypes = [
       {
         table: "mini_cex",
-        traineeCol: "trainee_id",
+        traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "is_draft",
         value: 1,
@@ -547,7 +547,7 @@ const getFormCountsBySupervisor = async (req, res) => {
     },
     {
       table: "mini_cex",
-      idCol: "trainee_id",
+      idCol: "resident_id",
       sentCol: "sent_to_trainee",
       completeCol: "is_draft",
       inverseCompleted: true,
