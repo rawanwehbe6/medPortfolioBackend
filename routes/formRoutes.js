@@ -187,10 +187,10 @@ router.delete('/mini-cex/:id', auth("delete_mini_cex_by_id"), miniCexController.
 router.get('/clinical/:id', auth("get_mini_cex_by_id"), miniCexController.getClinical);
 
 // DOPS Routes
-router.post('/dops', auth("create_dops"), dopsController.createDOPS);
-router.put('/dops/:id', auth("update_dops"), dopsController.updateDOPS);
-router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
-router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);
+router.post('/dops', auth("create_dops"), uploadPNG, dopsController.createDOPS);
+router.put('/dops/:id', auth("update_dops"), handleFileUpload, dopsController.updateDOPS);
+//router.post('/dops/:id/sign', auth("sign_dops"), handleFileUpload, dopsController.signDOPS);
+//router.post('/dops/:formId/send', auth("send_dops_to_trainee"), dopsController.sendDOPSToTrainee);
 router.get('/dops/:id', auth("get_dops_by_id"), dopsController.getDOPSById);
 router.delete('/dops/:id', auth("delete_dops_by_id"), dopsController.deleteDOPSById);
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2025 at 12:36 AM
+-- Generation Time: May 02, 2025 at 03:37 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -214,6 +214,13 @@ CREATE TABLE `dops` (
   `is_draft` tinyint(1) DEFAULT 1,
   `is_sent_to_trainee` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `dops`
+--
+
+INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`) VALUES
+(6, 30, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -874,7 +881,22 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (31, 22, 28, 'Your case based discussion assessment form has been sent to you by supervisor for review.', 0, '2025-04-28 19:14:29'),
 (32, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 14:45:41'),
 (33, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-01 14:50:03'),
-(34, 26, 30, 'Your mini cex form has been sent to you by rimastest for review.', 0, '2025-05-01 18:58:36');
+(34, 26, 30, 'Your mini cex form has been sent to you by rimastest for review.', 0, '2025-05-01 18:58:36'),
+(35, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 11:57:46'),
+(36, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 12:49:43'),
+(37, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 12:51:54'),
+(38, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:04:00'),
+(39, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:04:47'),
+(40, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:07:10'),
+(41, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:07:17'),
+(42, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:09:00'),
+(43, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:09:07'),
+(44, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:12:31'),
+(45, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:12:37'),
+(46, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:17:07'),
+(47, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:17:13'),
+(48, 26, 30, 'Your dops form has been sent to you by rimastest for review.', 0, '2025-05-02 13:19:23'),
+(49, 30, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-02 13:19:27');
 
 -- --------------------------------------------------------
 
@@ -2157,7 +2179,7 @@ ALTER TABLE `departmental_activities`
 -- AUTO_INCREMENT for table `dops`
 --
 ALTER TABLE `dops`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `eduactconferences`
@@ -2247,7 +2269,7 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`

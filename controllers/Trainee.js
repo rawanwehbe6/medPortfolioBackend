@@ -49,7 +49,7 @@ const getFormsProgressForTrainee = async (req, res) => {
       completeCol: "is_signed_by_trainee",
       required: 1,
     },
-    // { name: "DOPS", table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
+    { name: "DOPS", table: "dops", idCol: "resident_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
     {
       name: "Journal Club",
       table: "journal_club_assessment",
@@ -173,7 +173,7 @@ const getSentFormsForTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    // { table: "dops", idCol: "trainee_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
+    // { table: "dops", idCol: "resident_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const Forms = {};
@@ -257,7 +257,7 @@ const getCompletedFormsForTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    // { table: "dops", idCol: "trainee_id", completeCol: "is_draft", inverseCompleted: true }
+    { table: "dops", idCol: "resident_id", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const Forms = {};
@@ -303,10 +303,10 @@ const getLatestUpdatedForm = async (req, res) => {
       name: "Case Based Discussion",
       query: `SELECT 'Case Based Discussion' as form_name, updated_at FROM case_based_discussion_assessment WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
-    // {
-    //   name: "Direct Observation of Procedural Skills",
-    //   query: `SELECT 'DOPS' as form_name, updated_at FROM dops WHERE trainee_id = ? ORDER BY updated_at DESC LIMIT 1`
-    // },
+    {
+      name: "Direct Observation of Procedural Skills",
+      query: `SELECT 'DOPS' as form_name, updated_at FROM dops WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`
+    },
     {
       name: "Fellow Resident Evaluation",
       query: `SELECT 'Fellow Resident Evaluation' as form_name, updated_at FROM fellow_resident_evaluation WHERE fellow_id = ? ORDER BY updated_at DESC LIMIT 1`,

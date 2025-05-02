@@ -494,6 +494,15 @@ const deleteMiniCEXById = async (req, res) => {
         }
     }
 
+    // Delete associated signature file if it exists
+    if (record.trainee_signature_path) {
+        const filePath = path.join(__dirname, '..', record.trainee_signature_path.replace(`${req.protocol}://${req.get('host')}/`, ''));
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log("Deleted signature file:", filePath);
+        }
+    }
         await pool.execute("DELETE FROM mini_cex WHERE id = ?", [id]);
         res.status(200).json({ message: "Mini-CEX record deleted successfully" });
 

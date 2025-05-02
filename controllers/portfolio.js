@@ -105,20 +105,20 @@ const getFormById = async (req, res) => {
         completeCol: "completed",
         inverse: false,
       },
-      // dops: {
-      //   query: `SELECT
-      //     d.*,
-      //     u1.Name AS trainee_name,
-      //     u2.Name AS supervisor_name
-      //   FROM dops d
-      //   JOIN users u1 ON d.trainee_id = u1.User_ID
-      //   JOIN users u2 ON d.supervisor_id = u2.User_ID
-      //   WHERE d.id = ?`,
-      //   field: "trainee_id",
-      //   sentCol: "is_sent_to_trainee",
-      //   completeCol: "is_draft",
-      //   inverse: true,
-      // },
+      dops: {
+        query: `SELECT
+          d.*,
+          u1.Name AS trainee_name,
+          u2.Name AS supervisor_name
+         FROM dops d
+         JOIN users u1 ON d.resident_id = u1.User_ID
+         JOIN users u2 ON d.supervisor_id = u2.User_ID
+         WHERE d.id = ?`,
+        field: "trainee_id",
+        sentCol: "is_sent_to_trainee",
+        completeCol: "is_draft",
+        inverse: true,
+      },
       fellow_resident_evaluation: {
         query: `SELECT 
           fre.*, 
@@ -317,9 +317,9 @@ const getCompletedFormsById = async (req, res) => {
       case_based_discussion_assessment: {
         query: `SELECT id FROM case_based_discussion_assessment WHERE resident_id = ? AND completed = 1`,
       },
-      // dops: {
-      //   query: `SELECT id FROM dops WHERE trainee_id = ? AND is_draft = 0`,
-      // },
+      dops: {
+        query: `SELECT id FROM dops WHERE resident_id = ? AND is_draft = 0`,
+      },
       fellow_resident_evaluation: {
         query: `SELECT id FROM fellow_resident_evaluation WHERE fellow_id = ? AND completed = 1`,
       },
