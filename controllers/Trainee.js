@@ -173,7 +173,7 @@ const getSentFormsForTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    // { table: "dops", idCol: "resident_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
+    { table: "dops", idCol: "resident_id", sentCol: "is_sent_to_trainee", completeCol: "is_draft", inverseCompleted: true }
   ];
 
   const Forms = {};
@@ -257,7 +257,12 @@ const getCompletedFormsForTrainee = async (req, res) => {
       completeCol: "is_draft",
       inverseCompleted: true,
     },
-    { table: "dops", idCol: "resident_id", completeCol: "is_draft", inverseCompleted: true }
+    { 
+      table: "dops", 
+      idCol: "resident_id", 
+      completeCol: "is_draft", 
+      inverseCompleted: true 
+    }
   ];
 
   const Forms = {};

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2025 at 03:37 PM
+-- Generation Time: May 02, 2025 at 04:03 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -212,15 +212,16 @@ CREATE TABLE `dops` (
   `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
   `is_signed_by_trainee` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
-  `is_sent_to_trainee` tinyint(1) DEFAULT 0
+  `is_sent_to_trainee` tinyint(1) DEFAULT 0,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `dops`
 --
 
-INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`) VALUES
-(6, 30, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1);
+INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`, `updated_at`) VALUES
+(6, 30, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1, '2025-05-02 17:02:53');
 
 -- --------------------------------------------------------
 
@@ -758,18 +759,19 @@ CREATE TABLE `mini_cex` (
   `is_signed_by_supervisor` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
   `residentFellow` varchar(255) DEFAULT NULL,
-  `sent_to_trainee` tinyint(4) DEFAULT 0
+  `sent_to_trainee` tinyint(4) DEFAULT 0,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `mini_cex`
 --
 
-INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `residentFellow`, `sent_to_trainee`) VALUES
-(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, NULL, 0),
-(5, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 4, 5, 5, 4, 4, 5, 4, 30, 15, 5, NULL, NULL, 'uploads\\1746039394745.PNG', NULL, 0, 1, 1, NULL, 0),
-(6, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 2, 2, 5, 5, 4, 4, 3, 30, 5, 5, NULL, NULL, 'http://localhost:3000/uploads/1746093640604.PNG', NULL, 0, 1, 1, NULL, 0),
-(7, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-02-12', 'Ambulatory', 'Chronic headache', 22, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 2, 2, 5, 5, 4, 4, 3, 25, 5, 4, 8, 'good', 'http://localhost:3000/uploads/1746098872090.PNG', 'http://localhost:3000/uploads/1746110935481.PNG', 1, 1, 0, 'resident', 0);
+INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `resident_level`, `evaluation_date`, `setting`, `patient_problem`, `patient_age`, `patient_sex`, `patient_type`, `complexity`, `focus`, `medical_interviewing`, `physical_exam`, `professionalism`, `clinical_judgment`, `counseling_skills`, `efficiency`, `overall_competence`, `observer_time`, `feedback_time`, `evaluator_satisfaction`, `resident_satisfaction`, `comments`, `evaluator_signature_path`, `trainee_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `is_draft`, `residentFellow`, `sent_to_trainee`, `updated_at`) VALUES
+(4, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-01-04', 'In-patient', 'Chronic headache', 40, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 4, 5, 5, 4, 4, 4, 4, 2025, 2025, 5, 8, 'Patient responded well to treatment.', 'uploads\\1743467698943.PNG', NULL, 1, 1, 1, NULL, 0, '2025-05-02 17:02:34'),
+(5, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 4, 5, 5, 4, 4, 5, 4, 30, 15, 5, NULL, NULL, 'uploads\\1746039394745.PNG', NULL, 0, 1, 1, NULL, 0, '2025-05-02 17:02:34'),
+(6, 30, 'rimastest', 26, 'rima test', 'R-1/F-1', '0000-00-00', 'Ambulatory', NULL, NULL, 'Male', NULL, NULL, NULL, 2, 2, 5, 5, 4, 4, 3, 30, 5, 5, NULL, NULL, 'http://localhost:3000/uploads/1746093640604.PNG', NULL, 0, 1, 1, NULL, 0, '2025-05-02 17:02:34'),
+(7, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-02-12', 'Ambulatory', 'Chronic headache', 22, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 2, 2, 5, 5, 4, 4, 3, 25, 5, 4, 8, 'good', 'http://localhost:3000/uploads/1746098872090.PNG', 'http://localhost:3000/uploads/1746110935481.PNG', 1, 1, 0, 'resident', 0, '2025-05-02 17:02:34');
 
 -- --------------------------------------------------------
 
