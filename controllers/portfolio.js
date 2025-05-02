@@ -114,7 +114,7 @@ const getFormById = async (req, res) => {
          JOIN users u1 ON d.resident_id = u1.User_ID
          JOIN users u2 ON d.supervisor_id = u2.User_ID
          WHERE d.id = ?`,
-        field: "trainee_id",
+        field: "resident_id",
         sentCol: "is_sent_to_trainee",
         completeCol: "is_draft",
         inverse: true,
@@ -151,10 +151,10 @@ const getFormById = async (req, res) => {
           u1.Name AS trainee_name, 
           u2.Name AS supervisor_name
         FROM mini_cex mc
-        JOIN users u1 ON mc.trainee_id = u1.User_ID
+        JOIN users u1 ON mc.resident_id = u1.User_ID
         JOIN users u2 ON mc.supervisor_id = u2.User_ID
         WHERE mc.id = ?`,
-        field: "trainee_id",
+        field: "resident_id",
         sentCol: "sent_to_trainee",
         completeCol: "is_draft",
         inverse: true,
