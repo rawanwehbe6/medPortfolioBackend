@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const upload = require('../middleware/multerConfig');
 const form_helper = require('../middleware/form_helper');
+
 // Create new Mortality & Morbidity form (only for supervisors/admins)
 const createMortalityMorbidityForm = async (req, res) => {
   try {
@@ -28,9 +29,10 @@ const createMortalityMorbidityForm = async (req, res) => {
     );
     const resident_fellow_name = rows.length > 0 ? rows[0].Name : null;
     // Only assessor signature allowed on creation
-    const assessor_signature_path = req.files?.signature
+    const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
+    const assessor_signature_path = form_helper.getPublicUrl(a_signature);
 
     const [insertResult] = await db.execute(
       `INSERT INTO mortality_morbidity_review_assessment 
@@ -74,11 +76,10 @@ const createMortalityMorbidityForm = async (req, res) => {
       .json({ message: "Mortality & Morbidity form created successfully" });
   } catch (err) {
     console.error("Database Error:", err);
-    res
-      .status(500)
-      .json({
-        error: "Server error while creating Mortality & Morbidity form",
-      });
+    form_helper.cleanupUploadedFiles(req.files);
+    res.status(500).json({
+      error: "Server error while creating Mortality & Morbidity form",
+    });
   }
 };
 
@@ -96,11 +97,13 @@ const updateMortalityMorbidityForm = async (req, res) => {
     );
 
     if (existingRecord.length === 0) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(404)
         .json({ error: "Mortality & Morbidity form not found" });
     }
     if (Number(existingRecord[0].completed) === 1) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(403)
         .json({ error: "You cannot edit a completed form" });
@@ -116,20 +119,22 @@ const updateMortalityMorbidityForm = async (req, res) => {
       "Supervisor",
       "update_mortality_morbidity_form"
     )(req, res);
-    console.log(hasAccess, hasAccessS, userId);
+    
     if (hasAccess) {
       // Residents can only update their own forms
       if (
         currentRecord.resident_id !== userId ||
         Number(existingRecord[0].sent) === 0
       ) {
+        form_helper.cleanupUploadedFiles(req.files);
         return res.status(403).json({ message: "Unauthorized access" });
       }
 
       // Residents can only update their name and signature
-      const resident_signature_path = req.files?.signature
+      let r_Signature = req.files?.signature
         ? req.files.signature[0].path
-        : existingRecord[0].resident_signature;
+        : existingRecord[0].resident_signature_path;
+      const resident_signature_path = form_helper.getPublicUrl(r_Signature);
 
       updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET resident_signature_path = ? 
@@ -142,10 +147,23 @@ const updateMortalityMorbidityForm = async (req, res) => {
       );
     } else if (hasAccessS) {
       // Admin or supervisor roles
-      // Supervisors can update all fields except resident signature and name
-      const assessor_signature_path = req.files?.signature
-        ? req.files.signature[0].path
-        : existingRecord[0].assessor_signature;
+      let a_signature = existingRecord[0].assessor_signature_path;
+
+      if (req.files?.signature) {
+        const newSignaturePath = req.files.signature[0].path;
+        const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "mortality_morbidity_review_assessment",
+          id,
+          "assessor_signature_path",
+          newSignatureUrl
+        );
+
+        a_signature = newSignatureUrl;
+      }
+
+      const assessor_signature_path = a_signature;
 
       const [old_send] = await db.execute(
         `SELECT sent FROM mortality_morbidity_review_assessment WHERE id = ?`,
@@ -164,7 +182,8 @@ const updateMortalityMorbidityForm = async (req, res) => {
                              overall_performance = ?,
                              major_positive_feature = ?,
                              suggested_areas_for_improvement = ?,
-                             assessor_signature_path = ? ,sent = ?
+                             assessor_signature_path = ?,
+                             sent = ?
                          WHERE id = ?`;
       updateValues = [
         req.body.diagnosis ?? currentRecord.diagnosis ?? null,
@@ -203,6 +222,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
         );
       }
     } else {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -225,6 +245,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
       .json({ message: "Mortality & Morbidity form updated successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res.status(500).json({
       error: "Server error while updating Mortality & Morbidity form",
     });
@@ -277,7 +298,7 @@ const getMortalityMorbidityFormById = async (req, res) => {
 const deleteMortalityMorbidityForm = async (req, res) => {
     try {
         const { id } = req.params;
-        const {  userId } = req.user;
+        const { userId } = req.user;
         // Check if form exists
         const [existingRecord] = await db.execute(
             "SELECT * FROM mortality_morbidity_review_assessment WHERE id = ?",
@@ -291,17 +312,21 @@ const deleteMortalityMorbidityForm = async (req, res) => {
         const form = existingRecord[0];
 
         // Check permission
-        console.log(form.supervisor_id ,userId)
-        if (form.supervisor_id === userId) {
-            await db.execute(
-                "DELETE FROM mortality_morbidity_review_assessment WHERE id = ?", 
-                [id]
-            );
-            return res.status(200).json({ message: "Mortality & Morbidity form deleted successfully" });
-        } else {
-            // Handle forbidden access
+        if (form.supervisor_id !== userId && userId !== 1) {
             return res.status(403).json({ error: "You do not have permission to delete this form." });
         }
+        
+        await form_helper.deleteSignatureFilesFromDB(
+            "mortality_morbidity_review_assessment",
+            id,
+            ["resident_signature_path", "assessor_signature_path"]
+        );
+        
+        await db.execute(
+            "DELETE FROM mortality_morbidity_review_assessment WHERE id = ?", 
+            [id]
+        );
+        return res.status(200).json({ message: "Mortality & Morbidity form deleted successfully" });
 
     } catch (err) {
         console.error("Database Error:", err);

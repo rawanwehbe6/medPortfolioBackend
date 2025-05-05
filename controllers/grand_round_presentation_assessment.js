@@ -18,9 +18,10 @@ const createForm = async (req, res) => {
       draft_send,
     } = req.body;
 
-    const assessor_signature = req.files?.signature
+    const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
+    const assessor_signature = form_helper.getPublicUrl(a_signature);
 
     const [insertResult] = await pool.execute(
       `INSERT INTO grand_round_presentation_assessment 
@@ -58,6 +59,7 @@ const createForm = async (req, res) => {
     res.status(201).json({ message: "Form created successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res.status(500).json({ error: "Server error while creating form" });
   }
 };
@@ -87,9 +89,11 @@ const updateForm = async (req, res) => {
     );
 
     if (existingRecord.length === 0) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(404).json({ error: "Record not found" });
     }
     if (Number(existingRecord[0].completed) === 1) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(403)
         .json({ error: "You cannot edit a completed form" });
@@ -111,12 +115,14 @@ const updateForm = async (req, res) => {
         existingRecord[0].resident_id !== userId ||
         Number(existingRecord[0].sent) === 0
       ) {
+        form_helper.cleanupUploadedFiles(req.files);
         return res.status(403).json({ message: "Unauthorized access" });
       }
 
-      let residentSignature = req.files?.signature
+      let r_Signature = req.files?.signature
         ? req.files.signature[0].path
         : existingRecord[0].resident_signature;
+      const residentSignature = form_helper.getPublicUrl(r_Signature);
 
       updateQuery = `UPDATE grand_round_presentation_assessment 
                            SET resident_comment = ?, resident_signature = ?
@@ -133,9 +139,23 @@ const updateForm = async (req, res) => {
         id
       );
     } else if (hasAccessS) {
-      let assessorSignature = req.files?.signature
-        ? req.files.signature[0].path
-        : existingRecord[0].assessor_signature;
+      let a_signature = existingRecord[0].assessor_signature;
+
+      if (req.files?.signature) {
+        const newSignaturePath = req.files.signature[0].path;
+        const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "grand_round_presentation_assessment",
+          id,
+          "assessor_signature",
+          newSignatureUrl
+        );
+
+        a_signature = newSignatureUrl;
+      }
+
+      const assessorSignature = a_signature;
 
       const [old_send] = await pool.execute(
         `SELECT sent FROM grand_round_presentation_assessment WHERE id = ?`,
@@ -174,6 +194,7 @@ const updateForm = async (req, res) => {
         );
       }
     } else {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(403).json({ message: "Permission denied" });
     }
 
@@ -194,10 +215,12 @@ const updateForm = async (req, res) => {
       }
       res.status(200).json({ message: "Form updated successfully" });
     } else {
+      form_helper.cleanupUploadedFiles(req.files);
       res.status(400).json({ error: "No valid update parameters provided" });
     }
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res.status(500).json({ error: "Server error while updating form" });
   }
 };
@@ -260,7 +283,11 @@ const deleteTupleById = async (req, res) => {
           "Permission denied: Only the assigned supervisor can delete this record",
       });
     }
-
+    await form_helper.deleteSignatureFilesFromDB(
+      "grand_round_presentation_assessment",
+      id,
+      ["resident_signature", "assessor_signature"]
+    );
     await pool.execute(
       "DELETE FROM grand_round_presentation_assessment WHERE id = ?",
       [id]

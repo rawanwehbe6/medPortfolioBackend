@@ -37,9 +37,10 @@ const createForm = async (req, res) => {
     const fellow_name = fellowRows[0].Name;
     const supervisor_name = supervisorRows[0].Name;
 
-    const supervisor_signature = req.files?.signature
+    const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
+    const supervisor_signature = form_helper.getPublicUrl(a_signature);
 
     const scores = [
       punctuality,
@@ -104,6 +105,7 @@ const createForm = async (req, res) => {
       .json({ message: "Fellow resident evaluation created successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res.status(500).json({ error: "Server error while creating evaluation" });
   }
 };
@@ -137,30 +139,46 @@ const updateForm = async (req, res) => {
     );
 
     if (existingRecord.length === 0) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(404).json({ error: "Evaluation not found" });
     }
 
     if (Number(existingRecord[0].completed) === 1) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(403)
         .json({ error: "You cannot edit a completed evaluation" });
     }
 
     if (existingRecord[0].supervisor_id !== userId) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(403).json({
         message:
           "Permission denied: Only the assigned supervisor can update this evaluation",
       });
     }
 
-    let supervisorSignature = req.files?.signature
-      ? req.files.signature[0].path
-      : existingRecord[0].supervisor_signature;
+    let supervisorSignature = existingRecord[0].supervisor_signature;
+
+    if (req.files?.signature) {
+      const newSignaturePath = req.files.signature[0].path;
+      const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+
+      await form_helper.deleteOldSignatureIfUpdated(
+        "fellow_resident_evaluation",
+        id,
+        "supervisor_signature",
+        newSignatureUrl
+      );
+
+      supervisorSignature = newSignatureUrl;
+    }
 
     const [old_send] = await pool.execute(
       `SELECT sent FROM fellow_resident_evaluation WHERE id = ?`,
       [id]
     );
+
     const scores = [
       punctuality,
       dependable,
@@ -175,6 +193,7 @@ const updateForm = async (req, res) => {
     ];
     const totalScore = scores.reduce((sum, val) => sum + (Number(val) || 0), 0);
     const overall_marks = totalScore * 2;
+
     const updateQuery = `UPDATE fellow_resident_evaluation 
                          SET hospital = ?, date_of_rotation = ?, 
                              punctuality = ?, dependable = ?, respectful = ?,
@@ -226,6 +245,7 @@ const updateForm = async (req, res) => {
     res.status(200).json({ message: "Evaluation updated successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res.status(500).json({ error: "Server error while updating evaluation" });
   }
 };
@@ -277,6 +297,12 @@ const deleteTupleById = async (req, res) => {
           "Permission denied: Only the assigned supervisor can delete this evaluation",
       });
     }
+
+    await form_helper.deleteSignatureFilesFromDB(
+      "fellow_resident_evaluation",
+      id,
+      ["supervisor_signature"]
+    );
 
     await pool.execute("DELETE FROM fellow_resident_evaluation WHERE id = ?", [
       id,

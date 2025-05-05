@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 02, 2025 at 04:03 PM
+-- Generation Time: May 05, 2025 at 04:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -341,25 +341,25 @@ CREATE TABLE `fellow_resident_evaluation` (
   `fellow_id` int(11) DEFAULT NULL,
   `hospital` varchar(255) DEFAULT NULL,
   `date_of_rotation` date DEFAULT NULL,
-  `instructor_name` varchar(255) DEFAULT NULL,
-  `instructor_signature` varchar(255) DEFAULT NULL,
-  `punctuality` int(11) DEFAULT NULL,
-  `dependable` int(11) DEFAULT NULL,
-  `respectful` int(11) DEFAULT NULL,
-  `positive_interaction` int(11) DEFAULT NULL,
-  `self_learning` int(11) DEFAULT NULL,
-  `communication` int(11) DEFAULT NULL,
-  `history_taking` int(11) DEFAULT NULL,
-  `physical_examination` int(11) DEFAULT NULL,
-  `clinical_reasoning` int(11) DEFAULT NULL,
-  `application_knowledge` int(11) DEFAULT NULL,
+  `supervisor_name` varchar(255) DEFAULT NULL,
+  `supervisor_id` int(11) NOT NULL,
+  `supervisor_signature` varchar(255) DEFAULT NULL,
+  `punctuality` tinyint(4) DEFAULT NULL CHECK (`punctuality` >= 1 and `punctuality` <= 5),
+  `dependable` tinyint(4) DEFAULT NULL CHECK (`dependable` >= 1 and `dependable` <= 5),
+  `respectful` tinyint(4) DEFAULT NULL CHECK (`respectful` >= 1 and `respectful` <= 5),
+  `positive_interaction` tinyint(4) DEFAULT NULL CHECK (`positive_interaction` >= 1 and `positive_interaction` <= 5),
+  `self_learning` tinyint(4) DEFAULT NULL CHECK (`self_learning` >= 1 and `self_learning` <= 5),
+  `communication` tinyint(4) DEFAULT NULL CHECK (`communication` >= 1 and `communication` <= 5),
+  `history_taking` tinyint(4) DEFAULT NULL CHECK (`history_taking` >= 1 and `history_taking` <= 5),
+  `physical_examination` tinyint(4) DEFAULT NULL CHECK (`physical_examination` >= 1 and `physical_examination` <= 5),
+  `clinical_reasoning` tinyint(4) DEFAULT NULL CHECK (`clinical_reasoning` >= 1 and `clinical_reasoning` <= 5),
+  `application_knowledge` tinyint(4) DEFAULT NULL CHECK (`application_knowledge` >= 1 and `application_knowledge` <= 5),
   `overall_marks` int(11) DEFAULT NULL,
   `strengths` text DEFAULT NULL,
   `suggestions` text DEFAULT NULL,
-  `sent` tinyint(4) DEFAULT 0,
-  `completed` tinyint(4) DEFAULT 0,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `supervisor_id` int(11) NOT NULL
+  `sent` tinyint(1) DEFAULT 0,
+  `completed` tinyint(1) DEFAULT 0,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -543,6 +543,14 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_procedure_summaries', 110, 0, 1, 1),
 ('update_procedure_summary', 111, 0, 1, 1),
 ('delete_procedure_summary', 112, 0, 1, 0),
+('create_journal_club_form', 113, 0, 0, 1),
+('update_journal_club_form', 114, 0, 1, 1),
+('get_journal_club_form_by_id', 115, 0, 1, 1),
+('delete_journal_club_form_by_id', 116, 0, 0, 1),
+('create_fellow_resident_form', 117, 0, 0, 1),
+('update_fellow_resident_form', 118, 0, 1, 1),
+('get_fellow_resident_form_by_id', 119, 0, 1, 1),
+('delete_fellow_resident_form_by_id', 120, 0, 0, 1),
 ('trainee-supervisor_get_forms', 132, 0, 1, 1),
 ('add_user_type', 133, 1, 0, 0),
 ('assign_roles', 134, 1, 0, 0),
@@ -642,20 +650,16 @@ CREATE TABLE `journal_club_assessment` (
   `resident_name` varchar(255) NOT NULL,
   `date` date NOT NULL,
   `article_reference` varchar(255) NOT NULL,
-  `paper_selection` varchar(255) DEFAULT NULL,
-  `background_knowledge` varchar(255) DEFAULT NULL,
-  `critical_analysis_methodology` text DEFAULT NULL,
-  `critical_analysis_results` text DEFAULT NULL,
-  `conclusions_drawn` text DEFAULT NULL,
-  `audio_visual_aids` text DEFAULT NULL,
-  `handling_questions` text DEFAULT NULL,
-  `overall_performance` text DEFAULT NULL,
+  `paper_selection` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `background_knowledge` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `critical_analysis_methodology` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `critical_analysis_results` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `conclusions_drawn` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `audio_visual_aids` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `handling_questions` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
+  `overall_performance` enum('Below Expectations','Meets Expectations','Exceeds Expectations','U/C') DEFAULT NULL,
   `major_positive_feature` text DEFAULT NULL,
-  `suggested_article_selection` text DEFAULT NULL,
-  `suggested_critical_analysis` text DEFAULT NULL,
-  `suggested_slide_design` text DEFAULT NULL,
-  `suggested_presentation` text DEFAULT NULL,
-  `suggested_answering_questions` text DEFAULT NULL,
+  `comments` text DEFAULT NULL,
   `agreed_action_plan` text DEFAULT NULL,
   `resident_signature` varchar(255) DEFAULT NULL,
   `assessor_signature` varchar(255) DEFAULT NULL,
@@ -1448,6 +1452,9 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 110),
 (2, 111),
 (2, 112),
+(2, 114),
+(2, 115),
+(2, 119),
 (2, 132),
 (2, 143),
 (2, 144),
@@ -1537,6 +1544,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 107),
 (3, 110),
 (3, 111),
+(3, 113),
+(3, 114),
+(3, 115),
+(3, 116),
+(3, 117),
+(3, 118),
+(3, 119),
+(3, 120),
 (3, 132),
 (3, 135),
 (3, 136),
@@ -1629,6 +1644,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 107),
 (4, 110),
 (4, 111),
+(4, 113),
+(4, 114),
+(4, 115),
+(4, 116),
+(4, 117),
+(4, 118),
+(4, 119),
+(4, 120),
 (4, 132),
 (4, 135),
 (4, 136),
@@ -1720,6 +1743,14 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 107),
 (5, 110),
 (5, 111),
+(5, 113),
+(5, 114),
+(5, 115),
+(5, 116),
+(5, 117),
+(5, 118),
+(5, 119),
+(5, 120),
 (5, 132),
 (5, 135),
 (5, 136),
@@ -1894,8 +1925,8 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `fellow_resident_evaluation`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fellow_id` (`fellow_id`),
-  ADD KEY `supervisor_id` (`supervisor_id`);
+  ADD KEY `fellow_idx` (`fellow_id`),
+  ADD KEY `supervisor_idx` (`supervisor_id`);
 
 --
 -- Indexes for table `first_year_rotations`
@@ -1929,8 +1960,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 --
 ALTER TABLE `journal_club_assessment`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_resident_id` (`resident_id`),
-  ADD KEY `supervisor_id` (`supervisor_id`);
+  ADD KEY `supervisor_id` (`supervisor_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `logbook_profile_info`
@@ -2450,8 +2481,8 @@ ALTER TABLE `eduactworkshops`
 -- Constraints for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_1` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`),
-  ADD CONSTRAINT `fellow_resident_evaluation_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `forbidden_logs`
@@ -2471,8 +2502,8 @@ ALTER TABLE `grand_round_presentation_assessment`
 -- Constraints for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
-  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `journal_club_assessment_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `logbook_profile_info`

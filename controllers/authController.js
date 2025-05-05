@@ -73,7 +73,7 @@ async function login(req, res) {
     );
     res.json({
       message: "Login successful",
-      token,role:user.Role,
+      token,
       Type: roletype[0].Type,
     });
   } catch (err) {

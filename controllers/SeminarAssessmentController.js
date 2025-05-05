@@ -1,11 +1,11 @@
-const db = require('../config/db');
-const upload = require('../middleware/multerConfig');
-const form_helper = require('../middleware/form_helper');
+const db = require("../config/db");
+const form_helper = require("../middleware/form_helper");
+
 // Create new Seminar Assessment form (only for supervisors/admins)
 const createSeminarAssessment = async (req, res) => {
   try {
-    role = req.user.role;
-    supervisor_id = req.user.userId;
+    const { role, userId: supervisor_id } = req.user;
+
     const {
       resident_id,
       date_of_presentation,
@@ -21,6 +21,7 @@ const createSeminarAssessment = async (req, res) => {
       suggested_areas_for_improvement,
       draft_send,
     } = req.body;
+
     const [rows] = await db.execute(
       `SELECT Name FROM users WHERE User_id = ?`,
       [resident_id]
@@ -28,9 +29,10 @@ const createSeminarAssessment = async (req, res) => {
     const resident_fellow_name = rows[0].Name;
 
     // Only assessor signature allowed on creation
-    const assessor_signature_path = req.files?.signature
+    const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
+    const assessor_signature_path = form_helper.getPublicUrl(a_signature);
 
     const [insertResult] = await db.execute(
       `INSERT INTO seminar_assessment 
@@ -38,7 +40,7 @@ const createSeminarAssessment = async (req, res) => {
             topic, content, presentation_skills, audio_visual_aids,
             communication, handling_questions, audience_management,
             \`references\`, major_positive_feature, suggested_areas_for_improvement,
-            assessor_signature_path,sent) 
+            assessor_signature_path, sent) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         resident_id,
@@ -59,7 +61,9 @@ const createSeminarAssessment = async (req, res) => {
         draft_send,
       ]
     );
-    const formId = insertResult.insertId; // Get the newly inserted form ID
+
+    const formId = insertResult.insertId;
+
     if (Number(draft_send) === 1) {
       await form_helper.sendFormToTrainee(
         supervisor_id,
@@ -73,6 +77,7 @@ const createSeminarAssessment = async (req, res) => {
       .json({ message: "Seminar Assessment form created successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res
       .status(500)
       .json({ error: "Server error while creating Seminar Assessment form" });
@@ -82,8 +87,7 @@ const createSeminarAssessment = async (req, res) => {
 // Update Seminar Assessment form
 const updateSeminarAssessment = async (req, res) => {
   try {
-    role = req.user.role;
-    userId = req.user.userId;
+    const { role, userId } = req.user;
     const { id } = req.params;
 
     const [existingRecord] = await db.execute(
@@ -92,18 +96,23 @@ const updateSeminarAssessment = async (req, res) => {
     );
 
     if (existingRecord.length === 0) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(404)
         .json({ error: "Seminar Assessment form not found" });
     }
+
     if (Number(existingRecord[0].completed) === 1) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res
         .status(403)
         .json({ error: "You cannot edit a completed form" });
     }
+
     const currentRecord = existingRecord[0];
     let updateQuery = "";
     let updateValues = [];
+
     const hasAccess = await form_helper.auth(
       "Trainee",
       "update_seminar_assessment"
@@ -112,36 +121,52 @@ const updateSeminarAssessment = async (req, res) => {
       "Supervisor",
       "update_seminar_assessment"
     )(req, res);
-    console.log(hasAccess, hasAccessS, userId);
+
     if (hasAccess) {
       // Residents can only update their own forms
       if (
         currentRecord.resident_id !== userId ||
         Number(existingRecord[0].sent) === 0
       ) {
+        form_helper.cleanupUploadedFiles(req.files);
         return res.status(403).json({ message: "Unauthorized access" });
       }
 
-      // Residents can only update their name and signature
-      const resident_signature_path = req.files?.signature
+      // Residents can only update their signature
+      let r_Signature = req.files?.signature
         ? req.files.signature[0].path
-        : existingRecord[0].resident_signature;
+        : existingRecord[0].resident_signature_path;
+      const resident_signature_path = form_helper.getPublicUrl(r_Signature);
 
       updateQuery = `UPDATE seminar_assessment 
-                         SET resident_signature_path = ? 
-                         WHERE id = ?`;
-      updateValues = [resident_signature_path, id];
+                     SET resident_signature_path = ? 
+                     WHERE id = ?`;
+      updateValues = [resident_signature_path ?? null, id];
+
       await form_helper.sendSignatureToSupervisor(
         userId,
         "seminar_assessment",
         id
       );
     } else if (hasAccessS) {
-      // Admin or supervisor roles
-      // Supervisors can update all fields except resident signature and name
-      const assessor_signature_path = req.files?.signature
-        ? req.files.signature[0].path
-        : existingRecord[0].assessor_signature;
+      // Admin or supervisor roles can update all fields except resident signature
+      let a_signature = existingRecord[0].assessor_signature_path;
+
+      if (req.files?.signature) {
+        const newSignaturePath = req.files.signature[0].path;
+        const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "seminar_assessment",
+          id,
+          "assessor_signature_path",
+          newSignatureUrl
+        );
+
+        a_signature = newSignatureUrl;
+      }
+
+      const assessor_signature_path = a_signature;
 
       const [old_send] = await db.execute(
         `SELECT sent FROM seminar_assessment WHERE id = ?`,
@@ -149,18 +174,19 @@ const updateSeminarAssessment = async (req, res) => {
       );
 
       updateQuery = `UPDATE seminar_assessment 
-                           SET topic = ?,
-                               content = ?,
-                               presentation_skills = ?,
-                               audio_visual_aids = ?,
-                               communication = ?,
-                               handling_questions = ?,
-                               audience_management = ?,
-                               \`references\` = ?,
-                               major_positive_feature = ?,
-                               suggested_areas_for_improvement = ?,
-                               assessor_signature_path = ?, sent = ?
-                           WHERE id = ?`;
+                     SET topic = ?,
+                         content = ?,
+                         presentation_skills = ?,
+                         audio_visual_aids = ?,
+                         communication = ?,
+                         handling_questions = ?,
+                         audience_management = ?,
+                         \`references\` = ?,
+                         major_positive_feature = ?,
+                         suggested_areas_for_improvement = ?,
+                         assessor_signature_path = ?, 
+                         sent = ?
+                     WHERE id = ?`;
       updateValues = [
         req.body.topic ?? currentRecord.topic ?? null,
         req.body.content ?? currentRecord.content ?? null,
@@ -180,7 +206,7 @@ const updateSeminarAssessment = async (req, res) => {
         req.body.suggested_areas_for_improvement ??
           currentRecord.suggested_areas_for_improvement ??
           null,
-        assessor_signature_path,
+        assessor_signature_path ?? null,
         req.body.draft_send ?? currentRecord.sent ?? null,
         id,
       ];
@@ -189,28 +215,37 @@ const updateSeminarAssessment = async (req, res) => {
         await form_helper.sendFormToTrainee(userId, "seminar_assessment", id);
       }
     } else {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(403).json({ message: "Permission denied" });
     }
 
-    await db.execute(updateQuery, updateValues);
-    const [updatedRecord] = await db.execute(
-      `SELECT resident_signature_path, assessor_signature_path FROM seminar_assessment WHERE id = ?`,
-      [id]
-    );
+    if (updateQuery && updateValues.length > 0) {
+      await db.execute(updateQuery, updateValues);
 
-    const { resident_signature_path, assessor_signature_path } =
-      updatedRecord[0];
-    if (resident_signature_path && assessor_signature_path) {
-      await db.execute(
-        `UPDATE seminar_assessment SET completed = 1 WHERE id = ?`,
+      const [updatedRecord] = await db.execute(
+        `SELECT resident_signature_path, assessor_signature_path FROM seminar_assessment WHERE id = ?`,
         [id]
       );
+
+      const { resident_signature_path, assessor_signature_path } =
+        updatedRecord[0];
+      if (resident_signature_path && assessor_signature_path) {
+        await db.execute(
+          `UPDATE seminar_assessment SET completed = 1 WHERE id = ?`,
+          [id]
+        );
+      }
+
+      res
+        .status(200)
+        .json({ message: "Seminar Assessment form updated successfully" });
+    } else {
+      form_helper.cleanupUploadedFiles(req.files);
+      res.status(400).json({ error: "No valid update parameters provided" });
     }
-    res
-      .status(200)
-      .json({ message: "Seminar Assessment form updated successfully" });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res
       .status(500)
       .json({ error: "Server error while updating Seminar Assessment form" });
@@ -219,12 +254,12 @@ const updateSeminarAssessment = async (req, res) => {
 
 // Get Seminar Assessment form by ID
 const getSeminarAssessmentById = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        // Fetch form with resident name
-        const [result] = await db.execute(
-    `SELECT 
+    // Fetch form with resident name
+    const [result] = await db.execute(
+      `SELECT 
         sa.resident_fellow_name AS resident_name,
         u_supervisor.Name AS supervisor_name,
         sa.date_of_presentation,
@@ -244,58 +279,73 @@ const getSeminarAssessmentById = async (req, res) => {
      JOIN users u_resident ON sa.resident_id = u_resident.User_ID
      JOIN users u_supervisor ON sa.supervisor_id = u_supervisor.User_ID
      WHERE sa.id = ?`,
-    [id]
-);
+      [id]
+    );
 
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Seminar Assessment form not found" });
-        }
-        res.status(200).json(result[0]);
-        
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while fetching Seminar Assessment form" });
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Seminar Assessment form not found" });
     }
+
+    res.status(200).json(result[0]);
+  } catch (err) {
+    console.error("Database Error:", err);
+    res
+      .status(500)
+      .json({ error: "Server error while fetching Seminar Assessment form" });
+  }
 };
 
 // Delete Seminar Assessment form
 const deleteSeminarAssessment = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const {  userId } = req.user;
+  try {
+    const { id } = req.params;
+    const { userId } = req.user;
 
-        // First check if form exists
-        const [existingRecord] = await db.execute(
-            "SELECT * FROM seminar_assessment WHERE id = ?",
-            [id]
-        );
+    // First check if form exists
+    const [existingRecord] = await db.execute(
+      "SELECT * FROM seminar_assessment WHERE id = ?",
+      [id]
+    );
 
-        if (existingRecord.length === 0) {
-            return res.status(404).json({ error: "Seminar Assessment form not found" });
-        }
-
-        const form = existingRecord[0];
-
-        // Check permissions
-        if (form.supervisor_id === userId) { // Supervisor can delete assigned
-            await db.execute(
-                "DELETE FROM seminar_assessment WHERE id = ?", 
-                [id]
-            );
-            res.status(200).json({ message: "Seminar Assessment form deleted successfully" });
-        } else {
-            res.status(403).json({ message: "Permission denied" });
-        }
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while deleting Seminar Assessment form" });
+    if (existingRecord.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Seminar Assessment form not found" });
     }
+
+    const form = existingRecord[0];
+
+    // Check permissions
+    if (form.supervisor_id !== userId && userId !== 1) {
+      return res.status(403).json({
+        message:
+          "Permission denied: Only the assigned supervisor can delete this record",
+      });
+    }
+
+    await form_helper.deleteSignatureFilesFromDB("seminar_assessment", id, [
+      "resident_signature_path",
+      "assessor_signature_path",
+    ]);
+
+    await db.execute("DELETE FROM seminar_assessment WHERE id = ?", [id]);
+
+    res
+      .status(200)
+      .json({ message: "Seminar Assessment form deleted successfully" });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res
+      .status(500)
+      .json({ error: "Server error while deleting Seminar Assessment form" });
+  }
 };
 
-module.exports = { 
-    createSeminarAssessment, 
-    updateSeminarAssessment, 
-    getSeminarAssessmentById, 
-    deleteSeminarAssessment 
+module.exports = {
+  createSeminarAssessment,
+  updateSeminarAssessment,
+  getSeminarAssessmentById,
+  deleteSeminarAssessment,
 };
