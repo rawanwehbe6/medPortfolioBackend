@@ -495,17 +495,48 @@ const updateUsertypeFunctions = async (req, res) => {
   }
 };
 
+const getUsertypeFunctions = async (req, res) => {
+  const { usertypeId } = req.params;
+  console.log(usertypeId);
+  try {
+    if (!usertypeId) {
+      return res.status(404).json({ message: "User type not found" });
+    }
+    // Get function IDs associated with this usertype
+    const [functions] = await pool.execute(
+      `SELECT f.Id, f.Name
+       FROM functions f
+       JOIN usertype_functions uf ON f.Id = uf.FunctionsId
+       WHERE uf.UsertypeId = ?`,
+      [usertypeId]
+    );
+
+    res.status(200).json({ functions });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Server error retrieving user type functions" });
+  }
+};
+
 // Forgot Password (Generate Reset Token)
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: "Email is required" });
 
   try {
-    const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
-    const [result] = await pool.execute("UPDATE USERS SET reset_token = ? WHERE Email = ?", [token, email]);
+    const [result] = await pool.execute(
+      "UPDATE USERS SET reset_token = ? WHERE Email = ?",
+      [token, email]
+    );
 
-    if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "User not found" });
 
     // Send Email with Reset Link
     const transporter = nodemailer.createTransport({
@@ -524,7 +555,8 @@ const forgotPassword = async (req, res) => {
     };
 
     transporter.sendMail(mailOptions, (err, info) => {
-      if (err) return res.status(500).json({ message: "Email not sent", error: err });
+      if (err)
+        return res.status(500).json({ message: "Email not sent", error: err });
 
       res.json({ message: "Password reset email sent" });
     });
@@ -537,17 +569,22 @@ const forgotPassword = async (req, res) => {
 // Reset Password (Verify Token & Update Password)
 const resetPasswordWithToken = async (req, res) => {
   const { token } = req.query.token;
-  const {  newPassword } = req.body;
-  if (!newPassword) return res.status(400).json({ message: "New password is required" });
+  const { newPassword } = req.body;
+  if (!newPassword)
+    return res.status(400).json({ message: "New password is required" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    const [result] = await pool.execute("UPDATE USERS SET Password = ?, reset_token = NULL WHERE Email = ?", [hashedPassword, decoded.email]);
+    const [result] = await pool.execute(
+      "UPDATE USERS SET Password = ?, reset_token = NULL WHERE Email = ?",
+      [hashedPassword, decoded.email]
+    );
 
-    if (result.affectedRows === 0) return res.status(404).json({ message: "User not found" });
+    if (result.affectedRows === 0)
+      return res.status(404).json({ message: "User not found" });
 
     res.json({ message: "Password reset successfully" });
   } catch (err) {
@@ -562,8 +599,8 @@ const contactUs = async (req, res) => {
     const { name, message } = req.body;
 
     if (!name || !message) {
-      return res.status(400).json({ 
-        message: "Both name and message are required." 
+      return res.status(400).json({
+        message: "Both name and message are required.",
       });
     }
 
@@ -571,18 +608,17 @@ const contactUs = async (req, res) => {
     const userId = req.user.userId;
 
     await pool.execute(
-  "INSERT INTO contact_messages (name, message, user_id) VALUES (?, ?, ?)",
-  [name, message, userId]
-);
+      "INSERT INTO contact_messages (name, message, user_id) VALUES (?, ?, ?)",
+      [name, message, userId]
+    );
 
-    res.status(201).json({ 
-      message: "Your message has been sent successfully!" 
+    res.status(201).json({
+      message: "Your message has been sent successfully!",
     });
-
   } catch (error) {
     console.error("Contact Us Error:", error);
-    res.status(500).json({ 
-      message: "Server error. Please try again later." 
+    res.status(500).json({
+      message: "Server error. Please try again later.",
     });
   }
 };
@@ -592,8 +628,8 @@ const preLoginContact = async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
-      return res.status(400).json({ 
-        message: "Name, email, and message are required." 
+      return res.status(400).json({
+        message: "Name, email, and message are required.",
       });
     }
 
@@ -603,14 +639,13 @@ const preLoginContact = async (req, res) => {
       [name, email, message]
     );
 
-    res.status(201).json({ 
-      message: "Thank you! We've received your message." 
+    res.status(201).json({
+      message: "Thank you! We've received your message.",
     });
-
   } catch (error) {
     console.error("Pre-Login Contact Error:", error);
-    res.status(500).json({ 
-      message: "Server error. Please try again later." 
+    res.status(500).json({
+      message: "Server error. Please try again later.",
     });
   }
 };
@@ -628,5 +663,6 @@ module.exports = {
   resetPasswordWithToken,
   contactUs,
   preLoginContact,
-  updateUsertypeFunctions
+  updateUsertypeFunctions,
+  getUsertypeFunctions,
 };

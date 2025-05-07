@@ -145,44 +145,54 @@ const getAllContactMessages = async (req, res) => {
 };
 
 const getUserCountsByRole = async (req, res) => {
-    try {
-        const [userTypes] = await pool.execute(
-            `SELECT id, name FROM usertypes ORDER BY id`
-        );
+  try {
+    // Get all user roles with names
+    const [rows] = await pool.execute(`
+            SELECT utypes.name AS role_name
+            FROM users u
+            JOIN usertypes utypes ON u.Role = utypes.id
+        `);
 
-        let caseStatements = userTypes.map(type => {
-            const columnAlias = type.name.toLowerCase().replace(/\s+/g, '_');
-            return `SUM(CASE WHEN Role = ${type.id} THEN 1 ELSE 0 END) AS \`${columnAlias}\``;
-        }).join(',\n                ');
-        
-        const [roleCounts] = await pool.execute(
-            `SELECT 
-                COUNT(*) AS total_users,
-                ${caseStatements}
-             FROM users`
-        );
-        
-        const counts = {
-            total_users: roleCounts[0].total_users,
-            admin: roleCounts[0].admin || '0',
-            trainee: roleCounts[0].trainee || '0',
-            educational_supervisor: roleCounts[0].educational_supervisor || '0',
-            clinical_supervisor: roleCounts[0].clinical_supervisor || '0'
-        };
-        
-        res.status(200).json({
-            counts: counts
-        });
-        
-    } catch (error) {
-        console.error("Error fetching user counts:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: error.message
-        });
+    // Initialize structure
+    const counts = {
+      total_users: rows.length,
+      trainee: { total: 0, subroles: {} },
+      supervisor: { total: 0, subroles: {} },
+      admin: { total: 0, subroles: {} },
+    };
+
+    // Process each user
+    for (const row of rows) {
+      const roleName = row.role_name;
+      const lowerRole = roleName.toLowerCase();
+
+      if (lowerRole === "trainee") {
+        counts.trainee.total += 1;
+        counts.trainee.subroles[roleName] =
+          (counts.trainee.subroles[roleName] || 0) + 1;
+      } else if (lowerRole.includes("supervisor")) {
+        counts.supervisor.total += 1;
+        counts.supervisor.subroles[roleName] =
+          (counts.supervisor.subroles[roleName] || 0) + 1;
+      } else if (lowerRole === "admin") {
+        counts.admin.total += 1;
+        counts.admin.subroles[roleName] =
+          (counts.admin.subroles[roleName] || 0) + 1;
+      }
     }
+
+    res.status(200).json({ counts });
+  } catch (error) {
+    console.error("Error fetching user counts:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
+
+
 
 const getEducationalSupervisors = async (req, res) => {
     try {
