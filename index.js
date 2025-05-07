@@ -2,17 +2,18 @@ require('dotenv').config(); // Load environment variables
 const express = require("express");
 const cors = require("cors");
 const pool = require('./config/db');
+const auth = require("./middleware/auth");
 const app = express();
-const authRoutes = require('./routes/authRoutes');
-const keyCompetenciesRoutes = require('./routes/keyCompetenciesRoutes');
-const AccomplishmentRoutes= require('./routes/AccomplishmentRoutes');
-const { testConnection } = require('./testing/dbtest');
-const elearningRoutes = require('./routes/elearningRoutes');
-const educationalActivitiesRoutes = require('./routes/educationalActivitiesRoutes');
-const surgicalExperienceRoutes = require('./routes/surgicalExperienceRoutes');
-const bodyParser = require('body-parser');
-const researchRoutes = require('./routes/researchRoutes');
-const supervisor = require('./routes/supervisorRoutes');
+const authRoutes = require("./routes/authRoutes");
+const keyCompetenciesRoutes = require("./routes/keyCompetenciesRoutes");
+const AccomplishmentRoutes = require("./routes/AccomplishmentRoutes");
+const { testConnection } = require("./testing/dbtest");
+const elearningRoutes = require("./routes/elearningRoutes");
+const educationalActivitiesRoutes = require("./routes/educationalActivitiesRoutes");
+const surgicalExperienceRoutes = require("./routes/surgicalExperienceRoutes");
+const bodyParser = require("body-parser");
+const researchRoutes = require("./routes/researchRoutes");
+const supervisor = require("./routes/supervisorRoutes");
 const portfolio = require("./routes/portfolioRoutes");
 const trainee = require("./routes/TraineeRoutes");
 const admin = require("./routes/AdminRoutes");
@@ -43,20 +44,20 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/portfolio", portfolio);
 // Define a simple route
 app.get("/", (req, res) => {
-    res.send("Hello, Express!");
+  res.send("Hello, Express!");
 });
 
 // Mount the elearning routes
-app.use('/api/elearning-materials', elearningRoutes);
+app.use("/api/elearning-materials", elearningRoutes);
 
 // Mount the educational Activities routes
 app.use("/api/educational-activities", educationalActivitiesRoutes);
 
 // Mount form routes
-app.use('/api/forms', formRoutes);
+app.use("/api/forms", formRoutes);
 
 //Mount trainee portfolio image upload
-app.use('/api/portfolio', portfolioImageRoutes);
+app.use("/api/portfolio", portfolioImageRoutes);
 
 // Mount logbook routes
 app.use("/api", logbookRoutes);
@@ -64,13 +65,13 @@ app.use("/api", logbookRoutes);
 // Start the server
 const PORT = process.env.PORT || 3000;
 
-app.get('/tdb', testConnection);
+app.get("/tdb", testConnection);
 
 // rimas testing
 // Serve the uploads folder as static
 //app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use('/uploads', express.static('uploads'));
+app.use("/uploads", auth("Image"), express.static("uploads"));
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);

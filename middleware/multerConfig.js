@@ -1,11 +1,13 @@
 const multer = require("multer");
 const path = require("path");
+const crypto = require("crypto");
 
 // Set up storage engine
 const storage = multer.diskStorage({
   destination: "./uploads/", // Ensure this folder exists
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+    const randomString = crypto.randomBytes(18).toString("hex");
+    cb(null, Date.now() + randomString + path.extname(file.originalname));
   },
 });
 

@@ -18,7 +18,7 @@ const auth = (requiredFunction) => {
 
       req.user = decoded;
 
-      if (decoded.role === 1) return next(); // Admin can access everything
+      if (decoded.role === 1 || requiredFunction === "Image") return next(); // Admin can access everything
 
       if (!requiredFunction) {
         return res
