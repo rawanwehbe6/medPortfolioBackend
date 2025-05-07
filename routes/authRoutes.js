@@ -21,6 +21,7 @@ router.get(
   auth("assign_roles"),
   authController.getUsertypeFunctions
 );
+router.get("/functions", auth("Bypass"), authController.getFunctions);
 
 router.post('/forgot-password', forgotPassword);
 router.post("/resetPassWithToken", resetPasswordWithToken);

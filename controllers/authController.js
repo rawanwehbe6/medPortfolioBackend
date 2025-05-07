@@ -497,7 +497,6 @@ const updateUsertypeFunctions = async (req, res) => {
 
 const getUsertypeFunctions = async (req, res) => {
   const { usertypeId } = req.params;
-  console.log(usertypeId);
   try {
     if (!usertypeId) {
       return res.status(404).json({ message: "User type not found" });
@@ -510,6 +509,35 @@ const getUsertypeFunctions = async (req, res) => {
        WHERE uf.UsertypeId = ?`,
       [usertypeId]
     );
+
+    res.status(200).json({ functions });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "Server error retrieving user type functions" });
+  }
+};
+
+const getFunctions = async (req, res) => {
+  const usertypeId = req.user.role;
+  try {
+    if (!usertypeId) {
+      return res.status(404).json({ message: "User type not found" });
+    }
+    let [functions] = [];
+    if (usertypeId > 1) {
+      [functions] = await pool.execute(
+        `SELECT f.Id, f.Name
+       FROM functions f
+       JOIN usertype_functions uf ON f.Id = uf.FunctionsId
+       WHERE uf.UsertypeId = ?`,
+        [usertypeId]
+      );
+    } else {
+      [functions] = await pool.execute(`SELECT f.Id, f.Name
+       FROM functions f`);
+    }
 
     res.status(200).json({ functions });
   } catch (err) {
@@ -665,4 +693,5 @@ module.exports = {
   preLoginContact,
   updateUsertypeFunctions,
   getUsertypeFunctions,
+  getFunctions,
 };

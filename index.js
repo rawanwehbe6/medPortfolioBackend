@@ -71,7 +71,7 @@ app.get("/tdb", testConnection);
 // Serve the uploads folder as static
 //app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-app.use("/uploads", auth("Image"), express.static("uploads"));
+app.use("/uploads", auth("Bypass"), express.static("uploads"));
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
