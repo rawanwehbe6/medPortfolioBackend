@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const pool = require("../config/db");
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = "";
 
 function cleanupUploadedFiles(files) {
   if (!files) return;

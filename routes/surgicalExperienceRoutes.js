@@ -10,3 +10,4 @@ router.delete('/delete/:id', auth('delete_surgicalExperience'), surgicalExperien
 router.get('/all', auth('get_surgicalExperiences'), surgicalExperienceController.getSurgicalExperiences);
 
 module.exports = router;
+

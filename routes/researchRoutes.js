@@ -11,3 +11,5 @@ router.put('/research/:id', auth('update_research'), upload.single('file'), upda
 router.delete('/research/:id', auth('delete_research'), deleteResearch);
 router.get('/research', auth('get_research'), getResearch);
 module.exports = router;
+
+
