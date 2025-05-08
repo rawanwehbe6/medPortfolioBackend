@@ -143,7 +143,7 @@ router.put(
   frp.updateForm
 );
 router.get(
-  "/fellowresident/:id",
+  "/fellow-resident/:id",
   auth("get_fellow_resident_form_by_id"),
   frp.getTupleById
 );

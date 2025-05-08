@@ -5,8 +5,8 @@ const createForm = async (req, res) => {
   try {
     const { userId: supervisor_id } = req.user;
 
-    const {
-      resident_id,
+    let {
+      fellow_id,
       hospital,
       date_of_rotation,
       punctuality,
@@ -23,10 +23,29 @@ const createForm = async (req, res) => {
       suggestions,
       draft_send,
     } = req.body;
+    console.log("Request Body:", req.body);
+    const nullableFields = [
+      "punctuality",
+      "dependable",
+      "respectful",
+      "positive_interaction",
+      "self_learning",
+      "communication",
+      "history_taking",
+      "physical_examination",
+      "clinical_reasoning",
+      "application_knowledge",
+    ];
 
+    // Apply transformation
+    nullableFields.forEach((field) => {
+      if (req.body[field] === "") {
+        eval(`${field} = null`);
+      }
+    });
     const [fellowRows] = await pool.execute(
       `SELECT Name FROM users WHERE User_ID = ?`,
-      [resident_id]
+      [fellow_id]
     );
 
     const [supervisorRows] = await pool.execute(
@@ -66,23 +85,23 @@ const createForm = async (req, res) => {
          supervisor_signature, sent) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        resident_id,
+        fellow_id,
         fellow_name,
         hospital ?? null,
         date_of_rotation ?? null,
         supervisor_id,
         supervisor_name,
-        punctuality ?? null,
-        dependable ?? null,
-        respectful ?? null,
-        positive_interaction ?? null,
-        self_learning ?? null,
-        communication ?? null,
-        history_taking ?? null,
-        physical_examination ?? null,
-        clinical_reasoning ?? null,
-        application_knowledge ?? null,
-        overall_marks ?? null,
+        punctuality,
+        dependable,
+        respectful,
+        positive_interaction,
+        self_learning,
+        communication,
+        history_taking,
+        physical_examination,
+        clinical_reasoning,
+        application_knowledge,
+        overall_marks,
         strengths ?? null,
         suggestions ?? null,
         supervisor_signature ?? null,

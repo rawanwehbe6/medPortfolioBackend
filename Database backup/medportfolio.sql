@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 07, 2025 at 07:08 PM
+-- Generation Time: May 09, 2025 at 12:51 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -324,13 +324,12 @@ CREATE TABLE `elearning_materials` (
 --
 
 INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `resource_url`, `uploaded_at`, `Host`) VALUES
-(3, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:01:45', NULL),
-(4, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:02:22', NULL),
 (7, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:24', 'jad'),
 (8, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-03-30 00:03:32', NULL),
 (9, 'Introduction to Cardiology', 'medical_course', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:15', NULL),
 (10, 'Introduction to Cardiology', 'books_articles', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:30', NULL),
-(11, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:36', 'jad');
+(11, 'Introduction to Cardiology', 'workshops_activities', 'A comprehensive guide to cardiology basics.', 'https://example.com/cardiology-course', '2025-04-11 21:14:36', 'jad'),
+(12, 'a', 'medical_course', 'aaa', 'a', '2025-05-08 18:35:06', NULL);
 
 -- --------------------------------------------------------
 
@@ -341,7 +340,7 @@ INSERT INTO `elearning_materials` (`id`, `title`, `category`, `description`, `re
 CREATE TABLE `fellow_resident_evaluation` (
   `id` int(11) NOT NULL,
   `fellow_name` varchar(255) DEFAULT NULL,
-  `fellow_id` int(11) DEFAULT NULL,
+  `resident_id` int(11) DEFAULT NULL,
   `hospital` varchar(255) DEFAULT NULL,
   `date_of_rotation` date DEFAULT NULL,
   `supervisor_name` varchar(255) DEFAULT NULL,
@@ -369,10 +368,8 @@ CREATE TABLE `fellow_resident_evaluation` (
 -- Dumping data for table `fellow_resident_evaluation`
 --
 
-INSERT INTO `fellow_resident_evaluation` (`id`, `fellow_name`, `fellow_id`, `hospital`, `date_of_rotation`, `supervisor_name`, `supervisor_id`, `supervisor_signature`, `punctuality`, `dependable`, `respectful`, `positive_interaction`, `self_learning`, `communication`, `history_taking`, `physical_examination`, `clinical_reasoning`, `application_knowledge`, `overall_marks`, `strengths`, `suggestions`, `sent`, `completed`, `updated_at`) VALUES
-(13, 'test', 22, '', '2024-12-12', 'supervisor', 28, 'http://localhost:3000/uploads/1746454440484.png', 1, 2, 3, 4, 5, 2, 3, 5, 5, 1, 62, '2', '3', 1, 1, '2025-05-05 14:14:00'),
-(14, 'test', 22, '', '2024-12-12', 'supervisor', 28, NULL, 1, 2, 3, 4, 5, 2, 3, 5, 5, 1, 62, '2', '3', 0, 0, '2025-05-05 15:45:47'),
-(16, 'test', 22, '', '2024-12-12', 'supervisor', 28, 'http://localhost:3000/uploads/1746556191566.png', 1, 2, 3, 4, 5, 2, 3, 5, 5, 1, 62, '2', '3', 1, 0, '2025-05-06 18:29:51');
+INSERT INTO `fellow_resident_evaluation` (`id`, `fellow_name`, `resident_id`, `hospital`, `date_of_rotation`, `supervisor_name`, `supervisor_id`, `supervisor_signature`, `punctuality`, `dependable`, `respectful`, `positive_interaction`, `self_learning`, `communication`, `history_taking`, `physical_examination`, `clinical_reasoning`, `application_knowledge`, `overall_marks`, `strengths`, `suggestions`, `sent`, `completed`, `updated_at`) VALUES
+(20, 'test', 22, '', '2025-05-09', 'supervisor', 28, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '', '', 0, 0, '2025-05-08 22:10:13');
 
 -- --------------------------------------------------------
 
@@ -433,7 +430,37 @@ INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_N
 (22, 'test', 134, 'assign_roles', '2025-05-07', 1),
 (22, 'test', 134, 'assign_roles', '2025-05-07', 1),
 (22, 'test', 128, 'get_research', '2025-05-07', 1),
-(22, 'test', 128, 'get_research', '2025-05-07', 1);
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1);
 
 -- --------------------------------------------------------
 
@@ -466,16 +493,16 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('get_contact_messages', 10, 1, 0, 0),
 ('trainee_add_course', 11, 0, 1, 0),
 ('contact_us', 12, 0, 1, 1),
-('trainee_update_course', 14, 1, 1, 0),
-('trainee_delete_course', 15, 1, 1, 0),
-('trainee_add_workshop', 16, 1, 1, 0),
-('trainee_update_workshop', 17, 1, 1, 0),
-('trainee_delete_workshop', 18, 1, 1, 0),
+('trainee_update_course', 14, 0, 1, 0),
+('trainee_delete_course', 15, 0, 1, 0),
+('trainee_add_workshop', 16, 0, 1, 0),
+('trainee_update_workshop', 17, 0, 1, 0),
+('trainee_delete_workshop', 18, 0, 1, 0),
 ('add_conference', 19, 0, 1, 0),
 ('update_conference', 20, 0, 1, 0),
 ('delete_conference', 21, 0, 1, 0),
-('getCourses', 22, 1, 1, 0),
-('getWorkshops', 23, 1, 1, 0),
+('getCourses', 22, 0, 1, 0),
+('getWorkshops', 23, 0, 1, 0),
 ('get_conference', 24, 0, 1, 1),
 ('create_mortality_morbidity_form', 25, 0, 1, 0),
 ('update_mortality_morbidity_form', 26, 0, 1, 0),
@@ -596,42 +623,45 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('delete_user_type', 141, 1, 0, 0),
 ('view_form_status', 142, 0, 0, 1),
 ('trainee_view_forms', 143, 0, 1, 0),
-('getFormsProgressForTrainee', 144, 1, 1, 0),
-('getLatestUpdatedForm', 145, 1, 1, 0),
+('getFormsProgressForTrainee', 144, 0, 1, 0),
+('getLatestUpdatedForm', 145, 0, 1, 0),
 ('view_portfolio_images', 146, 0, 1, 1),
-('create_teachings', 147, 1, 1, 1),
-('get_teachings', 148, 1, 1, 1),
-('delete_teachings', 149, 1, 1, 1),
-('sign_teachings', 150, 1, 0, 1),
-('create_researchPub', 151, 1, 1, 1),
-('get_researchPub', 152, 1, 1, 1),
-('delete_researchPub', 153, 1, 1, 1),
-('sign_researchPub', 154, 1, 0, 1),
-('create_depActivities', 155, 1, 1, 1),
-('get_depActivities', 156, 1, 1, 1),
-('delete_depActivities', 157, 1, 1, 1),
-('sign_depActivities', 158, 1, 0, 1),
-('create_miscellaneous-Activities', 159, 1, 1, 1),
-('get_miscellaneous-Activities', 160, 1, 1, 1),
-('delete_miscellaneous-Activities', 161, 1, 1, 1),
-('sign_miscellaneous-Activities', 162, 1, 0, 1),
-('get_miscellaneous-ActivitiesByID', 163, 1, 1, 1),
-('create_case_presentation', 164, 1, 1, 1),
-('get_case_presentation', 165, 1, 1, 1),
-('delete_case_presentation', 166, 1, 1, 1),
-('sign_case_presentation', 167, 1, 0, 1),
-('create_seminars', 168, 1, 1, 1),
-('get_seminars', 169, 1, 1, 1),
-('delete_seminars', 170, 1, 1, 1),
-('sign_seminars', 171, 1, 0, 1),
-('update_teachings', 173, 1, 1, 1),
-('update_researchPub', 174, 1, 1, 1),
-('update_depActivities', 175, 1, 1, 1),
-('update_miscellaneous-Activities', 176, 1, 1, 1),
-('update_case_presentation', 177, 1, 1, 1),
-('update_seminars', 178, 1, 1, 1),
+('create_teachings', 147, 0, 1, 1),
+('get_teachings', 148, 0, 1, 1),
+('delete_teachings', 149, 0, 1, 1),
+('sign_teachings', 150, 0, 0, 1),
+('create_researchPub', 151, 0, 1, 1),
+('get_researchPub', 152, 0, 1, 1),
+('delete_researchPub', 153, 0, 1, 1),
+('sign_researchPub', 154, 0, 0, 1),
+('create_depActivities', 155, 0, 1, 1),
+('get_depActivities', 156, 0, 1, 1),
+('delete_depActivities', 157, 0, 1, 1),
+('sign_depActivities', 158, 0, 0, 1),
+('create_miscellaneous-Activities', 159, 0, 1, 1),
+('get_miscellaneous-Activities', 160, 0, 1, 1),
+('delete_miscellaneous-Activities', 161, 0, 1, 1),
+('sign_miscellaneous-Activities', 162, 0, 0, 1),
+('get_miscellaneous-ActivitiesByID', 163, 0, 1, 1),
+('create_case_presentation', 164, 0, 1, 1),
+('get_case_presentation', 165, 0, 1, 1),
+('delete_case_presentation', 166, 0, 1, 1),
+('sign_case_presentation', 167, 0, 0, 1),
+('create_seminars', 168, 0, 1, 1),
+('get_seminars', 169, 0, 1, 1),
+('delete_seminars', 170, 0, 1, 1),
+('sign_seminars', 171, 0, 0, 1),
+('update_teachings', 173, 0, 1, 1),
+('update_researchPub', 174, 0, 1, 1),
+('update_depActivities', 175, 0, 1, 1),
+('update_miscellaneous-Activities', 176, 0, 1, 1),
+('update_case_presentation', 177, 0, 1, 1),
+('update_seminars', 178, 0, 1, 1),
 ('trainee-supervisor_get_forms', 179, 0, 1, 1);
-
+('getUserCountsByRole', 180, 1, 0, 0),
+('addSupervisorSuperviseeRelation', 181, 1, 0, 0),
+('updateSupervisorSuperviseeRelation', 182, 1, 0, 0),
+('deleteSupervisorSuperviseeRelation', 183, 1, 0, 0);
 -- --------------------------------------------------------
 
 --
@@ -982,7 +1012,8 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (81, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-05-05 15:37:43'),
 (82, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-05-05 15:37:49'),
 (83, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-05-05 15:38:36'),
-(84, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-06 18:44:19');
+(84, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-06 18:44:19'),
+(85, 22, 28, 'Your fellow resident evaluation form has been sent to you by supervisor for review.', 0, '2025-05-08 21:53:47');
 
 -- --------------------------------------------------------
 
@@ -1247,11 +1278,7 @@ CREATE TABLE `supervisor_supervisee` (
 --
 
 INSERT INTO `supervisor_supervisee` (`SupervisorID`, `SuperviseeID`) VALUES
-(28, 22),
-(29, 23),
-(29, 26),
-(29, 27),
-(30, 22);
+(28, 22);
 
 -- --------------------------------------------------------
 
@@ -1413,7 +1440,10 @@ INSERT INTO `users` (`User_ID`, `Name`, `Email`, `Role`, `Password`, `Bau_ID`, `
 (28, 'supervisor', 'suppp@example.com', 3, '$2b$10$onMwNaIHc9p/BQ/.7YBlReowAuWangTFAEhex/p2pjD8Kz9FuXTF6', NULL, NULL),
 (29, 'test', 'supervisor@example.com', 3, '$2b$10$cIb1CqTCpU/MyEJSLa6HceXDB0uwDo2mpFJ.TjNNqyV97h3VOTgtO', NULL, NULL),
 (30, 'rimastest', 'rimashbaro@gmail.com', 4, '$2b$10$kXeMv9qOcMTorCVpsq9EJO4wJ1r0SHQy7zEVqZoP6W.24WJ6Ksfaq', NULL, NULL),
-(31, 'TEST roles', 'testrole10@example.com', 10, '$2b$10$Hm5IDpFvZmic5sWEPALqr.CvBnWbnPs.IHqX8ZQd7q7ATid/tKAle', NULL, NULL);
+(31, 'TEST roles', 'testrole10@example.com', 10, '$2b$10$Hm5IDpFvZmic5sWEPALqr.CvBnWbnPs.IHqX8ZQd7q7ATid/tKAle', NULL, NULL),
+(32, 'BAU clinic', 'clinic@bau.com', 5, '$2b$10$p/RrBTzWZhyAQjwqryE6veFLdftSBUmGBX1/wvrHBmrgDDD9VSL26', NULL, NULL),
+(34, 'sdfghjkl;', 'a@asd.com', 15, '$2b$10$qHP2mIAAJQRlLEd4Vwk6W.r3NJAxkuty5ml78DENUsQjC5e/PDMpi', NULL, NULL),
+(35, 'Rima', 'rimaissmart@gmail.com', 16, '$2b$10$PxY1z1R5sVH9KVxKNnMMKOKiMh48.d78yNO5TVJU7rxhcfKHlxsj6', 123456789, NULL);
 
 -- --------------------------------------------------------
 
@@ -1441,7 +1471,9 @@ INSERT INTO `usertypes` (`Name`, `Id`, `Type`) VALUES
 ('delete', 8, 'Admin'),
 ('test', 10, 'Admin'),
 ('TestUserType', 11, 'Admin'),
-('Admin13', 13, 'Admin');
+('Admin13', 13, 'Admin'),
+('asdfgthyjukl', 15, 'Admin'),
+('testa', 16, 'Admin');
 
 -- --------------------------------------------------------
 
@@ -1873,7 +1905,63 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (11, 22),
 (11, 23),
 (11, 134),
-(13, 12);
+(13, 12),
+(16, 1),
+(16, 2),
+(16, 3),
+(16, 10),
+(16, 14),
+(16, 15),
+(16, 16),
+(16, 17),
+(16, 18),
+(16, 22),
+(16, 23),
+(16, 33),
+(16, 34),
+(16, 35),
+(16, 36),
+(16, 133),
+(16, 134),
+(16, 140),
+(16, 141),
+(16, 144),
+(16, 145),
+(16, 147),
+(16, 148),
+(16, 149),
+(16, 150),
+(16, 151),
+(16, 152),
+(16, 153),
+(16, 154),
+(16, 155),
+(16, 156),
+(16, 157),
+(16, 158),
+(16, 159),
+(16, 160),
+(16, 161),
+(16, 162),
+(16, 163),
+(16, 164),
+(16, 165),
+(16, 166),
+(16, 167),
+(16, 168),
+(16, 169),
+(16, 170),
+(16, 171),
+(16, 173),
+(16, 174),
+(16, 175),
+(16, 176),
+(16, 177),
+(16, 178),
+(16, 180),
+(16, 181),
+(16, 182),
+(16, 183);
 
 -- --------------------------------------------------------
 
@@ -2001,7 +2089,7 @@ ALTER TABLE `elearning_materials`
 --
 ALTER TABLE `fellow_resident_evaluation`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fellow_idx` (`fellow_id`),
+  ADD KEY `fellow_idx` (`resident_id`),
   ADD KEY `supervisor_idx` (`supervisor_id`);
 
 --
@@ -2312,13 +2400,13 @@ ALTER TABLE `eduactworkshops`
 -- AUTO_INCREMENT for table `elearning_materials`
 --
 ALTER TABLE `elearning_materials`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `first_year_rotations`
@@ -2330,7 +2418,7 @@ ALTER TABLE `first_year_rotations`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=180;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -2378,7 +2466,7 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=85;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`
@@ -2480,13 +2568,13 @@ ALTER TABLE `trainee_portfolio_images`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `User_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- AUTO_INCREMENT for table `usertypes`
 --
 ALTER TABLE `usertypes`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `user_procedure_logs`
@@ -2557,7 +2645,7 @@ ALTER TABLE `eduactworkshops`
 -- Constraints for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`fellow_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
 
 --

@@ -45,140 +45,176 @@ const addSupervisorSuperviseeRelation = async (req, res) => {
 
 // Update Supervisor-Supervisee Relationship
 const updateSupervisorSuperviseeRelation = async (req, res) => {
-    try {
-        const { superviseeId, newSupervisorId } = req.body;
-        if (!superviseeId || !newSupervisorId) {
-            return res.status(400).json({ message: "Both superviseeId and newSupervisorId are required." });
-        }
-
-        // Check if supervisee exists
-        const [supervisee] = await pool.execute(
-            "SELECT * FROM supervisor_supervisee WHERE SuperviseeID = ?",
-            [superviseeId]
-        );
-
-        if (supervisee.length === 0) {
-            return res.status(404).json({ message: "Supervisee does not have an assigned supervisor." });
-        }
-
-        // Check if new supervisor exists and has role 3
-        const [supervisor] = await pool.execute(
-            "SELECT role FROM users WHERE User_ID = ?",
-            [newSupervisorId]
-        );
-        const [usertype] = await pool.execute(
-            "SELECT Type FROM usertypes WHERE Id = ?",
-            [supervisor[0].role]
-        );
-        console.log(usertype);
-        if (supervisor.length === 0 || usertype[0].Type !== "Supervisor") {
-            return res.status(403).json({ message: "Invalid not supervisor." });
-        }
-
-        // Update the supervisor assignment
-        await pool.execute(
-            "UPDATE supervisor_supervisee SET SupervisorID = ? WHERE SuperviseeID = ?",
-            [newSupervisorId, superviseeId]
-        );
-
-        res.status(200).json({ message: "Supervisor updated successfully." });
-
-    } catch (error) {
-        console.error("Error updating supervisor-supervisee relationship:", error);
-        res.status(500).json({ message: "Internal server error", error: error.message });
+  try {
+    const { superviseeId, newSupervisorId } = req.body;
+    if (!superviseeId || !newSupervisorId) {
+      return res.status(400).json({
+        message: "Both superviseeId and newSupervisorId are required.",
+      });
     }
+
+    // Check if supervisee exists
+    const [supervisee] = await pool.execute(
+      "SELECT * FROM supervisor_supervisee WHERE SuperviseeID = ?",
+      [superviseeId]
+    );
+
+    if (supervisee.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "Supervisee does not have an assigned supervisor." });
+    }
+
+    // Check if new supervisor exists and has role 3
+    const [supervisor] = await pool.execute(
+      "SELECT role FROM users WHERE User_ID = ?",
+      [newSupervisorId]
+    );
+
+    if (supervisor.length === 0) {
+      return res.status(404).json({ message: "Supervisor not found." });
+    }
+
+    const [usertype] = await pool.execute(
+      "SELECT Type FROM usertypes WHERE Id = ?",
+      [supervisor[0].role]
+    );
+
+    if (usertype.length === 0 || usertype[0].Type !== "Supervisor") {
+      return res.status(403).json({ message: "User is not a supervisor." });
+    }
+
+    // Delete the old relationship
+    await pool.execute(
+      "DELETE FROM supervisor_supervisee WHERE SuperviseeID = ?",
+      [superviseeId]
+    );
+
+    // Insert the new relationship
+    await pool.execute(
+      "INSERT INTO supervisor_supervisee (SupervisorID, SuperviseeID) VALUES (?, ?)",
+      [newSupervisorId, superviseeId]
+    );
+
+    res.status(200).json({ message: "Supervisor updated successfully." });
+  } catch (error) {
+    console.error("Error updating supervisor-supervisee relationship:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
 };
+
 // Delete Supervisor-Supervisee Relationship
 const deleteSupervisorSuperviseeRelation = async (req, res) => {
-    try {
-        const { supervisorId, superviseeId } = req.body;
-        if (!supervisorId || !superviseeId) {
-            return res.status(400).json({ message: "Both supervisorId and superviseeId are required." });
-        }
-
-        // Check if the relationship exists
-        const [existingRelation] = await pool.execute(
-            "SELECT * FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
-            [supervisorId, superviseeId]
-        );
-
-        if (existingRelation.length === 0) {
-            return res.status(200).json({ message: "Supervisor-supervisee relationship not found." });
-        }
-
-        // Delete the relationship
-        await pool.execute(
-            "DELETE FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
-            [supervisorId, superviseeId]
-        );
-
-        res.status(200).json({ message: "Supervisor-supervisee relationship deleted successfully." });
-
-    } catch (error) {
-        console.error("Error deleting supervisor-supervisee relationship:", error);
-        res.status(500).json({ message: "Internal server error", error: error.message });
+  try {
+    const { supervisorId, superviseeId } = req.body;
+    if (!supervisorId || !superviseeId) {
+      return res
+        .status(400)
+        .json({ message: "Both supervisorId and superviseeId are required." });
     }
+
+    // Check if the relationship exists
+    const [existingRelation] = await pool.execute(
+      "SELECT * FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
+      [supervisorId, superviseeId]
+    );
+
+    if (existingRelation.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "Supervisor-supervisee relationship not found." });
+    }
+
+    // Delete the relationship
+    await pool.execute(
+      "DELETE FROM supervisor_supervisee WHERE SupervisorID = ? AND SuperviseeID = ?",
+      [supervisorId, superviseeId]
+    );
+
+    res
+      .status(200)
+      .json({
+        message: "Supervisor-supervisee relationship deleted successfully.",
+      });
+  } catch (error) {
+    console.error("Error deleting supervisor-supervisee relationship:", error);
+    res
+      .status(500)
+      .json({ message: "Internal server error", error: error.message });
+  }
 };
 
 //get all contact messages
 const getAllContactMessages = async (req, res) => {
-    try {
-        // Verify the user is admin (role 1)
-        // Query the database for all contact messages
-        const [messages] = await pool.execute(
-            "SELECT id, name, message, created_at FROM contact_messages ORDER BY created_at DESC"
-        );
+  try {
+    // Verify the user is admin (role 1)
+    // Query the database for all contact messages
+    const [messages] = await pool.execute(
+      "SELECT id, name, message, created_at FROM contact_messages ORDER BY created_at DESC"
+    );
 
-        res.status(200).json({
-            success: true,
-            count: messages.length,
-            data: messages
-        });
-    } catch (error) {
-        console.error("Error fetching contact messages:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: error.message
-        });
-    }
+    res.status(200).json({
+      success: true,
+      count: messages.length,
+      data: messages,
+    });
+  } catch (error) {
+    console.error("Error fetching contact messages:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
 
 const getUserCountsByRole = async (req, res) => {
   try {
-    // Get all user roles with names
+    // Fetch count of users by Type and Name
     const [rows] = await pool.execute(`
-            SELECT utypes.name AS role_name
-            FROM users u
-            JOIN usertypes utypes ON u.Role = utypes.id
-        `);
+      SELECT utypes.Type AS role_type, utypes.Name AS subrole_name, COUNT(*) AS count
+      FROM users u
+      JOIN usertypes utypes ON u.Role = utypes.Id
+      GROUP BY utypes.Type, utypes.Name
+    `);
 
     // Initialize structure
     const counts = {
-      total_users: rows.length,
+      total_users: 0,
       trainee: { total: 0, subroles: {} },
       supervisor: { total: 0, subroles: {} },
       admin: { total: 0, subroles: {} },
     };
 
-    // Process each user
-    for (const row of rows) {
-      const roleName = row.role_name;
-      const lowerRole = roleName.toLowerCase();
+    // Temporary map to collect subrole entries before sorting
+    const tempSubroles = {
+      trainee: [],
+      supervisor: [],
+      admin: [],
+    };
 
-      if (lowerRole === "trainee") {
-        counts.trainee.total += 1;
-        counts.trainee.subroles[roleName] =
-          (counts.trainee.subroles[roleName] || 0) + 1;
-      } else if (lowerRole.includes("supervisor")) {
-        counts.supervisor.total += 1;
-        counts.supervisor.subroles[roleName] =
-          (counts.supervisor.subroles[roleName] || 0) + 1;
-      } else if (lowerRole === "admin") {
-        counts.admin.total += 1;
-        counts.admin.subroles[roleName] =
-          (counts.admin.subroles[roleName] || 0) + 1;
+    // Populate totals and store subrole entries
+    for (const row of rows) {
+      const type = row.role_type.toLowerCase();
+      const name = row.subrole_name;
+      const count = row.count;
+
+      if (counts[type]) {
+        counts[type].total += count;
+        counts.total_users += count;
+        tempSubroles[type].push({ name, count });
       }
+    }
+
+    // Sort subroles by count descending and build final object
+    for (const type of ["trainee", "supervisor", "admin"]) {
+      tempSubroles[type]
+        .sort((a, b) => b.count - a.count)
+        .forEach((sub) => {
+          counts[type].subroles[sub.name] = sub.count;
+        });
     }
 
     res.status(200).json({ counts });
@@ -192,92 +228,106 @@ const getUserCountsByRole = async (req, res) => {
   }
 };
 
-
-
 const getEducationalSupervisors = async (req, res) => {
-    try {
-
-        const [rows] = await pool.execute(
-            `SELECT User_ID, name FROM users WHERE role = (
+  try {
+    const [rows] = await pool.execute(
+      `SELECT User_ID, name FROM users WHERE role = (
                 SELECT id FROM usertypes WHERE name = 'educational_supervisor'
             )`
-        );
+    );
 
-        res.status(200).json({
-            educational_supervisors: rows
-        });
-
-    } catch (error) {
-        console.error("Error fetching educational supervisors:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: error.message
-        });
-    }
+    res.status(200).json({
+      educational_supervisors: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching educational supervisors:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
 
 const getClinicalSupervisorsOrClinics = async (req, res) => {
-    try {
-        const [rows] = await pool.execute(
-            `SELECT User_ID, name FROM users WHERE role IN (
+  try {
+    const [rows] = await pool.execute(
+      `SELECT User_ID, name FROM users WHERE role IN (
                 SELECT id FROM usertypes WHERE name IN ('clinical_supervisor', 'clinic')
             )`
-        );
+    );
 
-        res.status(200).json({
-            clinical_supervisors_or_clinics: rows
-        });
+    res.status(200).json({
+      clinical_supervisors_or_clinics: rows,
+    });
+  } catch (error) {
+    console.error("Error fetching clinical supervisors or clinics:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 
-    } catch (error) {
-        console.error("Error fetching clinical supervisors or clinics:", error);
-        res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            error: error.message
-        });
+const getSupervisors = async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT User_ID, users.name AS user_name, usertypes.Name AS role_name
+       FROM users 
+       JOIN usertypes ON users.role = usertypes.id 
+       WHERE usertypes.Type = 'Supervisor'`
+    );
+
+    // Group users by their role_name (e.g., educational_supervisor, clinical_supervisor)
+    const grouped = {};
+    for (const row of rows) {
+      const role = row.role_name;
+      if (!grouped[role]) {
+        grouped[role] = [];
+      }
+      grouped[role].push({
+        User_ID: row.User_ID,
+        name: row.user_name,
+      });
     }
+
+    res.status(200).json({
+      supervisors: grouped,
+    });
+  } catch (error) {
+    console.error("Error fetching clinical supervisors or clinics:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
 };
 
 const getAllUsersWithRoles = async (req, res) => {
-    try {
-      const [users] = await pool.execute(`
+  try {
+    const [users] = await pool.execute(`
         SELECT 
           u.User_ID,
           u.name,
           ut.name AS role,
           u.email,
-          u.BAU_ID,
-          -- Educational Supervisor (role = 3)
-          (
-            SELECT s1.name 
-            FROM supervisor_supervisee ss1
-            JOIN users s1 ON ss1.SupervisorID = s1.User_ID
-            WHERE ss1.SuperviseeID = u.User_ID AND s1.role = 3
-            LIMIT 1
-          ) AS educational_supervisor,
-          -- Clinical Supervisor (role = 4 or 5)
-          (
-            SELECT s2.name 
-            FROM supervisor_supervisee ss2
-            JOIN users s2 ON ss2.SupervisorID = s2.User_ID
-            WHERE ss2.SuperviseeID = u.User_ID AND (s2.role = 4 OR s2.role = 5)
-            LIMIT 1
-          ) AS clinical_supervisor
+          u.BAU_ID
         FROM users u
         JOIN usertypes ut ON u.Role = ut.id
       `);
-  
-      res.status(200).json({ users });
-    } catch (error) {
-      console.error("Error fetching users with roles:", error);
-      res.status(500).json({
-        success: false,
-        message: "Internal server error",
-        error: error.message
-      });
-    }
-  };
+
+    res.status(200).json({ users });
+  } catch (error) {
+    console.error("Error fetching users with roles:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 
 const getAllRoles = async (req, res) => {
   try {
@@ -286,28 +336,30 @@ const getAllRoles = async (req, res) => {
     `);
 
     res.status(200).json({
-      roles: roles
+      roles: roles,
     });
   } catch (error) {
     console.error("Error fetching roles:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
-      error: error.message
+      error: error.message,
     });
   }
 };
 const getTraineeFunctions = async (req, res) => {
   try {
-    const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Trainee = 1');
-    const functions = rows.map(f => ({
+    const [rows] = await pool.execute(
+      "SELECT Id, Name FROM functions WHERE Trainee = 1"
+    );
+    const functions = rows.map((f) => ({
       id: f.Id,
       name: formatFunctionName(f.Name),
     }));
     res.status(200).json(functions);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error fetching trainee functions' });
+    res.status(500).json({ error: "Server error fetching trainee functions" });
   }
 };
 
@@ -316,12 +368,12 @@ const getAdminFunctions = async (req, res) => {
 
   try {
     const [currentUser] = await pool.execute(
-      'SELECT role FROM users WHERE User_ID = ?',
+      "SELECT role FROM users WHERE User_ID = ?",
       [currentUserId]
     );
 
     if (currentUser.length === 0) {
-      return res.status(403).json({ message: 'Unauthorized: User not found' });
+      return res.status(403).json({ message: "Unauthorized: User not found" });
     }
 
     const currentUsertypeId = currentUser[0].role;
@@ -338,37 +390,99 @@ const getAdminFunctions = async (req, res) => {
     res.status(200).json(functions);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error fetching admin functions' });
+    res.status(500).json({ error: "Server error fetching admin functions" });
   }
 };
 
-
 const getSupervisorFunctions = async (req, res) => {
   try {
-    const [rows] = await pool.execute('SELECT Id, Name FROM functions WHERE Supervisor = 1');
-    const functions = rows.map(f => ({
+    const [rows] = await pool.execute(
+      "SELECT Id, Name FROM functions WHERE Supervisor = 1"
+    );
+    const functions = rows.map((f) => ({
       id: f.Id,
       name: formatFunctionName(f.Name),
     }));
     res.status(200).json(functions);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Server error fetching supervisor functions' });
+    res
+      .status(500)
+      .json({ error: "Server error fetching supervisor functions" });
   }
 };
 
+const getTraineeSupervisors = async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      `SELECT 
+         t.User_ID AS Trainee_ID,
+         t.name AS Trainee_Name,
+         s.User_ID AS Supervisor_ID,
+         s.name AS Supervisor_Name,
+         ut_s.Name AS Supervisor_Type
+       FROM users t
+       JOIN usertypes ut_t ON t.role = ut_t.id
+       LEFT JOIN supervisor_supervisee ss ON ss.Superviseeid = t.User_ID
+       LEFT JOIN users s ON ss.supervisorid = s.User_ID
+       LEFT JOIN usertypes ut_s ON s.role = ut_s.id
+       WHERE ut_t.Type = 'Trainee'`
+    );
 
-module.exports = { 
-    addSupervisorSuperviseeRelation,
-    updateSupervisorSuperviseeRelation,
-    deleteSupervisorSuperviseeRelation,
-    getAllContactMessages,
-    getUserCountsByRole,
-    getEducationalSupervisors,
-    getClinicalSupervisorsOrClinics,
-    getAllUsersWithRoles,
-    getAllRoles ,
-    getTraineeFunctions,
-    getAdminFunctions,
-    getSupervisorFunctions
+    const traineeMap = {};
+
+    for (const row of rows) {
+      const {
+        Trainee_ID,
+        Trainee_Name,
+        Supervisor_ID,
+        Supervisor_Name,
+        Supervisor_Type,
+      } = row;
+
+      if (!traineeMap[Trainee_ID]) {
+        traineeMap[Trainee_ID] = {
+          Trainee_ID,
+          Trainee_Name,
+          supervisors: [],
+        };
+      }
+
+      // Only push supervisor info if present
+      if (Supervisor_ID) {
+        traineeMap[Trainee_ID].supervisors.push({
+          type: Supervisor_Type,
+          name: Supervisor_Name,
+        });
+      }
+    }
+
+    const result = Object.values(traineeMap);
+
+    res.status(200).json({ trainees: result });
+  } catch (error) {
+    console.error("Error fetching trainee-supervisor mapping:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+module.exports = {
+  addSupervisorSuperviseeRelation,
+  updateSupervisorSuperviseeRelation,
+  deleteSupervisorSuperviseeRelation,
+  getAllContactMessages,
+  getUserCountsByRole,
+  getEducationalSupervisors,
+  getClinicalSupervisorsOrClinics,
+  getAllUsersWithRoles,
+  getAllRoles,
+  getTraineeFunctions,
+  getAdminFunctions,
+  getSupervisorFunctions,
+  getSupervisors,
+  getTraineeSupervisors,
 };
