@@ -1,8 +1,8 @@
 const pool = require("../config/db");
-const moment = require("moment");
+//const moment = require("moment");
 const form_helper = require('../middleware/form_helper');
-const path = require('path');
-const fs = require('fs');
+//const path = require('path');
+//const fs = require('fs');
 
 const createMiniCEX = async (req, res) => {
   try {
@@ -21,35 +21,14 @@ const createMiniCEX = async (req, res) => {
       resident_id,
       draft_send,
     } = req.body;
+    console.log("Uploaded files:", req.files);
 
-    let evaluator_signature_path = null;
 
-    const signatureFile = req.files?.signature?.[0] || req.file;
+    const a_signature = req.files?.signature
+      ? req.files.signature[0].path
+      : null;
+    const evaluator_signature_path = form_helper.getPublicUrl(a_signature);
 
-    // Handle signature file
-    if (signatureFile) {
-      const ext = path.extname(signatureFile.originalname);
-      let filename = signatureFile.filename;
-
-      if (!filename.endsWith(ext)) {
-        filename += ext;
-      }
-
-      const relativePath = `uploads/${filename}`;
-      const absoluteOldPath = path.join(
-        __dirname,
-        "..",
-        "uploads",
-        signatureFile.filename
-      );
-      const absoluteNewPath = path.join(__dirname, "..", relativePath);
-
-      fs.renameSync(absoluteOldPath, absoluteNewPath);
-
-      evaluator_signature_path = `${req.protocol}://${req.get(
-        "host"
-      )}/${relativePath}`;
-    }
 
     // Set is_signed_by_supervisor flag if signature is uploaded
     const is_signed_by_supervisor = evaluator_signature_path ? 1 : 0;
@@ -111,6 +90,7 @@ const createMiniCEX = async (req, res) => {
     });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.files);
     res
       .status(500)
       .json({ error: "Server error while creating Mini-CEX form" });
@@ -149,17 +129,13 @@ const updateMiniCEX = async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Request Files:", req.files);
 
-    // Improved safe value function
-    /*const safeValue = (newVal, oldVal) => {
-            return newVal !== undefined && newVal !== null && newVal !== "" ? newVal : oldVal ?? null;
-        };*/
-
     // Fetch form data to check the current signature status
     const [form] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [
       id,
     ]);
 
     if (form.length === 0) {
+      form_helper.cleanupUploadedFiles(req.files);
       return res.status(404).json({ message: "Form not found" });
     }
 
@@ -191,47 +167,23 @@ const updateMiniCEX = async (req, res) => {
 
     // Supervisor Updates (Roles 3, 4, 5)
     if (hasAccessS) {
-      let evaluator_signature_path = form[0].evaluator_signature_path;
+      let a_signature = form[0].evaluator_signature_path;
 
-      if (req.file) {
-        if (evaluator_signature_path) {
-          // Delete old signature file if it exists
-          const oldFilePath = path.join(
-            __dirname,
-            "..",
-            evaluator_signature_path?.replace(
-              `${req.protocol}://${req.get("host")}/`,
-              ""
-            )
+      if (req.files?.signature) {
+          const newSignaturePath = req.files.signature[0].path;
+          const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+  
+          await form_helper.deleteOldSignatureIfUpdated(
+            "mini_cex",
+            id,
+            "evaluator_signature_path",
+            newSignatureUrl
           );
-
-          if (fs.existsSync(oldFilePath)) {
-            fs.unlinkSync(oldFilePath);
-          }
+  
+          a_signature = newSignatureUrl;
         }
-        // Rename and store new file
-        const ext = path.extname(req.file.originalname);
-        let filename = req.file.filename;
-
-        if (!filename.endsWith(ext)) {
-          filename += ext;
-        }
-
-        const relativePath = `uploads/${filename}`;
-        const absoluteOldPath = path.join(
-          __dirname,
-          "..",
-          "uploads",
-          req.file.filename
-        );
-        const absoluteNewPath = path.join(__dirname, "..", relativePath);
-
-        fs.renameSync(absoluteOldPath, absoluteNewPath);
-
-        evaluator_signature_path = `${req.protocol}://${req.get(
-          "host"
-        )}/${relativePath}`;
-      }
+        
+      evaluator_signature_path = a_signature;
 
       // Set is_signed_by_supervisor flag if new signature is uploaded
       const is_signed_by_supervisor = req.files?.signature
@@ -248,7 +200,7 @@ const updateMiniCEX = async (req, res) => {
                 SET 
                     medical_interviewing = ?, physical_exam = ?, professionalism = ?, clinical_judgment = ?, 
                     counseling_skills = ?, efficiency = ?, overall_competence = ?, observer_time = ?, 
-                    feedback_time = ?, evaluator_satisfaction = ?, evaluator_signature_path = ?, sent_to trainee = ?,
+                    feedback_time = ?, evaluator_satisfaction = ?, evaluator_signature_path = ?, sent_to_trainee = ?,
                     is_signed_by_supervisor = ?
                 WHERE id = ?`;
 
@@ -290,16 +242,10 @@ const updateMiniCEX = async (req, res) => {
     // Trainee Updates (Role 2)
     else if (hasAccess) {
       // Ensure the current logged-in trainee is the one assigned to the form
-      if (form[0].resident_id !== userId) {
+      if (form[0].resident_id !== userId || form[0].sent_to_trainee === 0) {
         return res
           .status(403)
-          .json({ message: "You are not the assigned trainee for this form." });
-      }
-
-      if (form[0].sent_to_trainee === 0) {
-        return res
-          .status(403)
-          .json({ error: "Form has not been sent to the trainee yet." });
+          .json({ message: "Unauthorized access to form" });
       }
 
       if (form[0].is_signed_by_trainee) {
@@ -308,52 +254,11 @@ const updateMiniCEX = async (req, res) => {
         });
       }
 
-      let trainee_signature_path = form[0].trainee_signature_path;
-      const uploadedSignature =
-        req.files && Array.isArray(req.files.signature)
-          ? req.files.signature[0]
-          : null;
+      let r_Signature = req.files?.signature
+        ? req.files.signature[0].path
+        : existingRecord[0].resident_signature;
+      const trainee_signature_path = form_helper.getPublicUrl(r_Signature);
 
-      if (uploadedSignature) {
-        if (trainee_signature_path) {
-          const oldFilePath = path.join(
-            __dirname,
-            "..",
-            trainee_signature_path.replace(
-              `${req.protocol}://${req.get("host")}/`,
-              ""
-            )
-          );
-
-          if (fs.existsSync(oldFilePath)) {
-            fs.unlinkSync(oldFilePath);
-          }
-        }
-
-        // Rename and store new file
-        const ext = path.extname(uploadedSignature.originalname);
-        let filename = uploadedSignature.filename;
-
-        if (!filename.endsWith(ext)) {
-          filename += ext;
-        }
-
-        const relativePath = `uploads/${filename}`;
-        const absoluteOldPath = path.join(
-          __dirname,
-          "..",
-          "uploads",
-          uploadedSignature.filename
-        );
-        const absoluteNewPath = path.join(__dirname, "..", relativePath);
-
-        fs.renameSync(absoluteOldPath, absoluteNewPath);
-
-        trainee_signature_path = `${req.protocol}://${req.get(
-          "host"
-        )}/${relativePath}`;
-        console.log("✅ Trainee signature path saved:", trainee_signature_path);
-      }
 
       // Set is_signed_by_trainee flag if new signature is uploaded
       const is_signed_by_trainee = req.files?.signature
@@ -484,25 +389,17 @@ const deleteMiniCEXById = async (req, res) => {
 
         const record = rows[0];
 
-       // Delete associated signature file if it exists
-       if (record.evaluator_signature_path) {
-        const filePath = path.join(__dirname, '..', record.evaluator_signature_path.replace(`${req.protocol}://${req.get('host')}/`, ''));
-
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log("Deleted signature file:", filePath);
+        if (record.supervisor_id !== userId && userId !== 1) {
+          return res.status(403).json({
+            message:
+              "Permission denied: Only the assigned supervisor can delete this record",
+          });
         }
-    }
-
-    // Delete associated signature file if it exists
-    if (record.trainee_signature_path) {
-        const filePath = path.join(__dirname, '..', record.trainee_signature_path.replace(`${req.protocol}://${req.get('host')}/`, ''));
-
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log("Deleted signature file:", filePath);
-        }
-    }
+        await form_helper.deleteSignatureFilesFromDB(
+          "mini_cex",
+          id,
+          ["trainee_signature_path", "evaluator_signature_path"]
+        );
         await pool.execute("DELETE FROM mini_cex WHERE id = ?", [id]);
         res.status(200).json({ message: "Mini-CEX record deleted successfully" });
 

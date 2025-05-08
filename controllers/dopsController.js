@@ -1,8 +1,5 @@
 const pool = require("../config/db");
-const moment = require("moment");
 const form_helper = require('../middleware/form_helper');
-const path = require('path');
-const fs = require('fs');
 
 const createDOPS = async (req, res) => {
     try {
@@ -23,26 +20,11 @@ const createDOPS = async (req, res) => {
         console.log('resident_id:', resident_id); // check its value
         console.log("body", req.body);
     
-    let supervisor_signature = null;
-    const signatureFile = req.files?.signature?.[0] || req.file;
-
-    // Handle signature file
-    if (signatureFile) {
-      const ext = path.extname(signatureFile.originalname);
-      let filename = signatureFile.filename;
-
-      if (!filename.endsWith(ext)) {
-        filename += ext;
-      }
-
-      const relativePath = `uploads/${filename}`;
-      const absoluteOldPath = path.join(__dirname, '..', 'uploads', signatureFile.filename);
-      const absoluteNewPath = path.join(__dirname, '..', relativePath);
-
-      fs.renameSync(absoluteOldPath, absoluteNewPath);
-
-      supervisor_signature = `${req.protocol}://${req.get('host')}/${relativePath}`;
-    }
+        const a_signature = req.files?.signature
+        ? req.files.signature[0].path
+        : null;
+      const supervisor_signature = form_helper.getPublicUrl(a_signature);
+  
 
         // Set is_signed_by_supervisor flag if signature is uploaded
         const is_signed_by_supervisor = supervisor_signature ? 1 : 0;
@@ -58,13 +40,13 @@ const createDOPS = async (req, res) => {
         // insert new dops form into database
         const [result] = await pool.execute(
             `INSERT INTO dops 
-            (supervisor_id, supervisor_name, resident_id, trainee_name, indications, 
+            (supervisor_id, supervisor_name, resident_id, trainee_name, indications,
             indications_comment, consent, consent_comment, 
             preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
             asepsis_comment, technical_aspects, technical_aspects_comment, 
             unexpected_events, unexpected_events_comment, documentation, documentation_comment,
             communication, communication_comment, professionalism, professionalism_comment,
-            global_summary, feedback, strengths, developmental_needs, recommended_actions, is_draft, is_sent_to_trainee,
+            global_summary, feedback, strengths, developmental_needs, recommended_actions, is_sent_to_trainee, is_signed_by_supervisor,
             supervisor_signature
             ) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -161,31 +143,27 @@ const updateDOPS = async (req, res) => {
             return res.status(400).json({ message: "You have already signed this form and cannot edit." });
         }
 
-        let supervisor_signature = form[0].supervisor_signature;
-        const signatureFile = req.files?.signature?.[0] || req.file;
+        let a_signature = form[0].supervisor_signature;
 
- 
-      if (signatureFile) {
-        if (supervisor_signature) {
-          const oldFilePath = path.join(__dirname, '..', supervisor_signature.replace(`${req.protocol}://${req.get('host')}/`, ''));
-          if (fs.existsSync(oldFilePath)) {
-            fs.unlinkSync(oldFilePath);
-          }
+      if (req.files?.signature) {
+          const newSignaturePath = req.files.signature[0].path;
+          const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+  
+          await form_helper.deleteOldSignatureIfUpdated(
+            "dops",
+            id,
+            "supervisor_signature",
+            newSignatureUrl
+          );
+  
+          a_signature = newSignatureUrl;
         }
+        
+      supervisor_signature = a_signature;
 
-        const ext = path.extname(signatureFile.originalname);
-        let filename = signatureFile.filename;
-        if (!filename.endsWith(ext)) filename += ext;
-
-        const relativePath = `uploads/${filename}`;
-        const absoluteOldPath = path.join(__dirname, '..', 'uploads', signatureFile.filename);
-        const absoluteNewPath = path.join(__dirname, '..', relativePath);
-
-        fs.renameSync(absoluteOldPath, absoluteNewPath);
-        supervisor_signature = `${req.protocol}://${req.get('host')}/${relativePath}`;
-      }
-
-      const is_signed_by_supervisor = signatureFile ? 1 : form[0].is_signed_by_supervisor;
+      const is_signed_by_supervisor = req.files?.signature 
+        ? 1 
+        : form[0].is_signed_by_supervisor;
             
         const [old_send] = await pool.execute(
             `SELECT is_sent_to_trainee AS sent FROM dops WHERE id = ?`,
@@ -268,41 +246,11 @@ const updateDOPS = async (req, res) => {
                 return res.status(400).json({ message: "You have already signed this form and cannot edit." });
             }
         
-            let trainee_signature = form[0].trainee_signature;
-            const uploadedSignature = req.files && Array.isArray(req.files.signature)
-              ? req.files.signature[0]
-              : null;
-            
-            if (uploadedSignature) {
-                if (trainee_signature) {
-                    const oldFilePath = path.join(
-                        __dirname,
-                        '..',
-                        trainee_signature.replace(`${req.protocol}://${req.get('host')}/`, '')
-                    );
-            
-                    if (fs.existsSync(oldFilePath)) {
-                        fs.unlinkSync(oldFilePath);
-                    }
-                }
-            
-                // Rename and store new file
-                const ext = path.extname(uploadedSignature.originalname);
-                let filename = uploadedSignature.filename;
-            
-                if (!filename.endsWith(ext)) {
-                    filename += ext;
-                }
-            
-                const relativePath = `uploads/${filename}`;
-                const absoluteOldPath = path.join(__dirname, '..', 'uploads', uploadedSignature.filename);
-                const absoluteNewPath = path.join(__dirname, '..', relativePath);
-            
-                fs.renameSync(absoluteOldPath, absoluteNewPath);
-            
-                trainee_signature = `${req.protocol}://${req.get('host')}/${relativePath}`;
-                console.log(" Trainee signature path saved:", trainee_signature);
-            }
+            let r_Signature = req.files?.signature
+                ? req.files.signature[0].path
+                : existingRecord[0].resident_signature;
+            const trainee_signature = form_helper.getPublicUrl(r_Signature);
+
 
             // Set is_signed_by_trainee flag if new signature is uploaded
             const is_signed_by_trainee = req.files?.signature ? 1 : form.is_signed_by_trainee || 0;
@@ -380,7 +328,7 @@ const checkAndUpdateCompletionStatus = async (formId) => {
 const getDOPSById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { /*role,*/ userId } = req.user;
+        const { userId } = req.user;
 
         const [result] = await pool.execute(
             `SELECT d.*, u1.Name AS trainee_name, u2.Name AS supervisor_name
@@ -407,7 +355,7 @@ const getDOPSById = async (req, res) => {
 const deleteDOPSById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId, role } = req.user;
+        const { userId} = req.user;
 
         const [rows] = await pool.execute("SELECT * FROM dops WHERE id = ?", [id]);
 
@@ -417,25 +365,17 @@ const deleteDOPSById = async (req, res) => {
 
         const record = rows[0]; 
 
-        // Delete associated signature file if it exists
-       if (record.supervisor_signature) {
-        const filePath = path.join(__dirname, '..', record.supervisor_signature.replace(`${req.protocol}://${req.get('host')}/`, ''));
-
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log("Deleted signature file:", filePath);
-        }
-    }
-
-    // Delete associated signature file if it exists
-    if (record.trainee_signature) {
-        const filePath = path.join(__dirname, '..', record.trainee_signature.replace(`${req.protocol}://${req.get('host')}/`, ''));
-
-        if (fs.existsSync(filePath)) {
-            fs.unlinkSync(filePath);
-            console.log("Deleted signature file:", filePath);
-        }
-    }
+        if (record.supervisor_id !== userId && userId !== 1) {
+            return res.status(403).json({
+              message:
+                "Permission denied: Only the assigned supervisor can delete this record",
+            });
+          }
+          await form_helper.deleteSignatureFilesFromDB(
+            "dops",
+            id,
+            ["trainee_signature", "supervisor_signature"]
+          );
 
         await pool.execute("DELETE FROM dops WHERE id = ?", [id]);
         res.status(200).json({ message: "DOPS record deleted successfully" });
