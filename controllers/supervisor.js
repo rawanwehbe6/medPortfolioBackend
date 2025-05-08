@@ -199,7 +199,7 @@ const getFormCountsByTrainee = async (req, res) => {
     },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       sentCol: "sent",
       completeCol: "completed",
     },
@@ -293,7 +293,7 @@ const getSentFormIdsForTrainee = async (req, res) => {
     { table: "seminar_assessment", idCol: "resident_id", sentCol: "sent" },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       sentCol: "sent",
     },
     { table: "journal_club_assessment", idCol: "resident_id", sentCol: "sent" },
@@ -354,7 +354,7 @@ const getCompletedFormIdsForTrainee = async (req, res) => {
     },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       completeCol: "completed",
     },
     {
@@ -464,7 +464,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
       },
       {
         table: "fellow_resident_evaluation",
-        traineeCol: "fellow_id",
+        traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
         value: 0,
@@ -535,7 +535,7 @@ const getFormCountsBySupervisor = async (req, res) => {
     },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       sentCol: "sent",
       completeCol: "completed",
     },

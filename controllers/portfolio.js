@@ -124,9 +124,9 @@ const getFormById = async (req, res) => {
           fre.*, 
           u.Name AS resident_name
         FROM fellow_resident_evaluation fre
-        JOIN users u ON fre.fellow_id = u.User_ID
+        JOIN users u ON fre.resident_id = u.User_ID
         WHERE fre.id = ?`,
-        field: "fellow_id",
+        field: "resident_id",
         sentCol: "sent",
         completeCol: "completed",
         inverse: false,
@@ -321,7 +321,7 @@ const getCompletedFormsById = async (req, res) => {
         query: `SELECT id FROM dops WHERE resident_id = ? AND is_draft = 0`,
       },
       fellow_resident_evaluation: {
-        query: `SELECT id FROM fellow_resident_evaluation WHERE fellow_id = ? AND completed = 1`,
+        query: `SELECT id FROM fellow_resident_evaluation WHERE resident_id = ? AND completed = 1`,
       },
       journal_club_assessment: {
         query: `SELECT id FROM journal_club_assessment WHERE resident_id = ? AND complete = 1`,

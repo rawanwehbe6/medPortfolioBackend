@@ -6,7 +6,7 @@ const createForm = async (req, res) => {
     const { userId: supervisor_id } = req.user;
 
     const {
-      fellow_id,
+      resident_id,
       hospital,
       date_of_rotation,
       punctuality,
@@ -26,7 +26,7 @@ const createForm = async (req, res) => {
 
     const [fellowRows] = await pool.execute(
       `SELECT Name FROM users WHERE User_ID = ?`,
-      [fellow_id]
+      [resident_id]
     );
 
     const [supervisorRows] = await pool.execute(
@@ -59,14 +59,14 @@ const createForm = async (req, res) => {
 
     const [insertResult] = await pool.execute(
       `INSERT INTO fellow_resident_evaluation 
-        (fellow_id, fellow_name, hospital, date_of_rotation, supervisor_id, supervisor_name,
+        (resident_id, fellow_name, hospital, date_of_rotation, supervisor_id, supervisor_name,
          punctuality, dependable, respectful, positive_interaction, self_learning,
          communication, history_taking, physical_examination, clinical_reasoning, 
          application_knowledge, overall_marks, strengths, suggestions, 
          supervisor_signature, sent) 
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        fellow_id,
+        resident_id,
         fellow_name,
         hospital ?? null,
         date_of_rotation ?? null,
@@ -260,7 +260,7 @@ const getTupleById = async (req, res) => {
          u_f.Name AS fellow_name,
          u_s.Name AS supervisor_name
        FROM fellow_resident_evaluation fre
-       JOIN users u_f ON fre.fellow_id = u_f.User_ID
+       JOIN users u_f ON fre.resident_id = u_f.User_ID
        JOIN users u_s ON fre.supervisor_id = u_s.User_ID
        WHERE fre.id = ?`,
       [id]

@@ -61,7 +61,7 @@ const getFormsProgressForTrainee = async (req, res) => {
     {
       name: "Performance",
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       sentCol: "sent",
       completeCol: "completed",
       required: 1,
@@ -156,7 +156,7 @@ const getSentFormsForTrainee = async (req, res) => {
     },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       sentCol: "sent",
       completeCol: "completed",
     },
@@ -243,7 +243,7 @@ const getCompletedFormsForTrainee = async (req, res) => {
     },
     {
       table: "fellow_resident_evaluation",
-      idCol: "fellow_id",
+      idCol: "resident_id",
       completeCol: "completed",
     },
     {
@@ -314,7 +314,7 @@ const getLatestUpdatedForm = async (req, res) => {
     },
     {
       name: "Fellow Resident Evaluation",
-      query: `SELECT 'Fellow Resident Evaluation' as form_name, updated_at FROM fellow_resident_evaluation WHERE fellow_id = ? ORDER BY updated_at DESC LIMIT 1`,
+      query: `SELECT 'Fellow Resident Evaluation' as form_name, updated_at FROM fellow_resident_evaluation WHERE resident_id = ? ORDER BY updated_at DESC LIMIT 1`,
     },
     {
       name: "Grand Round Presentation",
