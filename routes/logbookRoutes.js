@@ -14,6 +14,26 @@ const uploadPNG = upload.fields([
     { name: "signature", maxCount: 1 }, // Supervisor or Resident signature
 ]);
 
+const handleFileUpload = (req, res, next) => {
+  uploadPNG(req, res, (err) => {
+    if (err) return res.status(400).json({ error: "File upload failed" });
+
+    if (req.user.role === 2) {
+      // Role 2 (Resident) must upload a signature
+      if (
+        !req.files ||
+        !req.files.signature ||
+        req.files.signature.length === 0
+      ) {
+        return res
+          .status(400)
+          .json({ error: "PNG file is required for resident" });
+      }
+    }
+    next();
+  });
+};
+
 // Logbook profile Routes
 router.post("/logbook/profile", auth("create_logbook_profile"), logbookController.createLogbookProfile);
 router.get("/logbook/profile/:traineeId", auth("get_logbook_profile_info"), logbookController.getLogbookProfileInfo);
@@ -65,6 +85,12 @@ router.post('/logbook/third-year-rotation-logbook', auth("create_third_year_rota
 router.put('/logbook/third-year-rotation-logbook/:rotation_id', auth("update_third_year_rotation_details"), logbookController.updateThirdYearRotationDetails);
 router.get('/logbook/third-year-rotation-logbook/:trainee_id', auth("get_third_year_rotation_details"), logbookController.getThirdYearRotationDetailsById);
 router.delete('/logbook/third-year-rotation-logbook/:rotation_id', auth("delete_third_year_rotation_details"), logbookController.deleteThirdYearRotationDetails);
+
+// logbook Procedure Evaluation Form Routes
+router.post('/logbook/procedure-eval-form/create/:resident_id', auth("create_procedure_eval_form"), uploadPNG, logbookController.createProcedureEvalForm);
+router.put('/logbook/procedure-eval-form/update/:id', auth("update_procedure_eval_form"), handleFileUpload,logbookController.updateProcedureEvalForm);
+router.get('/logbook/procedure-eval-form/:resident_id', auth("get_procedure_eval_form"), logbookController.getProcedureEvalForm);
+router.delete('/logbook/procedure-eval-form/:id', auth("delete_procedure_eval_form"), logbookController.deleteProcedureEvalForm);
 
 // Logbook Procedure Logs Routes
 router.post('/logbook/procedure-logs/:procedure_name', auth("create_or_update_single_procedure_log"), logbookController.createOrUpdateSingleProcedureLog);

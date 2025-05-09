@@ -7,7 +7,7 @@ const form_helper = require('../middleware/form_helper');
 const createMiniCEX = async (req, res) => {
   try {
     const { userId } = req.user;
-    const {
+    let {
       medical_interviewing,
       physical_exam,
       professionalism,
@@ -21,14 +21,46 @@ const createMiniCEX = async (req, res) => {
       resident_id,
       draft_send,
     } = req.body;
+
+    let nullableFields = [
+      "medical_interviewing",
+      "physical_exam",
+      "professionalism",
+      "clinical_judgment",
+      "counseling_skills",
+      "efficiency",
+      "overall_competence",
+      "observer_time",
+      "feedback_time",
+      "evaluator_satisfaction",
+    ];
+
+    // Apply transformation
+    nullableFields.forEach((field) => {
+      if (req.body[field] === "") {
+        eval(`${field} = null`);
+      }
+    });
     console.log("Uploaded files:", req.files);
 
-
+    console.log(
+      medical_interviewing,
+      physical_exam,
+      professionalism,
+      clinical_judgment,
+      counseling_skills,
+      efficiency,
+      overall_competence,
+      observer_time,
+      feedback_time,
+      evaluator_satisfaction,
+      resident_id,
+      draft_send
+    );
     const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
     const evaluator_signature_path = form_helper.getPublicUrl(a_signature);
-
 
     // Set is_signed_by_supervisor flag if signature is uploaded
     const is_signed_by_supervisor = evaluator_signature_path ? 1 : 0;
@@ -101,7 +133,7 @@ const updateMiniCEX = async (req, res) => {
   try {
     const { userId } = req.user;
     const { id } = req.params;
-    const {
+    let {
       residentFellow,
       resident_level,
       evaluation_date,
@@ -128,7 +160,34 @@ const updateMiniCEX = async (req, res) => {
     } = req.body;
     console.log("Request Body:", req.body);
     console.log("Request Files:", req.files);
+    let nullableFields = [
+      "residentFellow",
+      "resident_level",
+      "evaluation_date",
+      "setting",
+      "patient_problem",
+      "patient_age",
+      "patient_sex",
+      "patient_type",
+      "complexity",
+      "medical_interviewing",
+      "physical_exam",
+      "professionalism",
+      "clinical_judgment",
+      "counseling_skills",
+      "efficiency",
+      "overall_competence",
+      "observer_time",
+      "feedback_time",
+      "evaluator_satisfaction",
+    ];
 
+    // Apply transformation
+    nullableFields.forEach((field) => {
+      if (req.body[field] === "") {
+        eval(`${field} = null`);
+      }
+    });
     // Fetch form data to check the current signature status
     const [form] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [
       id,
@@ -170,19 +229,19 @@ const updateMiniCEX = async (req, res) => {
       let a_signature = form[0].evaluator_signature_path;
 
       if (req.files?.signature) {
-          const newSignaturePath = req.files.signature[0].path;
-          const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
-  
-          await form_helper.deleteOldSignatureIfUpdated(
-            "mini_cex",
-            id,
-            "evaluator_signature_path",
-            newSignatureUrl
-          );
-  
-          a_signature = newSignatureUrl;
-        }
-        
+        const newSignaturePath = req.files.signature[0].path;
+        const newSignatureUrl = form_helper.getPublicUrl(newSignaturePath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "mini_cex",
+          id,
+          "evaluator_signature_path",
+          newSignatureUrl
+        );
+
+        a_signature = newSignatureUrl;
+      }
+
       evaluator_signature_path = a_signature;
 
       // Set is_signed_by_supervisor flag if new signature is uploaded
@@ -243,9 +302,7 @@ const updateMiniCEX = async (req, res) => {
     else if (hasAccess) {
       // Ensure the current logged-in trainee is the one assigned to the form
       if (form[0].resident_id !== userId || form[0].sent_to_trainee === 0) {
-        return res
-          .status(403)
-          .json({ message: "Unauthorized access to form" });
+        return res.status(403).json({ message: "Unauthorized access to form" });
       }
 
       if (form[0].is_signed_by_trainee) {
@@ -258,7 +315,6 @@ const updateMiniCEX = async (req, res) => {
         ? req.files.signature[0].path
         : existingRecord[0].resident_signature;
       const trainee_signature_path = form_helper.getPublicUrl(r_Signature);
-
 
       // Set is_signed_by_trainee flag if new signature is uploaded
       const is_signed_by_trainee = req.files?.signature

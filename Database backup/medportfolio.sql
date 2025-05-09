@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 09, 2025 at 12:51 AM
+-- Generation Time: May 10, 2025 at 12:05 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -460,7 +460,8 @@ INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_N
 (30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
 (30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
 (30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
-(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1);
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1);
 
 -- --------------------------------------------------------
 
@@ -661,7 +662,15 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('getUserCountsByRole', 180, 1, 0, 0),
 ('addSupervisorSuperviseeRelation', 181, 1, 0, 0),
 ('updateSupervisorSuperviseeRelation', 182, 1, 0, 0),
-('deleteSupervisorSuperviseeRelation', 183, 1, 0, 0);
+('deleteSupervisorSuperviseeRelation', 183, 1, 0, 0),
+('create_procedure_eval_form', 184, 0, 1, 1),
+('update_procedure_eval_form', 185, 0, 1, 1),
+('get_procedure_eval_form', 186, 0, 1, 1),
+('delete_procedure_eval_form', 187, 0, 0, 1),
+('get_forbidden_logs', 188, 1, 0, 0),
+('get_contact_messages', 189, 1, 0, 0),
+('delete_contact_message', 190, 1, 0, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -770,7 +779,7 @@ CREATE TABLE `logbook_profile_info` (
 --
 
 INSERT INTO `logbook_profile_info` (`id`, `trainee_id`, `resident_name`, `academic_year`, `email`, `mobile_no`, `created_at`, `updated_at`, `certificate_id`, `trainee_signature`, `hospital_signature`, `hospital_id`) VALUES
-(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-04-04 21:34:03', NULL, NULL, NULL, NULL);
+(1, 26, 'Rima Doe', '2025', 'johndoe@example.com', '9876543210', '2025-04-04 21:30:06', '2025-05-09 11:25:02', NULL, '/uploads/1746789860033c02df29fb8edb1680636e675b01a4e23cf5a.PNG', '/uploads/174678990249459ee89e6efb336b6d839d22252edaa3573a9.PNG', 30);
 
 -- --------------------------------------------------------
 
@@ -809,12 +818,12 @@ CREATE TABLE `mini_cex` (
   `supervisor_name` varchar(255) DEFAULT NULL,
   `resident_id` int(11) DEFAULT NULL,
   `trainee_name` varchar(255) DEFAULT NULL,
-  `resident_level` enum('R-1/F-1','R-2/F-2','R-3/F-3') NOT NULL,
-  `evaluation_date` date NOT NULL,
-  `setting` enum('Ambulatory','In-patient','ED','Other') NOT NULL,
+  `resident_level` enum('R-1/F-1','R-2/F-2','R-3/F-3') DEFAULT NULL,
+  `evaluation_date` date DEFAULT NULL,
+  `setting` enum('Ambulatory','In-patient','ED','Other') DEFAULT NULL,
   `patient_problem` varchar(255) DEFAULT NULL,
   `patient_age` int(11) DEFAULT NULL,
-  `patient_sex` enum('Male','Female') NOT NULL,
+  `patient_sex` enum('Male','Female') DEFAULT NULL,
   `patient_type` enum('New','Follow-up') DEFAULT NULL,
   `complexity` enum('Low','Moderate','High') DEFAULT NULL,
   `focus` enum('Data Gathering','Diagnosis','Therapy','Counseling') DEFAULT NULL,
@@ -1080,6 +1089,45 @@ INSERT INTO `procedures` (`id`, `name`, `minimum_required`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `procedure_evaluation`
+--
+
+CREATE TABLE `procedure_evaluation` (
+  `id` int(11) NOT NULL,
+  `resident_id` int(11) DEFAULT NULL,
+  `supervisor_id` int(11) DEFAULT NULL,
+  `procedure_name` varchar(255) DEFAULT NULL,
+  `date` date DEFAULT NULL,
+  `setting` enum('Emergency','Elective','Simulation') DEFAULT NULL,
+  `difficulty` enum('Easy','Average','Difficult') DEFAULT NULL,
+  `preparation_and_set_up` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `consent_and_communication` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `technical_skills` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `asepsis_and_safety` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `problem_management` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `documentation` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
+  `strengths` text DEFAULT NULL,
+  `areas_for_improvement` text DEFAULT NULL,
+  `trainee_signature_path` varchar(255) DEFAULT NULL,
+  `evaluator_signature_path` varchar(255) DEFAULT NULL,
+  `is_signed_by_trainee` tinyint(1) DEFAULT NULL,
+  `is_signed_by_supervisor` tinyint(1) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `trainee_name` varchar(255) DEFAULT NULL,
+  `evaluator_name` varchar(255) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `procedure_evaluation`
+--
+
+INSERT INTO `procedure_evaluation` (`id`, `resident_id`, `supervisor_id`, `procedure_name`, `date`, `setting`, `difficulty`, `preparation_and_set_up`, `consent_and_communication`, `technical_skills`, `asepsis_and_safety`, `problem_management`, `documentation`, `strengths`, `areas_for_improvement`, `trainee_signature_path`, `evaluator_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `created_at`, `updated_at`, `trainee_name`, `evaluator_name`) VALUES
+(3, 22, 28, 'procedure 1', '2025-12-02', 'Simulation', 'Easy', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'good', 'nothing', '/uploads/1746828045470213898ce3ab021fcf3c3f4c2e085055e0280.PNG', '/uploads/174682774657862ba0bfef7b8374ee21e1fa3eb5ee6b88ac8.PNG', 1, 1, '2025-05-09 21:55:46', '2025-05-09 22:00:45', 'rima ', 'rima');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `procedure_summary_logs`
 --
 
@@ -1248,19 +1296,20 @@ CREATE TABLE `seminar_assessment` (
   `assessor_signature_path` varchar(255) DEFAULT NULL,
   `sent` tinyint(1) NOT NULL DEFAULT 0,
   `completed` tinyint(1) NOT NULL DEFAULT 0,
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `agreed_action_plan` varchar(512) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `seminar_assessment`
 --
 
-INSERT INTO `seminar_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `topic`, `content`, `presentation_skills`, `audio_visual_aids`, `communication`, `handling_questions`, `audience_management`, `references`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `sent`, `completed`, `updated_at`) VALUES
-(1, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550730360.png', 0, 0, '2025-04-16 18:24:27'),
-(3, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550772289.png', 1, 0, '2025-04-16 18:24:27'),
-(4, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1744666042025.jpg', 1, 0, '2025-04-16 18:24:27'),
-(5, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', 'http://localhost:3000/uploads/1746454692823.png', 'http://localhost:3000/uploads/1746454705257.png', 1, 1, '2025-05-05 14:18:25'),
-(6, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 1, 0, '2025-05-05 15:37:43');
+INSERT INTO `seminar_assessment` (`id`, `resident_id`, `supervisor_id`, `resident_fellow_name`, `date_of_presentation`, `topic`, `content`, `presentation_skills`, `audio_visual_aids`, `communication`, `handling_questions`, `audience_management`, `references`, `major_positive_feature`, `suggested_areas_for_improvement`, `resident_signature_path`, `assessor_signature_path`, `sent`, `completed`, `updated_at`, `agreed_action_plan`) VALUES
+(1, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550730360.png', 0, 0, '2025-04-16 18:24:27', NULL),
+(3, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550772289.png', 1, 0, '2025-04-16 18:24:27', NULL),
+(4, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1744666042025.jpg', 1, 0, '2025-04-16 18:24:27', NULL),
+(5, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', 'http://localhost:3000/uploads/1746454692823.png', 'http://localhost:3000/uploads/1746454705257.png', 1, 1, '2025-05-05 14:18:25', NULL),
+(6, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 1, 0, '2025-05-05 15:37:43', NULL);
 
 -- --------------------------------------------------------
 
@@ -1619,6 +1668,9 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (2, 177),
 (2, 178),
 (2, 179),
+(2, 184),
+(2, 185),
+(2, 186),
 (3, 9),
 (3, 12),
 (3, 24),
@@ -1725,6 +1777,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (3, 177),
 (3, 178),
 (3, 179),
+(3, 184),
+(3, 185),
+(3, 186),
+(3, 187),
 (4, 9),
 (4, 12),
 (4, 24),
@@ -1825,6 +1881,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (4, 177),
 (4, 178),
 (4, 179),
+(4, 184),
+(4, 185),
+(4, 186),
+(4, 187),
 (5, 9),
 (5, 12),
 (5, 24),
@@ -1887,6 +1947,10 @@ INSERT INTO `usertype_functions` (`UsertypeId`, `FunctionsId`) VALUES
 (5, 142),
 (5, 146),
 (5, 179),
+(5, 184),
+(5, 185),
+(5, 186),
+(5, 187),
 (8, 148),
 (8, 149),
 (8, 150),
@@ -2185,6 +2249,12 @@ ALTER TABLE `procedures`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Indexes for table `procedure_evaluation`
+--
+ALTER TABLE `procedure_evaluation`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `procedure_summary_logs`
 --
 ALTER TABLE `procedure_summary_logs`
@@ -2418,7 +2488,7 @@ ALTER TABLE `first_year_rotations`
 -- AUTO_INCREMENT for table `functions`
 --
 ALTER TABLE `functions`
-  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
+  MODIFY `Id` int(9) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=191;
 
 --
 -- AUTO_INCREMENT for table `grand_round_presentation_assessment`
@@ -2479,6 +2549,12 @@ ALTER TABLE `prelogin_contact_messages`
 --
 ALTER TABLE `procedures`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+
+--
+-- AUTO_INCREMENT for table `procedure_evaluation`
+--
+ALTER TABLE `procedure_evaluation`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `procedure_summary_logs`

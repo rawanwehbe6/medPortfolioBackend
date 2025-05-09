@@ -1162,8 +1162,6 @@ const updateFirstYearRotationDetails = async (req, res) => {
 };
 
 
-
-
 const getFirstYearRotationDetailsById = async (req, res) => {
   const { rotation_id } = req.params;
   /*const { role } = req.user;
@@ -1308,11 +1306,6 @@ const deleteProcedureLog = async (req, res) => {
   try {
     const { procedure_name } = req.params;
     const traineeId = req.user.userId;
-    /*const { role } = req.user;
-
-    if (role !== 2) {
-      return res.status(403).json({ message: 'Only a trainee can delete log procedures.' });
-    }*/
 
     const [procedureRows] = await pool.execute(
       `SELECT id FROM procedures WHERE name = ?`, 
@@ -1394,75 +1387,6 @@ const getProcedureSummaries = async (req, res) => {
   }
 };
 
-/*const updateProcedureSummary = async (req, res) => {
-  const { role } = req.user;
-  console.log('User role:', role);
-
-  // Only a trainee can update their log summary
-  if (![2,3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee or supervisor can update their log summary.' });
-  }
-
-  try {
-    const { id } = req.params;
-    const traineeId = req.user.userId;
-    const { serial_no, date, procedure_name, status, trainer_signature } = req.body;
-
-    // Step 1: Fetch the existing record from the database
-    const [existingRecord] = await pool.execute(
-      `SELECT serial_no, date, procedure_name, status, trainer_signature
-       FROM procedure_summary_logs 
-       WHERE id = ? AND trainee_id = ?`,
-      [id, traineeId]
-    );
-
-    if (existingRecord.length === 0) {
-      return res.status(404).json({ message: "Entry not found or not authorized." });
-    }
-
-    // Step 2: Only update fields that are provided in the request body
-    const updatedFields = {
-      serial_no: serial_no !== undefined ? serial_no : existingRecord[0].serial_no,
-      date: date !== undefined ? date : existingRecord[0].date,
-      procedure_name: procedure_name !== undefined ? procedure_name : existingRecord[0].procedure_name,
-      status: status !== undefined ? status : existingRecord[0].status,
-      trainer_signature: trainer_signature !== undefined ? trainer_signature : existingRecord[0].trainer_signature
-    };
-
-    // If the role is a supervisor (3, 4, 5), only allow updating the signature
-    if ([3, 4, 5].includes(role)) {
-      if (trainer_signature === undefined) {
-        return res.status(400).json({ message: 'Trainer signature is required for supervisor updates.' });
-      }
-
-      updatedFields.trainer_signature = trainer_signature;
-    }
-
-    const [result] = await pool.execute(
-      `UPDATE procedure_summary_logs 
-       SET serial_no = ?, date = ?, procedure_name = ?, status = ?, trainer_signature = ? 
-       WHERE id = ? AND trainee_id = ?`,
-      [
-        updatedFields.serial_no,
-        updatedFields.date,
-        updatedFields.procedure_name,
-        updatedFields.status,
-        updatedFields.trainer_signature,
-        id,
-        traineeId
-      ]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: "Entry not found or not authorized." });
-    }
-
-    res.status(200).json({ message: "Procedure summary updated successfully." });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to update entry." });
-  }
-};*/
 const updateProcedureSummary = async (req, res) => {
   const { role, userId } = req.user;
 
@@ -1598,6 +1522,364 @@ const deleteProcedureSummary = async (req, res) => {
   }
 };
 
+const createProcedureEvalForm = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { resident_id } = req.params;
+    const {
+      trainee_name,
+      evaluator_name,
+      procedure_name,
+      date,
+      setting,
+      difficulty,
+      preparation_and_set_up,
+      consent_and_communication,
+      technical_skills,
+      asepsis_and_safety,
+      problem_management,
+      documentation,
+      strengths,
+      areas_for_improvement,
+    } = req.body;
+
+    console.log("Request Body:", req.body);
+    console.log("Request Files:", req.files);
+
+    // Check if form already exists for this trainee
+    const [existing] = await pool.execute(
+      `SELECT * FROM procedure_evaluation WHERE resident_id = ?`,
+      [resident_id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        message: "A Procedure Evaluation form already exists for this trainee.",
+      });
+    }
+
+    // Auth logic
+    const hasAccess = await form_helper.auth(
+      "Trainee",
+      "create_procedure_eval_form"
+    )(req, res);
+    const hasAccessS = await form_helper.auth(
+      "Supervisor",
+      "create_procedure_eval_form"
+    )(req, res);
+
+    if (hasAccess) {
+      const traineeSignaturePath = req.files?.signature
+        ? form_helper.getPublicUrl(req.files.signature[0].path)
+        : null;
+
+      const insertTrainee = `
+        INSERT INTO procedure_evaluation (
+          resident_id, trainee_name, procedure_name, date, setting, difficulty,
+          trainee_signature_path, is_signed_by_trainee
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const values = [
+        userId,
+        trainee_name ?? null,
+        procedure_name ?? null,
+        date ?? null,
+        setting ?? null,
+        difficulty ?? null,
+        traineeSignaturePath,
+        traineeSignaturePath ? 1 : 0,
+      ];
+
+      await pool.execute(insertTrainee, values);
+
+      return res.status(201).json({
+        message: "Procedure Evaluation form created by trainee.",
+      });
+    }
+
+    if (hasAccessS) {
+      const supervisorSignaturePath = req.files?.signature
+        ? form_helper.getPublicUrl(req.files.signature[0].path)
+        : null;
+
+      const insertSupervisor = `
+        INSERT INTO procedure_evaluation (
+          supervisor_id, 
+          evaluator_name, 
+          preparation_and_set_up, 
+          consent_and_communication, 
+          technical_skills,
+          asepsis_and_safety, 
+          problem_management, 
+          documentation,
+          strengths, 
+          areas_for_improvement,
+          evaluator_signature_path, 
+          is_signed_by_supervisor
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+      const values = [
+        userId ?? null,
+        evaluator_name ?? null,
+        preparation_and_set_up ?? null,
+        consent_and_communication ?? null,
+        technical_skills ?? null,
+        asepsis_and_safety ?? null,
+        problem_management ?? null,
+        documentation ?? null,
+        strengths ?? null,
+        areas_for_improvement ?? null,
+        supervisorSignaturePath,
+        supervisorSignaturePath ? 1 : 0,
+      ];
+
+      await pool.execute(insertSupervisor, values);
+
+      return res.status(201).json({
+        message: "Procedure Evaluation form created by supervisor.",
+      });
+    }
+
+    return res.status(403).json({
+      message: "You are not authorized to create this form.",
+    });
+  } catch (err) {
+    console.error("Server Error:", err);
+    res.status(500).json({
+      error: "An error occurred while creating the procedure evaluation form.",
+    });
+  }
+};
+
+const updateProcedureEvalForm = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { id } = req.params; 
+
+    const [formResult] = await pool.execute(
+      `SELECT * FROM procedure_evaluation WHERE id = ?`,
+      [id]
+    );
+
+    if (formResult.length === 0) {
+      return res.status(404).json({ message: "Form not found." });
+    }
+
+    const form = formResult[0];
+
+    // Role-based auth
+    const hasAccess= await form_helper.auth("Trainee", "update_procedure_eval_form")(req, res);
+    const hasAccessS = await form_helper.auth("Supervisor", "update_procedure_eval_form")(req, res);
+
+    if (hasAccess) {
+      if (form.is_signed_by_trainee) {
+        return res.status(403).json({
+          message: "Trainee has already signed the form. Updates are not allowed.",
+        });
+      }
+      // Handle trainee signature update
+      let traineeSignaturePath = form.trainee_signature_path;
+
+      if (req.files?.signature) {
+        const newPath = req.files.signature[0].path;
+        const newUrl = form_helper.getPublicUrl(newPath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "procedure_evaluation",
+          id,
+          "trainee_signature_path",
+          newUrl
+        );
+
+        traineeSignaturePath = newUrl;
+      }
+
+      const {
+        trainee_name,
+        procedure_name,
+        date,
+        setting,
+        difficulty,
+      } = req.body;
+
+      const updateQuery = `
+        UPDATE procedure_evaluation
+        SET trainee_name = ?, 
+            resident_id = ?,
+            procedure_name = ?, 
+            date = ?, 
+            setting = ?, 
+            difficulty = ?, 
+            trainee_signature_path = ?, 
+            is_signed_by_trainee = ?
+        WHERE id = ?
+      `;
+
+      const values = [
+        trainee_name ?? form.trainee_name,
+        userId ?? form.resident_id,
+        procedure_name ?? form.procedure_name,
+        date ?? form.date,
+        setting ?? form.setting,
+        difficulty ?? form.difficulty,
+        traineeSignaturePath,
+        traineeSignaturePath ? 1 : form.is_signed_by_trainee,
+        id,
+      ];
+
+      await pool.execute(updateQuery, values);
+
+      return res.status(200).json({ message: "Form updated by trainee." });
+    }
+
+    if (hasAccessS) {
+      if (form.is_signed_by_supervisor) {
+        return res.status(403).json({
+          message: "Supervisor has already signed the form. Updates are not allowed.",
+        });
+      }
+      // Handle supervisor signature update
+      let supervisorSignaturePath = form.evaluator_signature_path;
+
+      if (req.files?.signature) {
+        const newPath = req.files.signature[0].path;
+        const newUrl = form_helper.getPublicUrl(newPath);
+
+        await form_helper.deleteOldSignatureIfUpdated(
+          "procedure_evaluation",
+          id,
+          "evaluator_signature_path",
+          newUrl
+        );
+
+        supervisorSignaturePath = newUrl;
+      }
+
+      const {
+        evaluator_name,
+        preparation_and_set_up,
+        consent_and_communication,
+        technical_skills,
+        asepsis_and_safety,
+        problem_management,
+        documentation,
+        strengths,
+        areas_for_improvement,
+      } = req.body;
+      console.log("body", req.body);
+      console.log("file", req.files);
+
+      const updateQuery = `
+        UPDATE procedure_evaluation
+        SET evaluator_name = ?, 
+            supervisor_id = ?,
+            preparation_and_set_up = ?, 
+            consent_and_communication = ?, 
+            technical_skills = ?, 
+            asepsis_and_safety = ?, 
+            problem_management = ?, 
+            documentation = ?, 
+            strengths = ?, 
+            areas_for_improvement = ?, 
+            evaluator_signature_path = ?, 
+            is_signed_by_supervisor = ?
+        WHERE id = ?
+      `;
+
+      const values = [
+        evaluator_name ?? form.evaluator_name,
+        userId ?? form.supervisor_id,
+        preparation_and_set_up ?? form.preparation_and_set_up,
+        consent_and_communication ?? form.consent_and_communication,
+        technical_skills ?? form.technical_skills,
+        asepsis_and_safety ?? form.asepsis_and_safety,
+        problem_management ?? form.problem_management,
+        documentation ?? form.documentation,
+        strengths ?? form.strengths,
+        areas_for_improvement ?? form.areas_for_improvement,
+        supervisorSignaturePath,
+        supervisorSignaturePath ? 1 : form.is_signed_by_supervisor,
+        id,
+      ];
+
+      const [result] = await pool.execute(updateQuery, values);
+      console.log("DB update result", result);
+
+      return res.status(200).json({ message: "Form updated by supervisor." });
+    }
+
+    return res.status(403).json({ message: "You are not authorized to update this form." });
+  } catch (err) {
+    console.error("Update Error:", err);
+    return res.status(500).json({
+      error: "An error occurred while updating the procedure evaluation form.",
+    });
+  }
+};
+
+const getProcedureEvalForm = async (req, res) => {
+  try {
+    const { resident_id } = req.params;
+
+    const [rows] = await pool.execute(
+      `SELECT * FROM procedure_evaluation WHERE resident_id = ?`,
+      [resident_id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Form not found." });
+    }
+
+    res.status(200).json({ form: rows[0] });
+  } catch (err) {
+    console.error("Error fetching form:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+const deleteProcedureEvalForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [rows] = await pool.execute(
+      `SELECT * FROM procedure_evaluation WHERE id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: "Form not found." });
+    }
+
+    const form = rows[0];
+
+    if (form.trainee_signature_path) {
+        await form_helper.deleteSignatureFilesFromDB(
+          "procedure_evaluation",
+            id,
+            ["evaluator_signature_path"]
+        );
+    }
+    if (form.evaluator_signature_path) {
+      await form_helper.deleteSignatureFilesFromDB(
+        "procedure_evaluation",
+          id,
+          ["evaluator_signature_path"]
+      );
+    }
+
+    await pool.execute(
+      `DELETE FROM procedure_evaluation WHERE id = ?`,
+      [id]
+    );
+
+    res.status(200).json({ message: "Form deleted successfully." });
+  } catch (err) {
+    console.error("Error deleting form:", err);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
 
 module.exports = {
     createLogbookProfile,
@@ -1648,5 +1930,10 @@ module.exports = {
     addProcedureSummary,
     getProcedureSummaries,
     updateProcedureSummary,
-    deleteProcedureSummary
+    deleteProcedureSummary,
+
+    createProcedureEvalForm,
+    updateProcedureEvalForm,
+    getProcedureEvalForm,
+    deleteProcedureEvalForm
   };
