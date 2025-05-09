@@ -201,9 +201,17 @@ const deleteLogbookProfileInfo = async (req, res) => {
 
 const signLogbookCertificate = async (req, res) => {
   try {
-    const { /*role,*/ userId } = req.user;
-    const traineeId = [3, 4, 5].includes(role) ? req.params.trainee_id : userId;
+    const { userId } = req.user;
 
+    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
+    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
+    console.log(hasAccess,hasAccessS,userId);
+     
+    const traineeId = hasAccessS ? req.params.trainee_id : userId;
+
+    if (hasAccessS && !traineeId) {
+      return res.status(400).json({ message: "Trainee ID is required for supervisor signing." });
+    }
     console.log("Resolved traineeId:", traineeId);
 
     const [rows] = await pool.execute(
@@ -222,12 +230,10 @@ const signLogbookCertificate = async (req, res) => {
       return res.status(400).json({ message: "Signature file is required." });
     }
 
-    const signaturePath = req.files.signature[0].path;
-
-    const hasAccess = await form_helper.auth('Trainee', 'sign_logbook_certificate')(req, res);
-    const hasAccessS = await form_helper.auth('Supervisor', 'sign_logbook_certificate')(req, res);
-    console.log(hasAccess,hasAccessS,userId);
-     
+    const a_signature = req.files?.signature
+      ? req.files.signature[0].path
+      : null;
+    const signaturePath = form_helper.getPublicUrl(a_signature);
 
     // Trainee signs
     if (hasAccess) {
@@ -296,12 +302,7 @@ const signLogbookCertificate = async (req, res) => {
   const deleteLogbookCertificate = async (req, res) => {
     try {
       const { certificate_id } = req.params;
-      const { /*role,*/ userId } = req.user;
-  
-      // Only trainees are allowed to delete certificates
-      /*if (role !== 2) {
-        return res.status(403).json({ message: "Only trainees can delete certificates." });
-      }*/
+      const { userId } = req.user;
   
       // Fetch certificate data from logbook_profile_info to ensure it exists
       const [[profileInfo]] = await pool.execute(
@@ -318,6 +319,12 @@ const signLogbookCertificate = async (req, res) => {
         return res.status(403).json({ message: "You do not have permission to delete this certificate." });
       }
   
+      // Delete the actual signature files from the server
+      await deleteSignatureFilesFromDB("logbook_profile_info", certificate_id, [
+          "hospital_signature",
+          "trainee_signature"
+      ]);
+
       // Update the signature fields to NULL
       const [updateResult] = await pool.execute(
         "UPDATE logbook_profile_info SET hospital_signature = NULL, trainee_signature = NULL WHERE id = ?",
