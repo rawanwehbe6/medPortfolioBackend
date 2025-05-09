@@ -152,7 +152,7 @@ const getAllContactMessages = async (req, res) => {
     // Verify the user is admin (role 1)
     // Query the database for all contact messages
     const [messages] = await pool.execute(
-      "SELECT id, name, message, created_at FROM contact_messages ORDER BY created_at DESC"
+      "SELECT id, name, message, created_at FROM contact_messages WHERE is_visible = 1 ORDER BY created_at DESC"
     );
 
     res.status(200).json({
@@ -470,6 +470,146 @@ const getTraineeSupervisors = async (req, res) => {
   }
 };
 
+const getForbiddenLogs = async (req, res) => {
+  try {
+    const [logs] = await pool.execute(`
+      SELECT 
+        f.User_ID,
+        u.name AS User_Name,
+        f.Function_ID,
+        func.Name AS Function_Name,
+        f.timestamp
+      FROM forbidden_logs f
+      JOIN users u ON f.User_ID = u.User_ID
+      JOIN functions func ON f.Function_ID = func.Id
+      ORDER BY f.timestamp DESC
+    `);
+
+    // Group logs by user
+    const groupedLogs = {};
+
+    for (const log of logs) {
+      if (!groupedLogs[log.User_ID]) {
+        groupedLogs[log.User_ID] = {
+          User_ID: log.User_ID,
+          User_Name: log.User_Name,
+          logs: [],
+        };
+      }
+
+      groupedLogs[log.User_ID].logs.push({
+        Function_ID: log.Function_ID,
+        Function_Name: formatFunctionName(log.Function_Name),
+        timestamp: log.timestamp,
+      });
+    }
+
+    // Convert to array and sort by most recent log timestamp
+    const result = Object.values(groupedLogs).sort((a, b) => {
+      const aLatestTime =
+        a.logs.length > 0 ? new Date(a.logs[0].timestamp) : new Date(0);
+      const bLatestTime =
+        b.logs.length > 0 ? new Date(b.logs[0].timestamp) : new Date(0);
+      return bLatestTime - aLatestTime;
+    });
+
+    res.status(200).json({ forbidden_logs: result });
+  } catch (error) {
+    console.error("Error fetching forbidden logs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+const getContactMessagesByUser = async (req, res) => {
+  try {
+    const [messages] = await pool.execute(`
+      SELECT id, name, message, created_at 
+      FROM contact_messages 
+      WHERE is_visible = 1
+      ORDER BY created_at ASC
+    `);
+
+    // Group messages by user name
+    const groupedMessages = {};
+
+    for (const message of messages) {
+      if (!groupedMessages[message.name]) {
+        groupedMessages[message.name] = {
+          user: message.name,
+          messages: [],
+        };
+      }
+
+      groupedMessages[message.name].messages.push({
+        id: message.id,
+        message: message.message,
+        created_at: message.created_at,
+      });
+    }
+
+    // Convert to array and sort by oldest message first
+    const result = Object.values(groupedMessages).sort((a, b) => {
+      const aOldestTime =
+        a.messages.length > 0 ? new Date(a.messages[0].created_at) : new Date();
+      const bOldestTime =
+        b.messages.length > 0 ? new Date(b.messages[0].created_at) : new Date();
+      return aOldestTime - bOldestTime;
+    });
+
+    res.status(200).json({
+      contact_messages: result,
+      total_users: result.length,
+      total_messages: messages.length,
+    });
+  } catch (error) {
+    console.error("Error fetching contact messages by user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+const deleteContactMessage = async (req, res) => {
+  try {
+    const { messageId } = req.params;
+
+    if (!messageId) {
+      return res.status(400).json({ message: "Message ID is required" });
+    }
+
+    // Check if message exists
+    const [message] = await pool.execute(
+      "SELECT id FROM contact_messages WHERE id = ? AND is_visible = 1",
+      [messageId]
+    );
+
+    if (message.length === 0) {
+      return res.status(404).json({ message: "Message not found" });
+    }
+
+    // Mark the message as not visible instead of deleting it
+    await pool.execute(
+      "UPDATE contact_messages SET is_visible = 0 WHERE id = ?",
+      [messageId]
+    );
+
+    res.status(200).json({ message: "Message removed successfully" });
+  } catch (error) {
+    console.error("Error removing contact message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addSupervisorSuperviseeRelation,
   updateSupervisorSuperviseeRelation,
@@ -485,4 +625,7 @@ module.exports = {
   getSupervisorFunctions,
   getSupervisors,
   getTraineeSupervisors,
+  getForbiddenLogs,
+  getContactMessagesByUser,
+  deleteContactMessage,
 };

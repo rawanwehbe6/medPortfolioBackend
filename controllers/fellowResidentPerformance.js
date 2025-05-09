@@ -82,8 +82,8 @@ const createForm = async (req, res) => {
          punctuality, dependable, respectful, positive_interaction, self_learning,
          communication, history_taking, physical_examination, clinical_reasoning, 
          application_knowledge, overall_marks, strengths, suggestions, 
-         supervisor_signature, sent) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         supervisor_signature, sent, completed) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         fellow_id,
         fellow_name,
@@ -105,6 +105,7 @@ const createForm = async (req, res) => {
         strengths ?? null,
         suggestions ?? null,
         supervisor_signature ?? null,
+        draft_send,
         draft_send,
       ]
     );
