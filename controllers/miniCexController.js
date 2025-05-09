@@ -180,6 +180,9 @@ const updateMiniCEX = async (req, res) => {
       "observer_time",
       "feedback_time",
       "evaluator_satisfaction",
+      "resident_satisfaction",
+      "comments",
+      "focus",
     ];
 
     // Apply transformation

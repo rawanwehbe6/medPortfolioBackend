@@ -19,6 +19,7 @@ const createSeminarAssessment = async (req, res) => {
       references,
       major_positive_feature,
       suggested_areas_for_improvement,
+      agreed_action_plan,
       draft_send,
     } = req.body;
 
@@ -40,8 +41,8 @@ const createSeminarAssessment = async (req, res) => {
             topic, content, presentation_skills, audio_visual_aids,
             communication, handling_questions, audience_management,
             \`references\`, major_positive_feature, suggested_areas_for_improvement,
-            assessor_signature_path, sent) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            agreed_action_plan, assessor_signature_path, sent) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         resident_id,
         supervisor_id,
@@ -57,6 +58,7 @@ const createSeminarAssessment = async (req, res) => {
         references ?? null,
         major_positive_feature ?? null,
         suggested_areas_for_improvement ?? null,
+        agreed_action_plan ?? null,
         assessor_signature_path ?? null,
         draft_send,
       ]
@@ -184,6 +186,7 @@ const updateSeminarAssessment = async (req, res) => {
                          \`references\` = ?,
                          major_positive_feature = ?,
                          suggested_areas_for_improvement = ?,
+                         agreed_action_plan = ?,
                          assessor_signature_path = ?, 
                          sent = ?
                      WHERE id = ?`;
@@ -206,6 +209,7 @@ const updateSeminarAssessment = async (req, res) => {
         req.body.suggested_areas_for_improvement ??
           currentRecord.suggested_areas_for_improvement ??
           null,
+        req.body.agreed_action_plan ?? currentRecord.agreed_action_plan ?? null,
         assessor_signature_path ?? null,
         req.body.draft_send ?? currentRecord.sent ?? null,
         id,
@@ -273,6 +277,7 @@ const getSeminarAssessmentById = async (req, res) => {
         sa.references,
         sa.major_positive_feature,
         sa.suggested_areas_for_improvement,
+        sa.agreed_action_plan,
         sa.resident_signature_path AS resident_signature,
         sa.assessor_signature_path AS assessor_signature
      FROM seminar_assessment sa
