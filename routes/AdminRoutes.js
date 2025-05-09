@@ -33,4 +33,22 @@ router.get(
   admin.getTraineeSupervisors
 );
 
+router.get(
+  "/forbidden-logs",
+  auth("get_forbidden_logs"),
+  admin.getForbiddenLogs
+);
+
+router.get(
+  "/contact-messages-by-user",
+  auth("get_contact_messages"),
+  admin.getContactMessagesByUser
+);
+
+router.delete(
+  "/contact-message/:messageId",
+  auth("delete_contact_message"),
+  admin.deleteContactMessage
+);
+
 module.exports = router;
