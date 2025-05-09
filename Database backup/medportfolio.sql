@@ -657,7 +657,7 @@ INSERT INTO `functions` (`Name`, `Id`, `Admin`, `Trainee`, `Supervisor`) VALUES
 ('update_miscellaneous-Activities', 176, 0, 1, 1),
 ('update_case_presentation', 177, 0, 1, 1),
 ('update_seminars', 178, 0, 1, 1),
-('trainee-supervisor_get_forms', 179, 0, 1, 1);
+('trainee-supervisor_get_forms', 179, 0, 1, 1),
 ('getUserCountsByRole', 180, 1, 0, 0),
 ('addSupervisorSuperviseeRelation', 181, 1, 0, 0),
 ('updateSupervisorSuperviseeRelation', 182, 1, 0, 0),
