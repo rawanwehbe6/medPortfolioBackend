@@ -240,6 +240,7 @@ const getTupleById = async (req, res) => {
          gra.physical_examination,
          gra.provisional_diagnosis,
          gra.treatment,
+         gra.AgreedAction,
          gra.future_planning,
          gra.assessor_comment AS supervisor_comment,
          gra.resident_comment,

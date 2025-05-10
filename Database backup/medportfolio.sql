@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2025 at 12:05 AM
+-- Generation Time: May 10, 2025 at 07:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -130,23 +130,24 @@ CREATE TABLE `contact_messages` (
   `name` varchar(100) NOT NULL,
   `message` text NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `user_id` int(11) DEFAULT NULL
+  `user_id` int(11) DEFAULT NULL,
+  `is_visible` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `contact_messages`
 --
 
-INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`, `user_id`) VALUES
-(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13', NULL),
-(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27', NULL),
-(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14', NULL),
-(4, 'Lorence', 'This is a test message for the contact form.', '2025-04-12 19:11:02', 27),
-(5, 'supervisor', 'This is a test message for the contact form.', '2025-04-12 19:11:33', 29),
-(6, 'admin', 'This is a test message for the contact form.', '2025-04-12 19:12:39', 1),
-(7, 'trainee', 'This is a test message for the contact form.', '2025-04-12 19:14:43', 27),
-(8, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:15:46', 29),
-(9, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:26:27', 29);
+INSERT INTO `contact_messages` (`id`, `name`, `message`, `created_at`, `user_id`, `is_visible`) VALUES
+(1, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:39:13', NULL, 1),
+(2, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:40:27', NULL, 1),
+(3, 'Lorence', 'This is a test message for the contact form.', '2025-04-06 09:42:14', NULL, 1),
+(4, 'Lorence', 'This is a test message for the contact form.', '2025-04-12 19:11:02', 27, 1),
+(5, 'supervisor', 'This is a test message for the contact form.', '2025-04-12 19:11:33', 29, 1),
+(6, 'admin', 'This is a test message for the contact form.', '2025-04-12 19:12:39', 1, 1),
+(7, 'trainee', 'This is a test message for the contact form.', '2025-04-12 19:14:43', 27, 1),
+(8, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:15:46', 29, 1),
+(9, 'supervisor test', 'This is a test message for the contact form.', '2025-04-12 19:26:27', 29, 1);
 
 -- --------------------------------------------------------
 
