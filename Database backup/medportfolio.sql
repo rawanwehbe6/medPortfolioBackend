@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2025 at 07:27 PM
+-- Generation Time: May 10, 2025 at 09:05 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -224,7 +224,7 @@ CREATE TABLE `dops` (
 --
 
 INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`, `updated_at`) VALUES
-(6, 30, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1, '2025-05-02 17:02:53');
+(6, 28, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1, '2025-05-10 20:45:36');
 
 -- --------------------------------------------------------
 
@@ -462,7 +462,22 @@ INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_N
 (30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
 (30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
 (30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
-(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1);
+(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1);
 
 -- --------------------------------------------------------
 
@@ -1109,10 +1124,6 @@ CREATE TABLE `procedure_evaluation` (
   `documentation` enum('Not Observed','Development Needed','Satisfactory','Outstanding') DEFAULT NULL,
   `strengths` text DEFAULT NULL,
   `areas_for_improvement` text DEFAULT NULL,
-  `trainee_signature_path` varchar(255) DEFAULT NULL,
-  `evaluator_signature_path` varchar(255) DEFAULT NULL,
-  `is_signed_by_trainee` tinyint(1) DEFAULT NULL,
-  `is_signed_by_supervisor` tinyint(1) DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `trainee_name` varchar(255) DEFAULT NULL,
@@ -1123,8 +1134,8 @@ CREATE TABLE `procedure_evaluation` (
 -- Dumping data for table `procedure_evaluation`
 --
 
-INSERT INTO `procedure_evaluation` (`id`, `resident_id`, `supervisor_id`, `procedure_name`, `date`, `setting`, `difficulty`, `preparation_and_set_up`, `consent_and_communication`, `technical_skills`, `asepsis_and_safety`, `problem_management`, `documentation`, `strengths`, `areas_for_improvement`, `trainee_signature_path`, `evaluator_signature_path`, `is_signed_by_trainee`, `is_signed_by_supervisor`, `created_at`, `updated_at`, `trainee_name`, `evaluator_name`) VALUES
-(3, 22, 28, 'procedure 1', '2025-12-02', 'Simulation', 'Easy', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'Not Observed', 'good', 'nothing', '/uploads/1746828045470213898ce3ab021fcf3c3f4c2e085055e0280.PNG', '/uploads/174682774657862ba0bfef7b8374ee21e1fa3eb5ee6b88ac8.PNG', 1, 1, '2025-05-09 21:55:46', '2025-05-09 22:00:45', 'rima ', 'rima');
+INSERT INTO `procedure_evaluation` (`id`, `resident_id`, `supervisor_id`, `procedure_name`, `date`, `setting`, `difficulty`, `preparation_and_set_up`, `consent_and_communication`, `technical_skills`, `asepsis_and_safety`, `problem_management`, `documentation`, `strengths`, `areas_for_improvement`, `created_at`, `updated_at`, `trainee_name`, `evaluator_name`) VALUES
+(13, 22, 28, 'asdasdasd', '2025-05-14', 'Elective', 'Average', 'Development Needed', 'Development Needed', 'Satisfactory', 'Development Needed', 'Not Observed', 'Satisfactory', 'asadasdasd', 'asdadsasd', '2025-05-10 19:02:40', '2025-05-10 19:04:10', 'test', 'supervisor');
 
 -- --------------------------------------------------------
 
@@ -1328,7 +1339,8 @@ CREATE TABLE `supervisor_supervisee` (
 --
 
 INSERT INTO `supervisor_supervisee` (`SupervisorID`, `SuperviseeID`) VALUES
-(28, 22);
+(28, 22),
+(28, 26);
 
 -- --------------------------------------------------------
 
@@ -2047,7 +2059,11 @@ CREATE TABLE `user_procedure_logs` (
 --
 
 INSERT INTO `user_procedure_logs` (`id`, `trainee_id`, `procedure_id`, `num_performed`, `num_observed`) VALUES
-(1, 26, 2, 4, 2);
+(29, 22, 1, 6, 8),
+(38, 22, 2, 6, 6),
+(76, 22, 3, 6, 6),
+(86, 22, 4, 7, 6),
+(90, 22, 5, 6, 6);
 
 -- --------------------------------------------------------
 
@@ -2555,7 +2571,7 @@ ALTER TABLE `procedures`
 -- AUTO_INCREMENT for table `procedure_evaluation`
 --
 ALTER TABLE `procedure_evaluation`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `procedure_summary_logs`
@@ -2657,7 +2673,7 @@ ALTER TABLE `usertypes`
 -- AUTO_INCREMENT for table `user_procedure_logs`
 --
 ALTER TABLE `user_procedure_logs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
 
 --
 -- AUTO_INCREMENT for table `user_skills`

@@ -58,6 +58,7 @@ const getFormById = async (req, res) => {
           gra.physical_examination,
           gra.provisional_diagnosis,
           gra.treatment,
+          gra.AgreedAction,
           gra.future_planning,
           gra.assessor_comment AS supervisor_comment,
           gra.resident_comment,
@@ -80,17 +81,17 @@ const getFormById = async (req, res) => {
         query: `SELECT 
           u.Name AS resident_name,
           u_a.Name AS supervisor_name,
-          cbd.date, 
-          cbd.diagnosis, 
-          cbd.case_complexity, 
-          cbd.investigation_referral, 
-          cbd.treatment, 
-          cbd.future_planning, 
-          cbd.history_taking, 
-          cbd.overall_clinical_care, 
-          cbd.assessor_comment AS supervisor_comment, 
-          cbd.resident_comment, 
-          cbd.resident_signature, 
+          cbd.date,
+          cbd.diagnosis,
+          cbd.case_complexity,
+          cbd.investigation_referral,
+          cbd.treatment,
+          cbd.future_planning,
+          cbd.history_taking,
+          cbd.overall_clinical_care,
+          cbd.assessor_comment AS supervisor_comment,
+          cbd.resident_comment,
+          cbd.resident_signature,
           cbd.assessor_signature AS supervisor_signature,
           cbd.resident_id,
           cbd.supervisor_id,
@@ -106,14 +107,14 @@ const getFormById = async (req, res) => {
         inverse: false,
       },
       dops: {
-        query: `SELECT
+        query: `SELECT 
           d.*,
           u1.Name AS trainee_name,
           u2.Name AS supervisor_name
-         FROM dops d
-         JOIN users u1 ON d.resident_id = u1.User_ID
-         JOIN users u2 ON d.supervisor_id = u2.User_ID
-         WHERE d.id = ?`,
+        FROM dops d
+        JOIN users u1 ON d.resident_id = u1.User_ID
+        JOIN users u2 ON d.supervisor_id = u2.User_ID
+        WHERE d.id = ?`,
         field: "resident_id",
         sentCol: "is_sent_to_trainee",
         completeCol: "is_draft",
@@ -133,12 +134,30 @@ const getFormById = async (req, res) => {
       },
       journal_club_assessment: {
         query: `SELECT 
-          jca.*,
-          u1.Name AS resident_name,
-          u2.Name AS supervisor_name 
+          jca.resident_name AS resident_name,
+          u_supervisor.Name AS supervisor_name,
+          jca.date,
+          jca.article_reference,
+          jca.paper_selection,
+          jca.background_knowledge,
+          jca.critical_analysis_methodology,
+          jca.critical_analysis_results,
+          jca.conclusions_drawn,
+          jca.audio_visual_aids,
+          jca.handling_questions,
+          jca.overall_performance,
+          jca.major_positive_feature,
+          jca.comments,
+          jca.agreed_action_plan,
+          jca.resident_signature,
+          jca.assessor_signature AS supervisor_signature,
+          jca.resident_id,
+          jca.supervisor_id,
+          jca.sent,
+          jca.complete
         FROM journal_club_assessment jca
-        JOIN users u1 ON jca.resident_id = u1.User_ID
-        JOIN users u2 ON jca.supervisor_id = u2.User_ID
+        JOIN users u_resident ON jca.resident_id = u_resident.User_ID
+        JOIN users u_supervisor ON jca.supervisor_id = u_supervisor.User_ID
         WHERE jca.id = ?`,
         field: "resident_id",
         sentCol: "sent",
@@ -147,8 +166,8 @@ const getFormById = async (req, res) => {
       },
       mini_cex: {
         query: `SELECT 
-          mc.*, 
-          u1.Name AS trainee_name, 
+          mc.*,
+          u1.Name AS trainee_name,
           u2.Name AS supervisor_name
         FROM mini_cex mc
         JOIN users u1 ON mc.resident_id = u1.User_ID
@@ -205,6 +224,7 @@ const getFormById = async (req, res) => {
           sa.references,
           sa.major_positive_feature,
           sa.suggested_areas_for_improvement,
+          sa.agreed_action_plan,
           sa.resident_signature_path AS resident_signature,
           sa.assessor_signature_path AS assessor_signature,
           sa.resident_id,

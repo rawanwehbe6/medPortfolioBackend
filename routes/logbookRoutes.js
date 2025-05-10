@@ -87,8 +87,16 @@ router.get('/logbook/third-year-rotation-logbook/:trainee_id', auth("get_third_y
 router.delete('/logbook/third-year-rotation-logbook/:rotation_id', auth("delete_third_year_rotation_details"), logbookController.deleteThirdYearRotationDetails);
 
 // logbook Procedure Evaluation Form Routes
-router.post('/logbook/procedure-eval-form/create/:resident_id', auth("create_procedure_eval_form"), uploadPNG, logbookController.createProcedureEvalForm);
-router.put('/logbook/procedure-eval-form/update/:id', auth("update_procedure_eval_form"), handleFileUpload,logbookController.updateProcedureEvalForm);
+router.post(
+  "/logbook/procedure-eval-form/create/:resident_id",
+  auth("create_procedure_eval_form"),
+  logbookController.createProcedureEvalForm
+);
+router.put(
+  "/logbook/procedure-eval-form/update/:id",
+  auth("update_procedure_eval_form"),
+  logbookController.updateProcedureEvalForm
+);
 router.get('/logbook/procedure-eval-form/:resident_id', auth("get_procedure_eval_form"), logbookController.getProcedureEvalForm);
 router.delete('/logbook/procedure-eval-form/:id', auth("delete_procedure_eval_form"), logbookController.deleteProcedureEvalForm);
 
