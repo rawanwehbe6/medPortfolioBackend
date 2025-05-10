@@ -82,18 +82,27 @@ const updateLogbookProfile = async (req, res) => {
 
 const getLogbookProfileInfo = async (req, res) => {
     try {
-      //const { userId } = req.user; // trainee's ID from token
+      const { userId } = req.user;
       const { traineeId } = req.params;
-      /*// Only trainees are allowed to delete certificates
-      if (role !== 2 || [3,4,5].includes(role) ) {
-        return res.status(403).json({ message: "Only trainees and supervisors can get logbook profile info." });
-      }*/
+
+      // Auth logic
+      const hasAccess = await form_helper.auth(
+        "Trainee",
+        "get_logbook_profile_info"
+      )(req, res);
+      const hasAccessS = await form_helper.auth(
+        "Supervisor",
+        "get_logbook_profile_info"
+      )(req, res);
+
+      // Determine the actual traineeId based on who is making the request
+      const actualTraineeId = hasAccess ? userId : traineeId;
 
       const [rows] = await pool.execute(
         `SELECT trainee_id, resident_name, academic_year, email, mobile_no
          FROM logbook_profile_info
          WHERE trainee_id = ?`,
-        [traineeId]
+        [actualTraineeId]
       );
   
       if (rows.length === 0) {
@@ -105,7 +114,7 @@ const getLogbookProfileInfo = async (req, res) => {
       console.error("Error fetching logbook profile info:", err);
       res.status(500).json({ error: "Server error while fetching profile info." });
     }
-  };
+};
 
 // Get profile info with image (GET)
 const getLogbookProfile = async (req, res) => {
@@ -425,15 +434,25 @@ const updateRotation3rdYearConfig = async (req, res) => {
 
 const getRotation3rdYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  /*const { role } = req.user;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook third year config entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_rotation_3rd_year_config"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_rotation_3rd_year_config"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
+
   try {
     const [rows] = await pool.execute(
       `SELECT from_date, to_date FROM rotation_3rd_year_config WHERE trainee_id = ?`,
-      [trainee_id]
+      [actualTraineeId]
     );
 
     if (rows.length === 0) {
@@ -485,8 +504,6 @@ const createThirdYearRotationDetails = async (req, res) => {
   }
 
   try {
-
-
     const [result] = await pool.execute(
       `INSERT INTO third_year_rotations (
         trainee_id, from_date, to_date, total_duration,
@@ -619,18 +636,27 @@ const updateThirdYearRotationDetails = async (req, res) => {
 
 const getThirdYearRotationDetailsById = async (req, res) => {
   const { trainee_id } = req.params;
-  /*const { role } = req.user;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook third year rotation entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_third_year_rotation_details"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_third_year_rotation_details"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
 
   try {
     const [result] = await pool.execute(
       `SELECT trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
       FROM third_year_rotations WHERE trainee_id = ?`,
-      [trainee_id]
+      [actualTraineeId]
     );
 
     if (result.length === 0) {
@@ -716,16 +742,25 @@ const updateRotation2ndYearConfig = async (req, res) => {
 
 const getRotation2ndYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  /*const { role } = req.user;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook second year config entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_rotation_2nd_year_config"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_rotation_2nd_year_config"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
 
   try {
     const [rows] = await pool.execute(
       `SELECT from_date, to_date FROM rotation_2nd_year_config WHERE trainee_id = ?`,
-      [trainee_id]
+      [actualTraineeId]
     );
 
     if (rows.length === 0) {
@@ -888,19 +923,28 @@ const updateSecondYearRotationDetails = async (req, res) => {
 
 
 const getSecondYearRotationDetailsById = async (req, res) => {
-  const { rotation_id } = req.params;
-  /*const { role } = req.user;
+  const { trainee_id } = req.params;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook second year rotation entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_second_year_rotation_details"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_second_year_rotation_details"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
 
   try {
     const [result] = await pool.execute(
       `SELECT trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
-      FROM third_year_rotations WHERE trainee_id = ?`,
-      [trainee_id]
+      FROM second_year_rotations WHERE trainee_id = ?`,
+      [actualTraineeId]
     );
 
     if (result.length === 0) {
@@ -1000,15 +1044,25 @@ const updateRotation1stYearConfig = async (req, res) => {
 
 const getRotation1stYearConfig = async (req, res) => {
   const { trainee_id } = req.params;
-  /*const { role } = req.user;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook first year config entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_rotation_1st_year_config"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_rotation_1st_year_config"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
+
   try {
     const [rows] = await pool.execute(
       `SELECT from_date, to_date FROM rotation_1st_year_config WHERE trainee_id = ?`,
-      [trainee_id]
+      [actualTraineeId]
     );
 
     if (rows.length === 0) {
@@ -1163,19 +1217,28 @@ const updateFirstYearRotationDetails = async (req, res) => {
 
 
 const getFirstYearRotationDetailsById = async (req, res) => {
-  const { rotation_id } = req.params;
-  /*const { role } = req.user;
+  const { trainee_id } = req.params;
+  const { userId } = req.user;
 
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee can get trainees logbook first year rotation entry.' });
-  }*/
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_first_year_rotation_details"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_first_year_rotation_details"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
 
   try {
     const [result] = await pool.execute(
       `SELECT trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
-      FROM third_year_rotations WHERE rotation_id = ?`,
-      [rotation_id]
+      FROM first_year_rotations WHERE trainee_id = ?`,
+      [actualTraineeId]
     );
 
     if (result.length === 0) {
@@ -1277,24 +1340,29 @@ console.log("observed:", observed ?? 0);
 
 
 const getProcedureLogs = async (req, res) => {
-  const {trainee_id} = req.params; // or req.user.User_ID — match this with your token
-  const { role } = req.user;
-  if (![2,3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee or supervisor can get log procedures.' });
-  }
-  try {
-    
-    /*if (!traineeId) {
-      return res.status(400).json({ message: 'Trainee ID is missing in token.' });
-    }*/
+  const { trainee_id } = req.params;
+  const { userId, role } = req.user;
 
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_procedure_logs"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_procedure_logs"
+  )(req, res);
+
+  // Determine the actual trainee_id based on who is making the request
+  const actualTraineeId = hasAccess ? userId : trainee_id;
+
+  try {
     const [rows] = await pool.execute(
       "SELECT * FROM user_procedure_logs WHERE trainee_id = ?",
-      [trainee_id]
+      [actualTraineeId]
     );
 
     res.status(200).json(rows);
-
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error while retrieving logs.' });
@@ -1364,20 +1432,29 @@ const addProcedureSummary = async (req, res) => {
 };
 
 const getProcedureSummaries = async (req, res) => {
-  const {traineeId} = req.params;
-  const {role} = req.user;
-  if (role !== 2 || [3,4,5].includes(role)) {
-    return res.status(403).json({ message: 'Only a trainee or supervisor log summary.' });
-  }
-  try {
-    
+  const { traineeId } = req.params;
+  const { userId, role } = req.user;
 
+  // Auth logic
+  const hasAccess = await form_helper.auth(
+    "Trainee",
+    "get_procedure_summaries"
+  )(req, res);
+  const hasAccessS = await form_helper.auth(
+    "Supervisor",
+    "get_procedure_summaries"
+  )(req, res);
+
+  // Determine the actual traineeId based on who is making the request
+  const actualTraineeId = hasAccess ? userId : traineeId;
+
+  try {
     const [rows] = await pool.execute(
       `SELECT serial_no, date, procedure_name, status, trainer_signature
        FROM procedure_summary_logs
        WHERE trainee_id = ? 
        ORDER BY date DESC`,
-      [traineeId]
+      [actualTraineeId]
     );
 
     res.status(200).json(rows);
@@ -1546,18 +1623,6 @@ const createProcedureEvalForm = async (req, res) => {
     console.log("Request Body:", req.body);
     console.log("Request Files:", req.files);
 
-    // Check if form already exists for this trainee
-    const [existing] = await pool.execute(
-      `SELECT * FROM procedure_evaluation WHERE resident_id = ?`,
-      [resident_id]
-    );
-
-    if (existing.length > 0) {
-      return res.status(409).json({
-        message: "A Procedure Evaluation form already exists for this trainee.",
-      });
-    }
-
     // Auth logic
     const hasAccess = await form_helper.auth(
       "Trainee",
@@ -1567,6 +1632,21 @@ const createProcedureEvalForm = async (req, res) => {
       "Supervisor",
       "create_procedure_eval_form"
     )(req, res);
+
+    // Determine the actual resident_id based on who is making the request
+    const actualResidentId = hasAccess ? userId : resident_id;
+
+    // Check if form already exists for this trainee
+    const [existing] = await pool.execute(
+      `SELECT * FROM procedure_evaluation WHERE resident_id = ?`,
+      [actualResidentId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(409).json({
+        message: "A Procedure Evaluation form already exists for this trainee.",
+      });
+    }
 
     if (hasAccess) {
       const traineeSignaturePath = req.files?.signature
@@ -1581,7 +1661,7 @@ const createProcedureEvalForm = async (req, res) => {
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const values = [
-        userId,
+        actualResidentId,
         trainee_name ?? null,
         procedure_name ?? null,
         date ?? null,
@@ -1811,6 +1891,7 @@ const updateProcedureEvalForm = async (req, res) => {
     }
 
     return res.status(403).json({ message: "You are not authorized to update this form." });
+
   } catch (err) {
     console.error("Update Error:", err);
     return res.status(500).json({
@@ -1821,11 +1902,25 @@ const updateProcedureEvalForm = async (req, res) => {
 
 const getProcedureEvalForm = async (req, res) => {
   try {
+    const { userId } = req.user;
     const { resident_id } = req.params;
+
+    // Auth logic
+    const hasAccess = await form_helper.auth(
+      "Trainee",
+      "get_procedure_eval_form"
+    )(req, res);
+    const hasAccessS = await form_helper.auth(
+      "Supervisor",
+      "get_procedure_eval_form"
+    )(req, res);
+
+    // Determine the actual resident_id based on who is making the request
+    const actualResidentId = hasAccess ? userId : resident_id;
 
     const [rows] = await pool.execute(
       `SELECT * FROM procedure_evaluation WHERE resident_id = ?`,
-      [resident_id]
+      [actualResidentId]
     );
 
     if (rows.length === 0) {
