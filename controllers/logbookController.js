@@ -282,76 +282,90 @@ const signLogbookCertificate = async (req, res) => {
   }
 };
 
-  const getCertificateSignature = async (req, res) => {
-    try {
-      const trainee_id = req.user.userId;
+const getCertificateSignature = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { trainee_id } = req.params;
 
-      // Fetch the certificate details and signatures from the logbook_profile_info table
-      const [[profileInfo]] = await pool.execute(
-        "SELECT id, trainee_id, hospital_signature, trainee_signature FROM logbook_profile_info WHERE trainee_id = ?",
-        [trainee_id]
-      );
-  
-      if (!profileInfo) {
-        return res.status(404).json({ message: "Profile info not found for this trainee." });
-      }
-  
-      // Check if signatures are available
-      if (!profileInfo.trainee_signature && !profileInfo.hospital_signature) {
-        return res.status(404).json({ message: "No signatures found for this certificate." });
-      }
-  
-      res.status(200).json(profileInfo);
-    } catch (err) {
-      console.error("Database Error:", err);
-      res.status(500).json({ error: "Server error while fetching logbook certificate." });
+    // Auth logic
+    const hasAccess = await form_helper.auth(
+      "Trainee",
+      "get_certificate_signature"
+    )(req, res);
+    const hasAccessS = await form_helper.auth(
+      "Supervisor",
+      "get_certificate_signature"
+    )(req, res);
+
+    // Determine the actual trainee_id based on who is making the request
+    const actualTraineeId = hasAccess ? userId : trainee_id;
+
+    // Fetch the certificate details and signatures from the logbook_profile_info table
+    const [[profileInfo]] = await pool.execute(
+      "SELECT id, trainee_id, hospital_signature, trainee_signature FROM logbook_profile_info WHERE trainee_id = ?",
+      [actualTraineeId]
+    );
+
+    if (!profileInfo) {
+      return res.status(404).json({ message: "Profile info not found for this trainee." });
     }
-  };
-  
-  const deleteLogbookCertificate = async (req, res) => {
-    try {
-      const { certificate_id } = req.params;
-      const { userId } = req.user;
-  
-      // Fetch certificate data from logbook_profile_info to ensure it exists
-      const [[profileInfo]] = await pool.execute(
-        "SELECT id, trainee_id FROM logbook_profile_info WHERE id = ?",
-        [certificate_id]
-      );
-  
-      if (!profileInfo) {
-        return res.status(404).json({ message: "Certificate profile info not found." });
-      }
-  
-      // Ensure the trainee owns the certificate
-      if (profileInfo.trainee_id !== userId) {
-        return res.status(403).json({ message: "You do not have permission to delete this certificate." });
-      }
-  
-      // Delete the actual signature files from the server
-      await deleteSignatureFilesFromDB("logbook_profile_info", certificate_id, [
-          "hospital_signature",
-          "trainee_signature"
-      ]);
 
-      // Update the signature fields to NULL
-      const [updateResult] = await pool.execute(
-        "UPDATE logbook_profile_info SET hospital_signature = NULL, trainee_signature = NULL WHERE id = ?",
-        [certificate_id]
-      );
-  
-      if (updateResult.affectedRows === 0) {
-        return res.status(500).json({ message: "Failed to remove signatures." });
-      }
-  
-      return res.status(200).json({ message: "Signatures removed successfully." });
-    } catch (err) {
-      console.error("Database Error:", err);
-      res.status(500).json({ error: "Server error while removing signatures from logbook certificate." });
+    // Check if signatures are available
+    if (!profileInfo.trainee_signature && !profileInfo.hospital_signature) {
+      return res.status(404).json({ message: "No signatures found for this certificate." });
     }
-  };
 
- const createRotation3rdYearConfig = async (req, res) => {
+    res.status(200).json(profileInfo);
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while fetching logbook certificate." });
+  }
+};
+
+const deleteLogbookCertificate = async (req, res) => {
+  try {
+    const { certificate_id } = req.params;
+    const { userId } = req.user;
+
+    // Fetch certificate data from logbook_profile_info to ensure it exists
+    const [[profileInfo]] = await pool.execute(
+      "SELECT id, trainee_id FROM logbook_profile_info WHERE id = ?",
+      [certificate_id]
+    );
+
+    if (!profileInfo) {
+      return res.status(404).json({ message: "Certificate profile info not found." });
+    }
+
+    // Ensure the trainee owns the certificate
+    if (profileInfo.trainee_id !== userId) {
+      return res.status(403).json({ message: "You do not have permission to delete this certificate." });
+    }
+
+    // Delete the actual signature files from the server
+    await deleteSignatureFilesFromDB("logbook_profile_info", certificate_id, [
+        "hospital_signature",
+        "trainee_signature"
+    ]);
+
+    // Update the signature fields to NULL
+    const [updateResult] = await pool.execute(
+      "UPDATE logbook_profile_info SET hospital_signature = NULL, trainee_signature = NULL WHERE id = ?",
+      [certificate_id]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      return res.status(500).json({ message: "Failed to remove signatures." });
+    }
+
+    return res.status(200).json({ message: "Signatures removed successfully." });
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({ error: "Server error while removing signatures from logbook certificate." });
+  }
+};
+
+const createRotation3rdYearConfig = async (req, res) => {
   const { from_date, to_date } = req.body;
   const { /*role,*/ userId } = req.user;
   
