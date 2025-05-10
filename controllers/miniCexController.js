@@ -409,7 +409,7 @@ const checkAndUpdateCompletionStatus = async (formId) => {
 const getMiniCEXById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { /*role,*/ userId } = req.user;
+        const { userId } = req.user;
 
         const [result] = await pool.execute(
             `SELECT mc.*, 
@@ -438,7 +438,7 @@ const getMiniCEXById = async (req, res) => {
 const deleteMiniCEXById = async (req, res) => {
     try {
         const { id } = req.params;
-        const { userId/*, role*/ } = req.user;
+        const { userId } = req.user;
 
         const [rows] = await pool.execute("SELECT * FROM mini_cex WHERE id = ?", [id]);
 

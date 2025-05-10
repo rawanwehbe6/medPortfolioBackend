@@ -103,7 +103,7 @@ const createDOPS = async (req, res) => {
 
 const updateDOPS = async (req, res) => {
     try {
-        const { role, userId } = req.user;
+        const { userId } = req.user;
         const { id } = req.params;
         const {
             assessment_date, hospital, indications, indications_comment, consent, consent_comment, 
