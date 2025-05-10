@@ -117,8 +117,8 @@ const updateMiscActivity = async (req, res) => {
     const { id } = req.params;
     const { category, details, date } = req.body;
 
-    if (!category || !details || !date) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!category) {
+      return res.status(400).json({ error: "Category is required" });
     }
 
     const [rows] = await pool.execute(`SELECT * FROM miscellaneous_activities WHERE id = ?`, [id]);
@@ -128,7 +128,7 @@ const updateMiscActivity = async (req, res) => {
 
     await pool.execute(
       `UPDATE miscellaneous_activities SET category = ?, details = ?, date = ? WHERE id = ?`,
-      [category, details, date, id]
+      [category, details || null, date || null, id]
     );
 
     res.status(200).json({ message: "Miscellaneous activity entry updated successfully" });

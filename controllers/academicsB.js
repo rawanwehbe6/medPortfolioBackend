@@ -86,18 +86,16 @@ const updateSeminar = async (req, res) => {
     const { id } = req.params;
     const { date, topic, presented_attended } = req.body;
 
-    if (!date || !topic || !presented_attended) {
-      return res.status(400).json({ error: "All fields are required" });
-    }
-
+    // Check if the entry exists first
     const [rows] = await pool.execute(`SELECT * FROM seminars WHERE id = ?`, [id]);
     if (rows.length === 0) {
       return res.status(404).json({ error: "Seminar not found" });
     }
 
+    // Update with the provided values, allowing nulls for deletion
     await pool.execute(
       `UPDATE seminars SET date = ?, topic = ?, presented_attended = ? WHERE id = ?`,
-      [date, topic, presented_attended, id]
+      [date || null, topic || null, presented_attended || null, id]
     );
 
     res.status(200).json({ message: "Seminar updated successfully" });

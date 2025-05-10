@@ -96,25 +96,23 @@ const updateCasePresentation = async (req, res) => {
   try {
     const { id } = req.params;
     const { date, diagnosis_problem, presented_attended } = req.body;
-
-    if (!date || !diagnosis_problem || !presented_attended) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
+    
+    // Check if the entry exists first
     const [rows] = await pool.execute(
       `SELECT * FROM case_presentations WHERE id = ?`,
       [id]
     );
-
+    
     if (rows.length === 0) {
       return res.status(404).json({ error: "Case presentation not found" });
     }
-
+    
+    // Update with the provided values, allowing nulls for deletion
     await pool.execute(
       `UPDATE case_presentations SET date = ?, diagnosis_problem = ?, presented_attended = ? WHERE id = ?`,
-      [date, diagnosis_problem, presented_attended, id]
+      [date || null, diagnosis_problem || null, presented_attended || null, id]
     );
-
+    
     res.status(200).json({ message: "Case presentation updated successfully" });
   } catch (err) {
     console.error("Update Error:", err.message);
