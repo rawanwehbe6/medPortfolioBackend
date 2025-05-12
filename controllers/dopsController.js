@@ -6,9 +6,9 @@ const createDOPS = async (req, res) => {
         const { userId } = req.user;
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized: Missing user ID" });
-          }
+        }
           
-        const {
+        let {
             resident_id, indications, indications_comment, consent, consent_comment, 
             preparation, preparation_comment, analgesia, analgesia_comment, asepsis,
             asepsis_comment, technical_aspects, technical_aspects_comment, 
@@ -17,15 +17,31 @@ const createDOPS = async (req, res) => {
             global_summary, feedback, strengths, developmental_needs, recommended_actions,
             draft_send
         } = req.body;
+
+        let nullableFields = [
+            "indications", "indications_comment", "consent", "consent_comment",
+            "preparation", "preparation_comment", "analgesia", "analgesia_comment",
+            "asepsis", "asepsis_comment", "technical_aspects", "technical_aspects_comment",
+            "unexpected_events", "unexpected_events_comment", "documentation", "documentation_comment",
+            "communication", "communication_comment", "professionalism", "professionalism_comment",
+            "global_summary", "feedback", "strengths", "developmental_needs", "recommended_actions"
+        ];
+
+        // Apply transformation
+        nullableFields.forEach((field) => {
+            if (req.body[field] === "") {
+                eval(`${field} = null`);
+            }
+        });
+
         console.log('resident_id:', resident_id); // check its value
         console.log("body", req.body);
     
         const a_signature = req.files?.signature
         ? req.files.signature[0].path
         : null;
-      const supervisor_signature = form_helper.getPublicUrl(a_signature);
+        const supervisor_signature = form_helper.getPublicUrl(a_signature);
   
-
         // Set is_signed_by_supervisor flag if signature is uploaded
         const is_signed_by_supervisor = supervisor_signature ? 1 : 0;
 
@@ -53,34 +69,34 @@ const createDOPS = async (req, res) => {
             [
                 userId, supervisor.Name, 
                 resident_id, trainee.Name, 
-                indications ?? null, 
-                indications_comment ?? null, 
-                consent ?? null, 
-                consent_comment ?? null, 
-                preparation ?? null, 
-                preparation_comment ?? null, 
-                analgesia ?? null, 
-                analgesia_comment ?? null, 
-                asepsis ?? null,
-                asepsis_comment ?? null, 
-                technical_aspects ?? null, 
-                technical_aspects_comment ?? null, 
-                unexpected_events ?? null, 
-                unexpected_events_comment ?? null, 
-                documentation ?? null, 
-                documentation_comment ?? null,
-                communication ?? null, 
-                communication_comment ?? null, 
-                professionalism ?? null, 
-                professionalism_comment ?? null,
-                global_summary ?? null, 
-                feedback ?? null, 
-                strengths ?? null, 
-                developmental_needs ?? null, 
-                recommended_actions ?? null, 
+                indications, 
+                indications_comment, 
+                consent, 
+                consent_comment, 
+                preparation, 
+                preparation_comment, 
+                analgesia, 
+                analgesia_comment, 
+                asepsis,
+                asepsis_comment, 
+                technical_aspects, 
+                technical_aspects_comment, 
+                unexpected_events, 
+                unexpected_events_comment, 
+                documentation, 
+                documentation_comment,
+                communication, 
+                communication_comment, 
+                professionalism, 
+                professionalism_comment,
+                global_summary, 
+                feedback, 
+                strengths, 
+                developmental_needs, 
+                recommended_actions, 
                 draft_send, 
                 is_signed_by_supervisor,
-                supervisor_signature ?? null
+                supervisor_signature
             ]
         );
         
@@ -113,7 +129,7 @@ const updateDOPS = async (req, res) => {
             communication, communication_comment, professionalism, professionalism_comment,
             global_summary, procedure_name, previous_attempts, procedure_type, simulated,
             simulation_details, difficulty, feedback, strengths, developmental_needs, 
-            recommended_actions, trainee_reflection, draft_send
+            recommended_actions, trainee_reflection, draft_send, do_well, improve_change
         } = req.body;
 
        
@@ -260,7 +276,7 @@ const updateDOPS = async (req, res) => {
                 SET 
                     assessment_date = ?, hospital = ?, procedure_name = ?, previous_attempts = ?, procedure_type = ?, simulated = ?,
                     simulation_details = ?, difficulty = ?, trainee_reflection = ?, trainee_signature = ?,
-                    is_signed_by_trainee = ?
+                    is_signed_by_trainee = ?, do_well = ?, improve_change = ?
                 WHERE id = ?`;
 
             const updateValues = [
@@ -275,6 +291,8 @@ const updateDOPS = async (req, res) => {
                 trainee_reflection ?? form[0].trainee_reflection ?? null,
                 trainee_signature,
                 is_signed_by_trainee,
+                do_well ?? form[0].do_well ?? null,
+                improve_change ?? form[0].improve_change ?? null,
                 id
             ];
         
