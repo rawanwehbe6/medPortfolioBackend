@@ -623,6 +623,194 @@ const getFormCountsBySupervisor = async (req, res) => {
   }
 };
 
+const getAllSuperviseesSentForms = async (req, res) => {
+  const supervisorId = req.user.userId;
+
+  if (!supervisorId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    // Get all supervisees for this supervisor
+    const [supervisees] = await pool.execute(
+      `SELECT SuperviseeID FROM supervisor_supervisee WHERE SupervisorID = ?`,
+      [supervisorId]
+    );
+
+    if (supervisees.length === 0) {
+      return res.status(200).json({
+        supervisorId,
+        supervisees: [],
+        message: "No supervisees found for this supervisor",
+      });
+    }
+
+    const superviseeIds = supervisees.map((s) => s.SuperviseeID);
+
+    const formTypes = [
+      {
+        table: "case_based_discussion_assessment",
+        sentCol: "sent",
+      },
+      {
+        table: "grand_round_presentation_assessment",
+        sentCol: "sent",
+      },
+      {
+        table: "mortality_morbidity_review_assessment",
+        sentCol: "sent",
+      },
+      { table: "seminar_assessment", sentCol: "sent" },
+      {
+        table: "fellow_resident_evaluation",
+        sentCol: "sent",
+      },
+      {
+        table: "journal_club_assessment",
+        sentCol: "sent",
+      },
+      { table: "mini_cex", sentCol: "sent_to_trainee" },
+      { table: "dops", sentCol: "is_sent_to_trainee" },
+    ];
+
+    const result = {};
+
+    // For each supervisee, get their forms
+    for (const traineeId of superviseeIds) {
+      const traineeResults = {};
+
+      for (const { table, idCol, sentCol } of formTypes) {
+        const query = `SELECT id FROM ${table} WHERE resident_id = ? AND ${sentCol} = 1`;
+        const [rows] = await pool.execute(query, [traineeId]);
+        traineeResults[table] = rows.map((r) => r.id);
+      }
+
+      // Get trainee name for better context
+      const [traineeInfo] = await pool.execute(
+        `SELECT Name FROM users WHERE User_ID = ?`,
+        [traineeId]
+      );
+
+      const traineeName =
+        traineeInfo.length > 0 ? traineeInfo[0].Name : "Unknown";
+
+      result[traineeId] = {
+        traineeName,
+        forms: traineeResults,
+      };
+    }
+
+    res.status(200).json({
+      supervisorId,
+      superviseesSentForms: result,
+    });
+  } catch (err) {
+    console.error("Error fetching all supervisees sent forms:", err);
+    res.status(500).json({ error: "Server error while fetching sent forms" });
+  }
+};
+
+const getAllSuperviseesCompletedForms = async (req, res) => {
+  const supervisorId = req.user.userId;
+
+  if (!supervisorId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  try {
+    // Get all supervisees for this supervisor
+    const [supervisees] = await pool.execute(
+      `SELECT SuperviseeID FROM supervisor_supervisee WHERE SupervisorID = ?`,
+      [supervisorId]
+    );
+
+    if (supervisees.length === 0) {
+      return res.status(200).json({
+        supervisorId,
+        supervisees: [],
+        message: "No supervisees found for this supervisor",
+      });
+    }
+
+    const superviseeIds = supervisees.map((s) => s.SuperviseeID);
+
+    const formTypes = [
+      {
+        table: "case_based_discussion_assessment",
+        completeCol: "completed",
+      },
+      {
+        table: "grand_round_presentation_assessment",
+        completeCol: "completed",
+      },
+      {
+        table: "mortality_morbidity_review_assessment",
+        completeCol: "completed",
+      },
+      {
+        table: "seminar_assessment",
+        completeCol: "completed",
+      },
+      {
+        table: "fellow_resident_evaluation",
+        completeCol: "completed",
+      },
+      {
+        table: "journal_club_assessment",
+        completeCol: "complete",
+      },
+      {
+        table: "mini_cex",
+        completeCol: "is_draft",
+        inverse: true,
+      },
+      {
+        table: "dops",
+        completeCol: "is_draft",
+        inverse: true,
+      },
+    ];
+
+    const result = {};
+
+    // For each supervisee, get their forms
+    for (const traineeId of superviseeIds) {
+      const traineeResults = {};
+
+      for (const { table, idCol, completeCol, inverse } of formTypes) {
+        const condition = inverse ? `${completeCol} = 0` : `${completeCol} = 1`;
+        const query = `SELECT id FROM ${table} WHERE resident_id = ? AND ${condition}`;
+        const [rows] = await pool.execute(query, [traineeId]);
+        traineeResults[table] = rows.map((r) => r.id);
+      }
+
+      // Get trainee name for better context
+      const [traineeInfo] = await pool.execute(
+        `SELECT Name FROM users WHERE User_ID = ?`,
+        [traineeId]
+      );
+
+      const traineeName =
+        traineeInfo.length > 0 ? traineeInfo[0].Name : "Unknown";
+
+      result[traineeId] = {
+        traineeName,
+        forms: traineeResults,
+      };
+    }
+
+    res.status(200).json({
+      supervisorId,
+      superviseesCompletedForms: result,
+    });
+  } catch (err) {
+    console.error("Error fetching all supervisees completed forms:", err);
+    res
+      .status(500)
+      .json({ error: "Server error while fetching completed forms" });
+  }
+};
+
 module.exports = {
   getUsersBySupervisor,
   getFormCountsByTrainee,
@@ -631,4 +819,6 @@ module.exports = {
   getDraftFormsForTraineeBySupervisor,
   getFormCountsBySupervisor,
   handleGetUserData,
+  getAllSuperviseesSentForms,
+  getAllSuperviseesCompletedForms,
 };

@@ -14,5 +14,15 @@ router.get(
   auth("supervisor_view_portfolio"),
   supervisor.handleGetUserData
 );
+router.get(
+  "/all-supervisees-sent-forms",
+  auth("view_sent_forms"),
+  supervisor.getAllSuperviseesSentForms
+);
+router.get(
+  "/all-supervisees-completed-forms",
+  auth("view_completed_forms"),
+  supervisor.getAllSuperviseesCompletedForms
+);
 
 module.exports = router;
