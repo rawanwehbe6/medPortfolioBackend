@@ -27,6 +27,7 @@ const getTasksByTrainee = async (req, res) => {
     const [tasks] = await pool.execute(
       `SELECT 
           t.name, 
+          t.id,
           t.deadline, 
           t.description,
           t.is_completed,
