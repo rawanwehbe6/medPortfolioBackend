@@ -21,6 +21,7 @@ const createMortalityMorbidityForm = async (req, res) => {
       overall_performance,
       major_positive_feature,
       suggested_areas_for_improvement,
+      agreed_action_plan,
       draft_send,
     } = req.body;
     const [rows] = await db.execute(
@@ -40,8 +41,8 @@ const createMortalityMorbidityForm = async (req, res) => {
             diagnosis, cause_of_death_morbidity, brief_introduction, patient_details,
             assessment_analysis, review_of_literature, recommendations,
             handling_questions, overall_performance, major_positive_feature,
-            suggested_areas_for_improvement, assessor_signature_path, sent) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            suggested_areas_for_improvement, agreed_action_plan, assessor_signature_path, sent) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         resident_id,
         supervisor_id,
@@ -58,6 +59,7 @@ const createMortalityMorbidityForm = async (req, res) => {
         overall_performance ?? null,
         major_positive_feature ?? null,
         suggested_areas_for_improvement ?? null,
+        agreed_action_plan ?? null,
         assessor_signature_path ?? null,
         draft_send,
       ]
@@ -119,7 +121,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
       "Supervisor",
       "update_mortality_morbidity_form"
     )(req, res);
-    
+
     if (hasAccess) {
       // Residents can only update their own forms
       if (
@@ -182,6 +184,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
                              overall_performance = ?,
                              major_positive_feature = ?,
                              suggested_areas_for_improvement = ?,
+                             agreed_action_plan = ?,
                              assessor_signature_path = ?,
                              sent = ?
                          WHERE id = ?`;
@@ -209,6 +212,7 @@ const updateMortalityMorbidityForm = async (req, res) => {
         req.body.suggested_areas_for_improvement ??
           currentRecord.suggested_areas_for_improvement ??
           null,
+        req.body.agreed_action_plan ?? currentRecord.agreed_action_plan ?? null,
         assessor_signature_path,
         req.body.draft_send ?? currentRecord.sent ?? null,
         id,
@@ -254,12 +258,12 @@ const updateMortalityMorbidityForm = async (req, res) => {
 
 // Get Mortality & Morbidity form by ID
 const getMortalityMorbidityFormById = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-        // Fetch form with resident name
-        const [result] = await db.execute(
-    `SELECT 
+    // Fetch form with resident name
+    const [result] = await db.execute(
+      `SELECT 
         mm.resident_fellow_name AS resident_name,
         mm.date_of_presentation,
         mm.diagnosis,
@@ -273,6 +277,7 @@ const getMortalityMorbidityFormById = async (req, res) => {
         mm.overall_performance,
         mm.major_positive_feature,
         mm.suggested_areas_for_improvement,
+        mm.agreed_action_plan,
         mm.resident_signature_path AS resident_signature,
         mm.assessor_signature_path AS assessor_signature,
         u_supervisor.Name AS supervisor_name
@@ -280,18 +285,21 @@ const getMortalityMorbidityFormById = async (req, res) => {
      JOIN users u_resident ON mm.resident_id = u_resident.User_ID
      JOIN users u_supervisor ON mm.supervisor_id = u_supervisor.User_ID
      WHERE mm.id = ?`,
-    [id]
-);
+      [id]
+    );
 
-
-        if (result.length === 0) {
-            return res.status(404).json({ error: "Mortality & Morbidity form not found" });
-        }
-        res.status(200).json(result[0]);
-    } catch (err) {
-        console.error("Database Error:", err);
-        res.status(500).json({ error: "Server error while fetching Mortality & Morbidity form" });
+    if (result.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Mortality & Morbidity form not found" });
     }
+    res.status(200).json(result[0]);
+  } catch (err) {
+    console.error("Database Error:", err);
+    res.status(500).json({
+      error: "Server error while fetching Mortality & Morbidity form",
+    });
+  }
 };
 
 // Delete Mortality & Morbidity form

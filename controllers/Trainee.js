@@ -15,7 +15,7 @@ const getFormsProgressForTrainee = async (req, res) => {
       idCol: "resident_id",
       sentCol: "sent",
       completeCol: "completed",
-      required: 1,
+      required: 3,
     },
     {
       name: "Grand Round Presentation",
@@ -47,9 +47,16 @@ const getFormsProgressForTrainee = async (req, res) => {
       idCol: "resident_id",
       sentCol: "sent_to_trainee",
       completeCol: "is_signed_by_trainee",
+      required: 19,
+    },
+    {
+      name: "DOPS",
+      table: "dops",
+      idCol: "resident_id",
+      sentCol: "is_sent_to_trainee",
+      completeCol: "is_signed_by_trainee",
       required: 1,
     },
-    { name: "DOPS", table: "dops", idCol: "resident_id", sentCol: "is_sent_to_trainee", completeCol: "is_signed_by_trainee", required: 1 },
     {
       name: "Journal Club",
       table: "journal_club_assessment",
@@ -75,11 +82,13 @@ const getFormsProgressForTrainee = async (req, res) => {
     const formDetails = [];
 
     for (const form of formTypes) {
-      const sentQuery = `SELECT COUNT(*) as count FROM ${form.table} WHERE ${form.idCol} = ? AND ${form.sentCol} = 1`;
+      const sentQuery = `SELECT COUNT(*) as count FROM ${form.table} 
+      WHERE ${form.idCol} = ? AND ${form.sentCol} = 1`;
       const [sentResult] = await pool.execute(sentQuery, [traineeId]);
       const sentCount = sentResult[0].count;
 
-      const completeQuery = `SELECT COUNT(*) as count FROM ${form.table} WHERE ${form.idCol} = ? AND ${form.completeCol} = 1 AND ${form.sentCol} = 1`;
+      const completeQuery = `SELECT COUNT(*) as count FROM ${form.table} 
+      WHERE ${form.idCol} = ? AND ${form.completeCol} = 1 AND ${form.sentCol} = 1`;
       const [completeResult] = await pool.execute(completeQuery, [traineeId]);
       const completeCount = completeResult[0].count;
 

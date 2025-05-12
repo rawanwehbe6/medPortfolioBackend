@@ -14,6 +14,7 @@ const createForm = async (req, res) => {
       history_taking,
       overall_clinical_care,
       assessor_comment,
+      agreed_action_plan,
       draft_send,
     } = req.body;
 
@@ -33,14 +34,15 @@ const createForm = async (req, res) => {
       history_taking: history_taking ?? null,
       overall_clinical_care: overall_clinical_care ?? null,
       assessor_comment: assessor_comment ?? null,
+      agreed_action_plan: agreed_action_plan ?? null,
       assessor_signature: assessor_signature ?? null,
     };
 
     const [insertResult] = await pool.execute(
       `INSERT INTO case_based_discussion_assessment 
             (resident_id, supervisor_id, diagnosis, case_complexity, investigation_referral, 
-            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, assessor_signature, sent) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            treatment, future_planning, history_taking, overall_clinical_care, assessor_comment, agreed_action_plan, assessor_signature, sent) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         values.resident_id,
         values.supervisor_id,
@@ -52,6 +54,7 @@ const createForm = async (req, res) => {
         values.history_taking,
         values.overall_clinical_care,
         values.assessor_comment,
+        values.agreed_action_plan,
         values.assessor_signature,
         draft_send,
       ]
@@ -88,6 +91,7 @@ const updateForm = async (req, res) => {
       history_taking,
       overall_clinical_care,
       assessor_comment,
+      agreed_action_plan,
       resident_comment,
       draft_send,
     } = req.body;
@@ -177,7 +181,7 @@ const updateForm = async (req, res) => {
         UPDATE case_based_discussion_assessment 
         SET diagnosis = ?, case_complexity = ?, investigation_referral = ?, 
             treatment = ?, future_planning = ?, history_taking = ?, 
-            overall_clinical_care = ?, assessor_comment = ?, assessor_signature = ?, sent = ?
+            overall_clinical_care = ?, assessor_comment = ?, agreed_action_plan = ?, assessor_signature = ?, sent = ?
         WHERE id = ?
       `;
 
@@ -194,6 +198,7 @@ const updateForm = async (req, res) => {
           existingRecord[0].overall_clinical_care ??
           null,
         assessor_comment ?? existingRecord[0].assessor_comment ?? null,
+        agreed_action_plan ?? existingRecord[0].agreed_action_plan ?? null,
         assessorSignature ?? null,
         draft_send,
         id,
@@ -246,7 +251,8 @@ const getTupleById = async (req, res) => {
                 u.Name AS resident_name,u_a.Name AS supervisor_name,
                 cbd.date, cbd.diagnosis, cbd.case_complexity, cbd.investigation_referral, 
                 cbd.treatment, cbd.future_planning, cbd.history_taking, cbd.overall_clinical_care, 
-                cbd.assessor_comment AS supervisor_comment, cbd.resident_comment, cbd.resident_signature, cbd.assessor_signature AS supervisor_signature
+                cbd.assessor_comment AS supervisor_comment, cbd.resident_comment, cbd.agreed_action_plan,
+                cbd.resident_signature, cbd.assessor_signature AS supervisor_signature
              FROM case_based_discussion_assessment cbd
              JOIN users u ON cbd.resident_id = u.User_ID
              JOIN users u_a ON cbd.supervisor_id = u_a.User_ID
