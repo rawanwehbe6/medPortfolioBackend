@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 10, 2025 at 09:05 PM
+-- Generation Time: May 12, 2025 at 04:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -216,15 +216,17 @@ CREATE TABLE `dops` (
   `is_signed_by_trainee` tinyint(1) DEFAULT 0,
   `is_draft` tinyint(1) DEFAULT 1,
   `is_sent_to_trainee` tinyint(1) DEFAULT 0,
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `do_well` text DEFAULT NULL,
+  `improve_change` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `dops`
 --
 
-INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`, `updated_at`) VALUES
-(6, 28, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', 'http://localhost:3000/uploads/1746190314921.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1, '2025-05-10 20:45:36');
+INSERT INTO `dops` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`, `trainee_name`, `assessment_date`, `hospital`, `indications`, `indications_comment`, `consent`, `consent_comment`, `preparation`, `preparation_comment`, `analgesia`, `analgesia_comment`, `asepsis`, `asepsis_comment`, `technical_aspects`, `technical_aspects_comment`, `unexpected_events`, `unexpected_events_comment`, `documentation`, `documentation_comment`, `communication`, `communication_comment`, `professionalism`, `professionalism_comment`, `global_summary`, `procedure_name`, `previous_attempts`, `procedure_type`, `simulated`, `simulation_details`, `difficulty`, `feedback`, `strengths`, `developmental_needs`, `recommended_actions`, `trainee_reflection`, `trainee_signature`, `supervisor_signature`, `is_signed_by_supervisor`, `is_signed_by_trainee`, `is_draft`, `is_sent_to_trainee`, `updated_at`, `do_well`, `improve_change`) VALUES
+(6, 28, 'rimastest', 26, 'rima test', '2025-04-28', 'Example Hospital Name', 3, 'Clear indication for procedure.', 3, 'Proper informed consent obtained.', 4, 'Patient prepared adequately.', 3, 'Local analgesia applied.', 2, 'Aseptic technique maintained.', 4, 'Procedure technically sound.', 1, 'No unexpected events.', 2, 'Well-documented in patient chart.', 4, 'Communicated clearly.', 2, 'Highly professional behavior.', 'Level 2a', 'Central Line Insertion', 1, 'Emergency', 'No', 'N/A', '', 'Excellent Performance.', 'Steady hand, good judgment.', 'Practice more on communication.', 'Observe 2 more procedures.', 'I learned a lot from this experience.', '/uploads/1747060680454ec5a25c125867896da4f08303c8974cecdd7.PNG', 'http://localhost:3000/uploads/1746190276191.PNG', 1, 1, 0, 1, '2025-05-12 17:38:00', 'test', 'test');
 
 -- --------------------------------------------------------
 
@@ -420,6 +422,64 @@ CREATE TABLE `forbidden_logs` (
 --
 
 INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_Name`, `timestamp`, `cumulative`) VALUES
+(22, 'test', 2, 'update_user', '2025-05-01', 1),
+(22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
 (22, 'test', 2, 'update_user', '2025-05-01', 1),
 (22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
 (22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
@@ -1038,7 +1098,8 @@ INSERT INTO `notifications` (`id`, `user_id`, `sender_id`, `message`, `is_read`,
 (82, 22, 28, 'Your seminar assessment form has been sent to you by supervisor for review.', 0, '2025-05-05 15:37:49'),
 (83, 28, 22, 'Your trainee test has signed the  seminar assessment form .', 0, '2025-05-05 15:38:36'),
 (84, 22, 28, 'Your grand round presentation assessment form has been sent to you by supervisor for review.', 0, '2025-05-06 18:44:19'),
-(85, 22, 28, 'Your fellow resident evaluation form has been sent to you by supervisor for review.', 0, '2025-05-08 21:53:47');
+(85, 22, 28, 'Your fellow resident evaluation form has been sent to you by supervisor for review.', 0, '2025-05-08 21:53:47'),
+(86, 28, 26, 'Your trainee rima test has signed the  dops form .', 0, '2025-05-12 14:38:00');
 
 -- --------------------------------------------------------
 
@@ -2553,7 +2614,7 @@ ALTER TABLE `mortality_morbidity_review_assessment`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=87;
 
 --
 -- AUTO_INCREMENT for table `prelogin_contact_messages`
