@@ -105,7 +105,7 @@ const createDOPS = async (req, res) => {
         if (Number(draft_send) === 1) {
           await form_helper.sendFormToTrainee(
             userId,
-            "mini_cex",
+            "dops",
             formId
           );
         }
