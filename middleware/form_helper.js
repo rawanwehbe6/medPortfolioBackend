@@ -310,26 +310,14 @@ const checkFormLimitAndCleanDrafts = async (traineeId, formType, currentFormId =
 
     // Check if the user has reached the maximum allowed forms
     if (currentCount === formConfig.maxAllowed) {
-      // Delete all drafts for this form type for this trainee, except the current form being submitted
-      let deleteQuery = `DELETE FROM ${formConfig.table} 
-                         WHERE ${formConfig.idCol} = ? AND ${formConfig.draftCol} = ?`;
-      let deleteParams = [traineeId, formConfig.draftValue];
-      
-      // If currentFormId is provided, exclude it from deletion
-      if (currentFormId) {
-        deleteQuery += ` AND id != ?`;
-        deleteParams.push(currentFormId);
-      }
-      
-      const [deleteResult] = await pool.execute(deleteQuery, deleteParams);
-      
+      // No longer deleting drafts, just return that this is the last form that can be submitted
       return {
         success: true,
         canSubmit: true,
         currentCount: currentCount,
         maxAllowed: formConfig.maxAllowed,
         remaining: formConfig.maxAllowed - currentCount,
-        deletedDrafts: deleteResult.affectedRows
+        isLastSubmission: true
       };
     }
     
@@ -337,7 +325,10 @@ const checkFormLimitAndCleanDrafts = async (traineeId, formType, currentFormId =
       return {
         success: true,
         canSubmit: false,
-        message: `Maximum limit reached (${formConfig.maxAllowed}). All draft forms have been deleted.`,
+        message: `Maximum limit reached (${formConfig.maxAllowed}). Cannot send more forms of this type.`,
+        currentCount: submittedForms[0].count,
+        maxAllowed: formConfig.maxAllowed,
+        remaining: 0
       };
     }
 
