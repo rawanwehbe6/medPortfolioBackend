@@ -2,7 +2,6 @@ const pool = require("../config/db");
 const form_helper = require('../middleware/form_helper');
 const createForm = async (req, res) => {
   try {
-    const { role } = req.user;
     const supervisor_id = req.user.userId;
     const {
       resident_id,

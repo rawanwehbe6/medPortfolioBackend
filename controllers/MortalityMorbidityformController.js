@@ -5,7 +5,6 @@ const form_helper = require('../middleware/form_helper');
 // Create new Mortality & Morbidity form (only for supervisors/admins)
 const createMortalityMorbidityForm = async (req, res) => {
   try {
-    role = req.user.role;
     supervisor_id = req.user.userId;
     const {
       resident_id,
@@ -109,7 +108,6 @@ const createMortalityMorbidityForm = async (req, res) => {
 // Update Mortality & Morbidity form
 const updateMortalityMorbidityForm = async (req, res) => {
   try {
-    role = req.user.role;
     userId = req.user.userId;
     const { id } = req.params;
 

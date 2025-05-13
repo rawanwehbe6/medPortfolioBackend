@@ -87,7 +87,7 @@ const createForm = async (req, res) => {
 
 const updateForm = async (req, res) => {
   try {
-    const { role, userId } = req.user;
+    const { userId } = req.user;
     const { id } = req.params;
 
     const {

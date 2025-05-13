@@ -4,7 +4,7 @@ const form_helper = require("../middleware/form_helper");
 // Create new Seminar Assessment form (only for supervisors/admins)
 const createSeminarAssessment = async (req, res) => {
   try {
-    const { role, userId: supervisor_id } = req.user;
+    const { userId: supervisor_id } = req.user;
 
     const {
       resident_id,
@@ -110,7 +110,7 @@ const createSeminarAssessment = async (req, res) => {
 // Update Seminar Assessment form
 const updateSeminarAssessment = async (req, res) => {
   try {
-    const { role, userId } = req.user;
+    const { userId } = req.user;
     const { id } = req.params;
 
     const [existingRecord] = await db.execute(

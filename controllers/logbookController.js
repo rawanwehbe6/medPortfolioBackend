@@ -21,19 +21,28 @@ const createLogbookProfile = async (req, res) => {
       return res.status(400).json({ message: "Profile already exists. Use update instead." });
     }
 
+    const [[trainee]] = await pool.execute(
+      "SELECT Name FROM users WHERE User_ID = ?",
+      [userId]
+    );
+
+    if (!trainee) {
+      return res.status(404).json({ message: "Trainee not found." });
+    }
+
     const [result] = await pool.execute(
       `INSERT INTO logbook_profile_info 
        (trainee_id, resident_name, academic_year, email, mobile_no) 
        VALUES (?, ?, ?, ?, ?)`,
-      [userId, resident_name, academic_year, email, mobile_no]
+      [userId, trainee.Name, academic_year, email, mobile_no]
     );
 
     const logbookId = result.insertId;
     // Update certificate_id in profile
     await pool.execute(
-    "UPDATE logbook_profile_info SET certificate_id = ? WHERE id = ?",
-    [logbookId, logbookId]
-  );
+      "UPDATE logbook_profile_info SET certificate_id = ? WHERE id = ?",
+      [logbookId, logbookId]
+    );
 
     res.status(201).json({ message: "Logbook profile created successfully." });
   } catch (err) {
@@ -58,11 +67,20 @@ const updateLogbookProfile = async (req, res) => {
       return res.status(404).json({ message: "Profile not found. Please create it first." });
     }
 
+    const [[trainee]] = await pool.execute(
+      "SELECT Name FROM users WHERE User_ID = ?",
+      [userId]
+    );
+
+    if (!trainee) {
+      return res.status(404).json({ message: "Trainee not found." });
+    }
+
     await pool.execute(
       `UPDATE logbook_profile_info 
        SET resident_name= ?, academic_year = ?, email = ?, mobile_no = ?
        WHERE trainee_id = ?`,
-      [resident_name, academic_year, email, mobile_no, userId]
+      [trainee.Name, academic_year, email, mobile_no, userId]
     );
 
     res.status(200).json({ message: "Logbook profile updated successfully." });
@@ -1686,7 +1704,7 @@ const updateProcedureEvalForm = async (req, res) => {
 
     const form = formResult[0];
 
-    // Role-based auth
+    //  auth
     const hasAccess = await form_helper.auth(
       "Trainee",
       "update_procedure_eval_form"

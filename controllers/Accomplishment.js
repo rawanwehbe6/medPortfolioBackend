@@ -1,8 +1,6 @@
 const { Console } = require("console");
 const pool = require("../config/db");
-const fs = require('fs');
-const path = require('path');
-const { FILE } = require("dns");
+const form_helper = require('../middleware/form_helper');
 
 const addAccomplishment = async (req, res) => {
   try {
@@ -14,23 +12,11 @@ const addAccomplishment = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
     if (!req.file) {
-    return res.status(400).json({ error: "File is required for an accomplishment" });
+      return res.status(400).json({ error: "File is required for an accomplishment" });
     }
-    else{
-      const ext = path.extname(req.file.originalname);
-      let filename = req.file.filename;
-      if (!filename.endsWith(ext)) {
-        filename += ext;
-      }
-    
-      filePath = `uploads/${filename}`;
-    
-    // You'll need to rename the actual file too
-    fs.renameSync(
-      path.join(__dirname, '..', 'uploads', req.file.filename),
-      path.join(__dirname, '..', filePath)
-    );
-  }
+
+    const filePath = form_helper.getPublicUrl(req.file.path);
+
     // Check if the title already exists for the user
     const [existingAccomplishments] = await pool.execute(
       "SELECT * FROM accomplishments WHERE User_ID = ? AND Title = ?",
@@ -44,21 +30,20 @@ const addAccomplishment = async (req, res) => {
     // Execute the SQL query to insert the accomplishment
     await pool.execute(
       "INSERT INTO accomplishments (User_ID, Title, Description, File_Path) VALUES (?, ?, ?, ?)",
-      [userId, title, description, filePath || null] // Pass null if filePath is undefined
+      [userId, title, description, filePath]
     );
 
-    const fullUrl = `${req.protocol}://${req.get('host')}/${filePath}`;
-
-    res.status(201).json({ message: "Accomplishment added successfully", File_Path: filePath, image_url: fullUrl });
+    res.status(201).json({ message: "Accomplishment added successfully", File_Path: filePath });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.file);
     res.status(500).json({ error: "Server error during accomplishment creation" });
   }
 };
 
 const updateAccomplishment = async (req, res) => {
   try {
-    const { id } = req.params; // Get the accomplishment ID from the request parameters
+    const { id } = req.params;
     const { title, description } = req.body;
     const userId = req.user ? req.user.userId : null; 
 
@@ -77,30 +62,18 @@ const updateAccomplishment = async (req, res) => {
       return res.status(404).json({ error: "Accomplishment not found or does not belong to the user." });
     }
 
-    // Default to existing file path if no new file is uploaded
-    let filePath = existingAccomplishments[0].file_path;
-    console.log( filePath );
+    let filePath = existingAccomplishments[0].File_Path;
+
     if (req.file) {
-      // If a file is uploaded, delete the old one
-      if (filePath) {
-        const oldFilePath = path.join(__dirname, '..', filePath);
-        if (fs.existsSync(oldFilePath)) {
-          fs.unlinkSync(oldFilePath);
-        }
-      }
-
-      const ext = path.extname(req.file.originalname);
-      let filename = req.file.filename;
-      if (!filename.endsWith(ext)) {
-        filename += ext;
-      }
-    
-      filePath = `uploads/${filename}`;
-
-      fs.renameSync(
-        path.join(__dirname, '..', 'uploads', req.file.filename),
-        path.join(__dirname, '..', filePath)
+      // Delete old file if it exists
+      await form_helper.deleteOldSignatureIfUpdated(
+        "accomplishments",
+        id,
+        "File_Path",
+        req.file.path
       );
+
+      filePath = form_helper.getPublicUrl(req.file.path);
     }
 
     // Prepare the SQL update query
@@ -113,17 +86,14 @@ const updateAccomplishment = async (req, res) => {
     // Execute the SQL query to update the accomplishment
     await pool.execute(updateQuery, [title, description, filePath, id, userId]);
 
-    // Optionally, you can generate a URL for the updated file
-    const fileUrl = filePath ? `${req.protocol}://${req.get('host')}/${filePath}` : null;
-
-    res.status(200).json({ message: "Accomplishment updated successfully", file_url: fileUrl });
+    res.status(200).json({ message: "Accomplishment updated successfully", file_path: filePath });
   } catch (err) {
     console.error("Database Error:", err);
+    form_helper.cleanupUploadedFiles(req.file);
     res.status(500).json({ error: "Server error during accomplishment update" });
   }
 };
 
-// Delete an existing accomplishment
 const deleteAccomplishment = async (req, res) => {
   try {
     const { id } = req.params;
@@ -143,14 +113,12 @@ const deleteAccomplishment = async (req, res) => {
       return res.status(404).json({ message: "Accomplishment not found or unauthorized." });
     }
 
-    // If there is a file associated with the accomplishment, delete it
-    const filePath = existing[0].File_Path;
-    if (filePath) {
-      const fullPath = path.join(__dirname, '..', filePath);
-      if (fs.existsSync(fullPath)) {
-        fs.unlinkSync(fullPath); // Delete the file from the server
-      }
-    }
+    // Delete the file using form helper
+    await form_helper.deleteSignatureFilesFromDB(
+      "accomplishments",
+      id,
+      ["File_Path"]
+    );
 
     // Delete the accomplishment from the database
     await pool.execute(
@@ -178,24 +146,11 @@ const getAccomplishments = async (req, res) => {
       [userId]
     );
 
-  
-    const accomplishmentsWithUrl = accomplishments.map(item => {
-      if (!item.file_path) {
-        console.log(`Warning: No file path for accomplishment with ID: ${item.id}`);
-      }
-
-      return {
-        ...item,
-        file_path_url: item.file_path ? `${req.protocol}://${req.get('host')}/${item.file_path}` : null
-      };
-    });
-
-    res.status(200).json({ accomplishments: accomplishmentsWithUrl });
+    res.status(200).json({ accomplishments });
   } catch (error) {
     console.error("Error in getAccomplishments:", error);
     res.status(500).json({ message: "Error fetching accomplishments." });
   }
 };
 
-
-module.exports = { addAccomplishment ,updateAccomplishment,deleteAccomplishment, getAccomplishments};
+module.exports = { addAccomplishment, updateAccomplishment, deleteAccomplishment, getAccomplishments };

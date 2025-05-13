@@ -596,7 +596,7 @@ const forgotPassword = async (req, res) => {
 
 // Reset Password (Verify Token & Update Password)
 const resetPasswordWithToken = async (req, res) => {
-  const { token } = req.query.token;
+  const token = req.query.token;
   const { newPassword } = req.body;
   if (!newPassword)
     return res.status(400).json({ message: "New password is required" });
