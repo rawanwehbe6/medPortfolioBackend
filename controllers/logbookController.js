@@ -1029,13 +1029,6 @@ const createFirstYearRotationDetails = async (req, res) => {
   const { userId } = req.user;
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
 
-   // Validate required fields (basic check)
-   if (!from_date || !to_date || !total_duration || !area_of_rotation || !overall_performance) {
-    return res.status(400).json({
-      message: 'All fields are required.'
-    });
-  }
-
   try {
     const [result] = await pool.execute(
       `INSERT INTO first_year_rotations (
@@ -1368,7 +1361,7 @@ const getProcedureSummaries = async (req, res) => {
 
   try {
     const [rows] = await pool.execute(
-      `SELECT serial_no, date, procedure_name, status, trainer_signature
+      `SELECT id,serial_no, date, procedure_name, status, trainer_signature
        FROM procedure_summary_logs
        WHERE trainee_id = ? 
        ORDER BY date DESC`,
