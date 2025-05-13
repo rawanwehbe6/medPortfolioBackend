@@ -464,6 +464,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
     ];
 
     const result = {};
+    const counts = {};
 
     for (const {
       table,
@@ -478,9 +479,15 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
       `;
       const [rows] = await pool.execute(query, [traineeId, supervisorId, 0]);
       result[table] = rows.map((r) => r.id);
+      counts[table] = rows.length;
     }
 
-    res.status(200).json({ traineeId, supervisorId, Forms: result });
+    res.status(200).json({ 
+      traineeId, 
+      supervisorId, 
+      Forms: result,
+      counts
+    });
   } catch (err) {
     console.error("Error fetching draft forms for trainee by supervisor:", err);
     res.status(500).json({ error: "Server error while fetching drafts" });
