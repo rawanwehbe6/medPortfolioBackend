@@ -31,7 +31,7 @@ const createCasePresentation = async (req, res) => {
 const deleteCasePresentation = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, role } = req.user;
+    const { userId } = req.user;
 
     const [rows] = await pool.execute(
       "SELECT * FROM case_presentations WHERE id = ?",
@@ -42,7 +42,7 @@ const deleteCasePresentation = async (req, res) => {
       return res.status(404).json({ error: "Case presentation not found" });
     }
 
-    if (rows[0].user_id !== userId && role !== 1) {
+    if (rows[0].user_id !== userId) {
       return res.status(403).json({ message: "Permission denied" });
     }
 

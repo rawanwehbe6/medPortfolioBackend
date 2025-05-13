@@ -1704,7 +1704,7 @@ const updateProcedureEvalForm = async (req, res) => {
 
     const form = formResult[0];
 
-    // Role-based auth
+    //  auth
     const hasAccess = await form_helper.auth(
       "Trainee",
       "update_procedure_eval_form"

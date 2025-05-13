@@ -41,12 +41,12 @@ const getSeminars = async (req, res) => {
 const deleteSeminar = async (req, res) => {
   try {
     const { id } = req.params;
-    const { userId, role } = req.user;
+    const { userId } = req.user;
 
     const [rows] = await pool.execute("SELECT * FROM seminars WHERE id = ?", [id]);
     if (rows.length === 0) return res.status(404).json({ error: "Seminar not found" });
 
-    if (rows[0].user_id !== userId && role !== 1) {
+    if (rows[0].user_id !== userId ) {
       return res.status(403).json({ message: "Permission denied" });
     }
 

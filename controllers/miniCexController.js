@@ -95,17 +95,17 @@ const createMiniCEX = async (req, res) => {
         supervisor.Name,
         resident_id,
         trainee.Name,
-        medical_interviewing ?? null,
-        physical_exam ?? null,
-        professionalism ?? null,
-        clinical_judgment ?? null,
-        counseling_skills ?? null,
-        efficiency ?? null,
-        overall_competence ?? null,
-        observer_time ?? null,
-        feedback_time ?? null,
-        evaluator_satisfaction ?? null,
-        evaluator_signature_path ?? null,
+        medical_interviewing,
+        physical_exam,
+        professionalism,
+        clinical_judgment,
+        counseling_skills,
+        efficiency,
+        overall_competence,
+        observer_time,
+        feedback_time,
+        evaluator_satisfaction,
+        evaluator_signature_path,
         draft_send,
         is_signed_by_supervisor,
       ]
@@ -227,7 +227,7 @@ const updateMiniCEX = async (req, res) => {
     );
     console.log(hasAccess, hasAccessS, userId);
 
-    // Supervisor Updates (Roles 3, 4, 5)
+    // Supervisor Updates 
     if (hasAccessS) {
       let a_signature = form[0].evaluator_signature_path;
 
@@ -301,7 +301,7 @@ const updateMiniCEX = async (req, res) => {
         .json({ message: "Mini-CEX form updated successfully" });
     }
 
-    // Trainee Updates (Role 2)
+    // Trainee Updates 
     else if (hasAccess) {
       // Ensure the current logged-in trainee is the one assigned to the form
       if (form[0].resident_id !== userId || form[0].sent_to_trainee === 0) {

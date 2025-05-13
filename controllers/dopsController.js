@@ -153,7 +153,7 @@ const updateDOPS = async (req, res) => {
         const hasAccessS = await form_helper.auth('Supervisor', 'update_dops')(req, res);
         console.log(hasAccess,hasAccessS,userId);
 
-      // Supervisor Updates (Roles 3, 4, 5)
+      // Supervisor Updates
       if (hasAccessS) {
         if (form[0].is_signed_by_supervisor) {
             return res.status(400).json({ message: "You have already signed this form and cannot edit." });
@@ -246,7 +246,7 @@ const updateDOPS = async (req, res) => {
     }
     
     
-        // Trainee Updates (Role 2)
+        // Trainee Updates
         else if (hasAccess) {
             
             // Ensure the current logged-in trainee is the one assigned to the form
