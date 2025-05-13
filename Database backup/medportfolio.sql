@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 13, 2025 at 01:12 PM
+-- Generation Time: May 13, 2025 at 07:27 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -386,7 +386,7 @@ CREATE TABLE `first_year_rotations` (
   `to_date` date DEFAULT NULL,
   `total_duration` varchar(50) DEFAULT NULL,
   `area_of_rotation` text DEFAULT NULL,
-  `overall_performance` enum('B','M','E') NOT NULL,
+  `overall_performance` enum('B','M','E') DEFAULT NULL,
   `supervisor_id` int(11) DEFAULT NULL,
   `supervisor_signature` varchar(255) DEFAULT NULL,
   `is_signed` tinyint(1) DEFAULT 0,
@@ -421,6 +421,122 @@ CREATE TABLE `forbidden_logs` (
 --
 
 INSERT INTO `forbidden_logs` (`User_ID`, `User_Name`, `Function_ID`, `Function_Name`, `timestamp`, `cumulative`) VALUES
+(22, 'test', 2, 'update_user', '2025-05-01', 1),
+(22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(22, 'test', 2, 'update_user', '2025-05-01', 1),
+(22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 35, 'get_All_Users_With_Roles', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 134, 'assign_roles', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(22, 'test', 128, 'get_research', '2025-05-07', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(30, 'rimastest', 45, 'get_medical_courses', '2025-05-08', 1),
+(30, 'rimastest', 46, 'get_books_and_articles', '2025-05-08', 1),
+(30, 'rimastest', 47, 'get_workshops_and_activities', '2025-05-08', 1),
+(22, 'test', 187, 'delete_procedure_eval_form', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
+(28, 'supervisor', 106, 'create_or_update_single_procedure_log', '2025-05-10', 1),
 (22, 'test', 2, 'update_user', '2025-05-01', 1),
 (22, 'test', 58, 'get_cbda_form_by_id', '2025-05-01', 1),
 (22, 'test', 36, 'get_User_Types', '2025-05-07', 1),
@@ -938,12 +1054,7 @@ INSERT INTO `mini_cex` (`id`, `supervisor_id`, `supervisor_name`, `resident_id`,
 (7, 30, 'rimastest', 26, 'rima test', 'R-2/F-2', '2025-02-12', 'Ambulatory', 'Chronic headache', 22, 'Female', 'Follow-up', 'Moderate', 'Diagnosis', 2, 2, 5, 5, 4, 4, 3, 25, 5, 4, 8, 'good', 'http://localhost:3000/uploads/1746098872090.PNG', 'http://localhost:3000/uploads/1746110935481.PNG', 1, 1, 0, 'resident', 0, '2025-05-02 17:02:34'),
 (9, 28, 'supervisor', 22, 'test', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/17470618002717be00288b1715618ef734c13e954839e825f.png', NULL, 0, 1, 1, NULL, 1, '2025-05-12 17:56:40'),
 (10, 28, 'supervisor', 22, 'test', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/17470618598936a8b9b3657075e990ff380dc716e3f688520.png', NULL, 0, 1, 1, NULL, 1, '2025-05-12 17:57:39'),
-(11, 28, 'supervisor', 22, 'test', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 4, 4, 4, 4, 4, 4, NULL, NULL, 4, NULL, NULL, '/uploads/174706199941059d8594a77aa79f8bcfee84c043592379370.png', NULL, 0, 1, 1, NULL, 1, '2025-05-12 17:59:59'),
-(12, 38, 's1', 36, 't2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/1747134125956e55d0d25b7be8697c8ad20b58d5adfd89e31.png', NULL, 0, 1, 1, NULL, 1, '2025-05-13 14:02:05'),
-(13, 38, 's1', 36, 't2', NULL, '2025-05-13', NULL, 'a', 1, 'Male', 'New', 'Moderate', 'Diagnosis', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 3, '1ada', '/uploads/1747134140952202e7fe0aa25ec5f4f114583a906a184015d.png', '/uploads/17471345252530492226dcca4dde6dd2718072d79b6f1388d.png', 1, 1, 0, NULL, 1, '2025-05-13 14:08:45'),
-(14, 38, 's1', 36, 't2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/174713421301641dc2cad3b20e737f31bbd6d0a01212ffa6b.png', NULL, 0, 1, 1, NULL, 1, '2025-05-13 14:03:33'),
-(15, 38, 's1', 36, 't2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/174713402742316169dd11806876b576b40f438f8297f68e3.png', NULL, 0, 1, 1, NULL, 1, '2025-05-13 14:00:27'),
-(16, 38, 's1', 36, 't2', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '/uploads/174713402753479bb53693f5ed88d12697d73fb8f157799cd.png', NULL, 0, 1, 1, NULL, 1, '2025-05-13 14:00:27');
+(11, 28, 'supervisor', 22, 'test', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4, 4, 4, 4, 4, 4, 4, NULL, NULL, 4, NULL, NULL, '/uploads/174706199941059d8594a77aa79f8bcfee84c043592379370.png', NULL, 0, 1, 1, NULL, 1, '2025-05-12 17:59:59');
 
 -- --------------------------------------------------------
 
@@ -1004,9 +1115,7 @@ INSERT INTO `mortality_morbidity_review_assessment` (`id`, `resident_id`, `super
 (6, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', 'uploads\\1744665412571.png', 'uploads\\1744665375228.png', 1, 1, '2025-04-16 18:24:27', NULL),
 (8, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', 'http://localhost:3000/uploads/1746454631273.png', 'http://localhost:3000/uploads/1746454628203.png', 1, 1, '2025-05-05 14:17:11', NULL),
 (9, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, NULL, 0, 0, '2025-05-05 15:24:07', NULL),
-(11, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, '/uploads/1747062462807375ce1b6545a626c9c0ffc664cfae76f06d7.png', 0, 0, '2025-05-12 15:07:42', 'abc'),
-(12, 36, 38, 't2', '2025-05-13', '', '', '', '', '', '', '', '', '', '', '', NULL, '/uploads/17471342018686d9b4444fa3d780632e9e4a0d09700d7695a.png', 1, 0, '2025-05-13 11:03:21', ''),
-(13, 36, 38, 't2', '2025-05-13', '', '', '', '', '', '', '', '', '', '', '', '/uploads/1747134570887600bb813df9c4069a0ca131c298813107c82.png', '/uploads/17471340742503038d09f34b89d42b17a59260a786eac1bda.png', 1, 1, '2025-05-13 11:09:30', '');
+(11, 22, 28, 'test', '2024-10-10', 'Flu', 'aaa', 'Below Expectations', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'U/C', 'aaaaaaaas', 'asdfg', NULL, '/uploads/1747062462807375ce1b6545a626c9c0ffc664cfae76f06d7.png', 0, 0, '2025-05-12 15:07:42', 'abc');
 
 -- --------------------------------------------------------
 
@@ -1396,9 +1505,7 @@ INSERT INTO `seminar_assessment` (`id`, `resident_id`, `supervisor_id`, `residen
 (3, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1743550772289.png', 1, 0, '2025-04-16 18:24:27', NULL),
 (4, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, 'uploads\\1744666042025.jpg', 1, 0, '2025-04-16 18:24:27', NULL),
 (5, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', 'http://localhost:3000/uploads/1746454692823.png', 'http://localhost:3000/uploads/1746454705257.png', 1, 1, '2025-05-05 14:18:25', NULL),
-(6, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 1, 0, '2025-05-05 15:37:43', NULL),
-(8, 36, 38, 't2', '2025-05-13', '', '', '', '', '', '', '', '', '', '', '/uploads/17471345487550563975d3b9b510633a18ee376408590d4c1.png', '/uploads/174713419560132e0c409df05f7867ee8bd97b011b403bc24.png', 1, 1, '2025-05-13 11:09:08', ''),
-(9, 36, 38, 't2', '2025-05-13', '', '', '', '', '', '', '', '', '', '', NULL, NULL, 1, 0, '2025-05-13 11:01:00', '');
+(6, 22, 28, 'test', '2023-10-15', 'Advanced Cardiac Procedures', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Meets Expectations', 'Excellent clinical examples', 'Could improve time management and slide transitions', NULL, NULL, 1, 0, '2025-05-05 15:37:43', NULL);
 
 -- --------------------------------------------------------
 
@@ -2587,7 +2694,9 @@ ALTER TABLE `departmental_activities`
 -- Indexes for table `dops`
 --
 ALTER TABLE `dops`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_resident_id` (`resident_id`),
+  ADD KEY `fk_supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `eduactconferences`
@@ -2628,7 +2737,9 @@ ALTER TABLE `fellow_resident_evaluation`
 -- Indexes for table `first_year_rotations`
 --
 ALTER TABLE `first_year_rotations`
-  ADD PRIMARY KEY (`rotation_id`);
+  ADD PRIMARY KEY (`rotation_id`),
+  ADD KEY `f` (`trainee_id`),
+  ADD KEY `fk` (`supervisor_id`);
 
 --
 -- Indexes for table `forbidden_logs`
@@ -2680,7 +2791,9 @@ ALTER TABLE `messages`
 -- Indexes for table `mini_cex`
 --
 ALTER TABLE `mini_cex`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resident_id_fk` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `miscellaneous_activities`
@@ -2693,7 +2806,9 @@ ALTER TABLE `miscellaneous_activities`
 -- Indexes for table `mortality_morbidity_review_assessment`
 --
 ALTER TABLE `mortality_morbidity_review_assessment`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `supervisor_id` (`supervisor_id`),
+  ADD KEY `resident_id` (`resident_id`);
 
 --
 -- Indexes for table `notifications`
@@ -2720,20 +2835,25 @@ ALTER TABLE `procedures`
 -- Indexes for table `procedure_evaluation`
 --
 ALTER TABLE `procedure_evaluation`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resident_id` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `procedure_summary_logs`
 --
 ALTER TABLE `procedure_summary_logs`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `serial_no` (`serial_no`),
+  ADD UNIQUE KEY `serial_no_2` (`serial_no`),
   ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `research`
 --
 ALTER TABLE `research`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `User_ID` (`User_ID`);
 
 --
 -- Indexes for table `research_publications`
@@ -2746,25 +2866,29 @@ ALTER TABLE `research_publications`
 -- Indexes for table `rotation_1st_year_config`
 --
 ALTER TABLE `rotation_1st_year_config`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `rotation_2nd_year_config`
 --
 ALTER TABLE `rotation_2nd_year_config`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `rotation_3rd_year_config`
 --
 ALTER TABLE `rotation_3rd_year_config`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `second_year_rotations`
 --
 ALTER TABLE `second_year_rotations`
-  ADD PRIMARY KEY (`rotation_id`);
+  ADD PRIMARY KEY (`rotation_id`),
+  ADD KEY `trainee_id` (`trainee_id`);
 
 --
 -- Indexes for table `seminars`
@@ -2777,7 +2901,9 @@ ALTER TABLE `seminars`
 -- Indexes for table `seminar_assessment`
 --
 ALTER TABLE `seminar_assessment`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `resident_id` (`resident_id`),
+  ADD KEY `supervisor_id` (`supervisor_id`);
 
 --
 -- Indexes for table `supervisor_supervisee`
@@ -3146,8 +3272,8 @@ ALTER TABLE `accomplishments`
 -- Constraints for table `case_based_discussion_assessment`
 --
 ALTER TABLE `case_based_discussion_assessment`
-  ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `case_based_discussion_assessment_resident_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `case_based_discussion_assessment_supervisor_fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `case_presentations`
@@ -3165,32 +3291,46 @@ ALTER TABLE `contact_messages`
 -- Constraints for table `departmental_activities`
 --
 ALTER TABLE `departmental_activities`
-  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `departmental_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `dops`
+--
+ALTER TABLE `dops`
+  ADD CONSTRAINT `fk_resident_id` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_supervisor_id` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `eduactconferences`
 --
 ALTER TABLE `eduactconferences`
-  ADD CONSTRAINT `eduactconferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `eduactconferences_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `eduactcourses`
 --
 ALTER TABLE `eduactcourses`
-  ADD CONSTRAINT `eduactcourses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `eduactcourses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `eduactworkshops`
 --
 ALTER TABLE `eduactworkshops`
-  ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `eduactworkshops_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `fellow_resident_evaluation`
 --
 ALTER TABLE `fellow_resident_evaluation`
-  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `fk_fellow` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_supervisor` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `first_year_rotations`
+--
+ALTER TABLE `first_year_rotations`
+  ADD CONSTRAINT `f` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `forbidden_logs`
@@ -3203,35 +3343,49 @@ ALTER TABLE `forbidden_logs`
 -- Constraints for table `grand_round_presentation_assessment`
 --
 ALTER TABLE `grand_round_presentation_assessment`
-  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `grand_round_presentation_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `journal_club_assessment`
 --
 ALTER TABLE `journal_club_assessment`
-  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `journal_club_assessment_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `journal_club_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `journal_club_assessment_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `logbook_profile_info`
 --
 ALTER TABLE `logbook_profile_info`
-  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL,
-  ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `fk_hospital` FOREIGN KEY (`hospital_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `logbook_profile_info_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `messages`
 --
 ALTER TABLE `messages`
-  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `messages_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `messages_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mini_cex`
+--
+ALTER TABLE `mini_cex`
+  ADD CONSTRAINT `mini_cex_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `resident_id_fk` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `miscellaneous_activities`
 --
 ALTER TABLE `miscellaneous_activities`
-  ADD CONSTRAINT `miscellaneous_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `miscellaneous_activities_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `mortality_morbidity_review_assessment`
+--
+ALTER TABLE `mortality_morbidity_review_assessment`
+  ADD CONSTRAINT `mortality_morbidity_review_assessment_ibfk_1` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `mortality_morbidity_review_assessment_ibfk_2` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `notifications`
@@ -3241,22 +3395,66 @@ ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `procedure_evaluation`
+--
+ALTER TABLE `procedure_evaluation`
+  ADD CONSTRAINT `procedure_evaluation_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `procedure_evaluation_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `procedure_summary_logs`
 --
 ALTER TABLE `procedure_summary_logs`
-  ADD CONSTRAINT `procedure_summary_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `procedure_summary_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `research`
+--
+ALTER TABLE `research`
+  ADD CONSTRAINT `research_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `research_publications`
 --
 ALTER TABLE `research_publications`
-  ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `research_publications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rotation_1st_year_config`
+--
+ALTER TABLE `rotation_1st_year_config`
+  ADD CONSTRAINT `rotation_1st_year_config_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rotation_2nd_year_config`
+--
+ALTER TABLE `rotation_2nd_year_config`
+  ADD CONSTRAINT `rotation_2nd_year_config_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `rotation_3rd_year_config`
+--
+ALTER TABLE `rotation_3rd_year_config`
+  ADD CONSTRAINT `rotation_3rd_year_config_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `second_year_rotations`
+--
+ALTER TABLE `second_year_rotations`
+  ADD CONSTRAINT `second_year_rotations_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `seminars`
 --
 ALTER TABLE `seminars`
-  ADD CONSTRAINT `seminars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `seminars_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `seminar_assessment`
+--
+ALTER TABLE `seminar_assessment`
+  ADD CONSTRAINT `seminar_assessment_ibfk_1` FOREIGN KEY (`resident_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `seminar_assessment_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `supervisor_supervisee`
@@ -3269,27 +3467,27 @@ ALTER TABLE `supervisor_supervisee`
 -- Constraints for table `surgical_experiences`
 --
 ALTER TABLE `surgical_experiences`
-  ADD CONSTRAINT `surgical_experiences_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `surgical_experiences_ibfk_1` FOREIGN KEY (`User_ID`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `tasks`
 --
 ALTER TABLE `tasks`
-  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE,
-  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `tasks_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `tasks_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `teaching`
 --
 ALTER TABLE `teaching`
-  ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE SET NULL;
+  ADD CONSTRAINT `teaching_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `third_year_rotations`
 --
 ALTER TABLE `third_year_rotations`
-  ADD CONSTRAINT `third_year_rotations_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
-  ADD CONSTRAINT `third_year_rotations_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`);
+  ADD CONSTRAINT `third_year_rotations_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `third_year_rotations_ibfk_2` FOREIGN KEY (`supervisor_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `trainee_elearning_material_progress`
@@ -3302,7 +3500,7 @@ ALTER TABLE `trainee_elearning_material_progress`
 -- Constraints for table `trainee_portfolio_images`
 --
 ALTER TABLE `trainee_portfolio_images`
-  ADD CONSTRAINT `trainee_portfolio_images_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE;
+  ADD CONSTRAINT `trainee_portfolio_images_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
@@ -3321,8 +3519,8 @@ ALTER TABLE `usertype_functions`
 -- Constraints for table `user_procedure_logs`
 --
 ALTER TABLE `user_procedure_logs`
-  ADD CONSTRAINT `user_procedure_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`),
-  ADD CONSTRAINT `user_procedure_logs_ibfk_2` FOREIGN KEY (`procedure_id`) REFERENCES `procedures` (`id`);
+  ADD CONSTRAINT `user_procedure_logs_ibfk_1` FOREIGN KEY (`trainee_id`) REFERENCES `users` (`User_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `user_procedure_logs_ibfk_2` FOREIGN KEY (`procedure_id`) REFERENCES `procedures` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `user_skills`
