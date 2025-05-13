@@ -35,6 +35,27 @@ const createMortalityMorbidityForm = async (req, res) => {
       : null;
     const assessor_signature_path = form_helper.getPublicUrl(a_signature);
 
+    // If the form is being sent (not a draft), check form limits
+    if (Number(draft_send) === 1) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        resident_id,
+        "mortality_morbidity_review_assessment"
+      );
+      console.log("aaaaaa", limitCheck.deletedDrafts);
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts,
+        });
+      }
+    }
+
     const [insertResult] = await db.execute(
       `INSERT INTO mortality_morbidity_review_assessment 
             (resident_id, supervisor_id, resident_fellow_name, date_of_presentation,
@@ -172,6 +193,28 @@ const updateMortalityMorbidityForm = async (req, res) => {
         [id]
       );
 
+      // If changing from draft to sent, check form limits
+      if (Number(req.body.draft_send) === 1 && Number(old_send[0].sent) === 0) {
+        const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+          currentRecord.resident_id,
+          "mortality_morbidity_review_assessment",
+          id
+        );
+        console.log("aaaaaa", limitCheck.deletedDrafts);
+        if (!limitCheck.success) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(500).json({ error: limitCheck.message });
+        }
+
+        if (!limitCheck.canSubmit) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(400).json({
+            error: limitCheck.message,
+            deletedDrafts: limitCheck.deletedDrafts,
+          });
+        }
+      }
+
       updateQuery = `UPDATE mortality_morbidity_review_assessment 
                          SET diagnosis = ?, 
                              cause_of_death_morbidity = ?,
@@ -236,13 +279,21 @@ const updateMortalityMorbidityForm = async (req, res) => {
       [id]
     );
 
-    const { resident_signature_path, assessor_signature_path } =
-      updatedRecord[0];
-    if (resident_signature_path && assessor_signature_path) {
-      await db.execute(
-        `UPDATE mortality_morbidity_review_assessment SET completed = 1 WHERE id = ?`,
-        [id]
+    // Add null check to prevent TypeError when updatedRecord[0] is undefined
+    if (updatedRecord && updatedRecord.length > 0) {
+      const { resident_signature_path, assessor_signature_path } = updatedRecord[0];
+      console.log(
+        "Resident Signature Path:",
+        resident_signature_path,
+        assessor_signature_path
       );
+
+      if (resident_signature_path && assessor_signature_path) {
+        await db.execute(
+          `UPDATE mortality_morbidity_review_assessment SET completed = 1 WHERE id = ?`,
+          [id]
+        );
+      }
     }
     res
       .status(200)

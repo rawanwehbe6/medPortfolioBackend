@@ -417,57 +417,49 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
         table: "mini_cex",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
-        draftCol: "is_draft",
-        value: 1,
+        draftCol: "sent_to_trainee",
       },
       {
         table: "dops",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
-        draftCol: "is_draft",
-        value: 1,
+        draftCol: "is_sent_to_trainee",
       },
       {
         table: "journal_club_assessment",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
       {
         table: "case_based_discussion_assessment",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
       {
         table: "seminar_assessment",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
       {
         table: "grand_round_presentation_assessment",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
       {
         table: "mortality_morbidity_review_assessment",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
       {
         table: "fellow_resident_evaluation",
         traineeCol: "resident_id",
         supervisorCol: "supervisor_id",
         draftCol: "sent",
-        value: 0,
       },
     ];
 
@@ -484,11 +476,7 @@ const getDraftFormsForTraineeBySupervisor = async (req, res) => {
         SELECT id FROM ${table}
         WHERE ${traineeCol} = ? AND ${supervisorCol} = ? AND ${draftCol} = ?
       `;
-      const [rows] = await pool.execute(query, [
-        traineeId,
-        supervisorId,
-        value,
-      ]);
+      const [rows] = await pool.execute(query, [traineeId, supervisorId, 0]);
       result[table] = rows.map((r) => r.id);
     }
 

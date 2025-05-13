@@ -23,6 +23,27 @@ const createForm = async (req, res) => {
       draft_send,
     } = req.body;
 
+    // If the form is being sent (not a draft), check form limits
+    if (Number(draft_send) === 1) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        resident_id,
+        "journal_club_assessment"
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
+    }
+
     // Get resident name
     const [rows] = await pool.execute(
       `SELECT Name FROM users WHERE User_id = ?`,
@@ -177,6 +198,28 @@ const updateForm = async (req, res) => {
         `SELECT sent FROM journal_club_assessment WHERE id = ?`,
         [id]
       );
+      
+      // If changing from draft to sent, check form limits
+      if (Number(draft_send) === 1 && Number(old_send[0].sent) === 0) {
+        const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+          existingRecord[0].resident_id,
+          "journal_club_assessment",
+          id
+        );
+        
+        if (!limitCheck.success) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(500).json({ error: limitCheck.message });
+        }
+        
+        if (!limitCheck.canSubmit) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(400).json({ 
+            error: limitCheck.message,
+            deletedDrafts: limitCheck.deletedDrafts 
+          });
+        }
+      }
 
       updateQuery = `UPDATE journal_club_assessment 
                      SET article_reference = ?,

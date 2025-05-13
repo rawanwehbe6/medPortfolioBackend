@@ -43,6 +43,28 @@ const createForm = async (req, res) => {
         eval(`${field} = null`);
       }
     });
+    
+    // If the form is being sent (not a draft), check form limits
+    if (Number(draft_send) === 1) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        fellow_id,
+        "fellow_resident_evaluation"
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
+    }
+    
     const [fellowRows] = await pool.execute(
       `SELECT Name FROM users WHERE User_ID = ?`,
       [fellow_id]
@@ -135,7 +157,7 @@ const updateForm = async (req, res) => {
     const { userId } = req.user;
     const { id } = req.params;
 
-    const {
+    let {
       hospital,
       date_of_rotation,
       punctuality,
@@ -152,7 +174,23 @@ const updateForm = async (req, res) => {
       suggestions,
       draft_send,
     } = req.body;
-
+    const nullableFields = [
+      "punctuality",
+      "dependable",
+      "respectful",
+      "positive_interaction",
+      "self_learning",
+      "communication",
+      "history_taking",
+      "physical_examination",
+      "clinical_reasoning",
+      "application_knowledge",
+    ];
+    nullableFields.forEach((field) => {
+          if (req.body[field] === "") {
+            eval(`${field} = null`);
+          }
+        });
     const [existingRecord] = await pool.execute(
       `SELECT * FROM fellow_resident_evaluation WHERE id = ?`,
       [id]
@@ -198,7 +236,30 @@ const updateForm = async (req, res) => {
       `SELECT sent FROM fellow_resident_evaluation WHERE id = ?`,
       [id]
     );
-
+    
+    // If changing from draft to sent, check form limits
+    if (Number(draft_send) === 1 && Number(old_send[0].sent) === 0) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        existingRecord[0].resident_id,
+        "fellow_resident_evaluation",
+        id
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
+    }
+    
+    
     const scores = [
       punctuality,
       dependable,
@@ -214,6 +275,7 @@ const updateForm = async (req, res) => {
     const totalScore = scores.reduce((sum, val) => sum + (Number(val) || 0), 0);
     const overall_marks = totalScore * 2;
 
+    
     const updateQuery = `UPDATE fellow_resident_evaluation 
                          SET hospital = ?, date_of_rotation = ?, 
                              punctuality = ?, dependable = ?, respectful = ?,

@@ -36,14 +36,14 @@ const registerUser = async (req, res) => {
 
 // Login function
 async function login(req, res) {
-  const { email, password } = req.body; // 'email' can be email or BAU_ID
+  const { email, password, id } = req.body; // 'email' can be email or BAU_ID
   console.log("email:", email, "Password:", password);
-
+  const safe = email ? email : id;
   try {
     // Execute query to fetch user by email or BAU_ID
     const [rows] = await pool.execute(
-      `SELECT * FROM USERS WHERE Email = ? OR (BAU_ID IS NOT NULL AND BAU_ID = ?)`,
-      [email, email]
+      `SELECT * FROM USERS WHERE Email = ? OR BAU_ID = ?`,
+      [safe, safe]
     );
 
     console.log("Rows:", rows); // Should contain matched user(s)

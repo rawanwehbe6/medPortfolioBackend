@@ -25,10 +25,6 @@ const addSupervisorSuperviseeRelation = async (req, res) => {
         if (supervisor.length === 0 || supervisee.length === 0) {
             return res.status(404).json({ message: "Supervisor or supervisee not found." });
         }
-        if (supervisor[0].role !== 4 &&supervisor[0].role !== 3 && supervisee[0].role !== 2) {
-            return res.status(403).json({ message: "Invalid roles. Supervisor must be role 3, and supervisee must be role 2." });
-        }
-
         // Insert into supervisor-supervisee table
         await pool.execute(
             "INSERT INTO supervisor_supervisee (SupervisorID, SuperviseeID) VALUES (?, ?)",

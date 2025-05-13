@@ -38,6 +38,27 @@ const createForm = async (req, res) => {
       assessor_signature: assessor_signature ?? null,
     };
 
+    // If the form is being sent (not a draft), check form limits
+    if (Number(draft_send) === 1) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        values.resident_id,
+        "case_based_discussion_assessment"
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
+    }
+
     const [insertResult] = await pool.execute(
       `INSERT INTO case_based_discussion_assessment 
             (resident_id, supervisor_id, diagnosis, case_complexity, investigation_referral, 
@@ -176,6 +197,28 @@ const updateForm = async (req, res) => {
         `SELECT sent FROM case_based_discussion_assessment WHERE id = ?`,
         [id]
       );
+      
+      // If changing from draft to sent, check form limits
+      if (Number(draft_send) === 1 && Number(old_send[0].sent) === 0) {
+        const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+          existingRecord[0].resident_id,
+          "case_based_discussion_assessment",
+          id
+        );
+        
+        if (!limitCheck.success) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(500).json({ error: limitCheck.message });
+        }
+        
+        if (!limitCheck.canSubmit) {
+          form_helper.cleanupUploadedFiles(req.files);
+          return res.status(400).json({ 
+            error: limitCheck.message,
+            deletedDrafts: limitCheck.deletedDrafts 
+          });
+        }
+      }
 
       updateQuery = `
         UPDATE case_based_discussion_assessment 

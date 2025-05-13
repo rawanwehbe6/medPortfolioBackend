@@ -220,6 +220,145 @@ const auth = (Type, requiredFunction) => {
   };
 };
 
+const checkFormLimitAndCleanDrafts = async (traineeId, formType, currentFormId = null) => {
+  try {
+    // Define form type configurations with their maximum limits
+    const formLimits = {
+      case_based_discussion_assessment: {
+        table: "case_based_discussion_assessment",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 3,
+      },
+      grand_round_presentation_assessment: {
+        table: "grand_round_presentation_assessment",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 1,
+      },
+      mortality_morbidity_review_assessment: {
+        table: "mortality_morbidity_review_assessment",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 4,
+      },
+      seminar_assessment: {
+        table: "seminar_assessment",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 5,
+      },
+      mini_cex: {
+        table: "mini_cex",
+        idCol: "resident_id",
+        sentCol: "sent_to_trainee",
+        draftCol: "sent_to_trainee",
+        draftValue: 0,
+        maxAllowed: 19,
+      },
+      dops: {
+        table: "dops",
+        idCol: "resident_id",
+        sentCol: "is_sent_to_trainee",
+        draftCol: "is_sent_to_trainee",
+        draftValue: 0,
+        maxAllowed: 1,
+      },
+      journal_club_assessment: {
+        table: "journal_club_assessment",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 4,
+      },
+      fellow_resident_evaluation: {
+        table: "fellow_resident_evaluation",
+        idCol: "resident_id",
+        sentCol: "sent",
+        draftCol: "sent",
+        draftValue: 0,
+        maxAllowed: 1,
+      },
+    };
+
+    // Check if the formType is valid
+    const formConfig = formLimits[formType];
+    if (!formConfig) {
+      return {
+        success: false,
+        message: `Invalid form type: ${formType}`,
+      };
+    }
+
+    // Get the current count of submitted forms
+    const [submittedForms] = await pool.execute(
+      `SELECT COUNT(*) as count FROM ${formConfig.table} 
+       WHERE ${formConfig.idCol} = ? AND ${formConfig.sentCol} = 1`,
+      [traineeId]
+    );
+
+    const currentCount = submittedForms[0].count + 1;
+
+    // Check if the user has reached the maximum allowed forms
+    if (currentCount === formConfig.maxAllowed) {
+      // Delete all drafts for this form type for this trainee, except the current form being submitted
+      let deleteQuery = `DELETE FROM ${formConfig.table} 
+                         WHERE ${formConfig.idCol} = ? AND ${formConfig.draftCol} = ?`;
+      let deleteParams = [traineeId, formConfig.draftValue];
+      
+      // If currentFormId is provided, exclude it from deletion
+      if (currentFormId) {
+        deleteQuery += ` AND id != ?`;
+        deleteParams.push(currentFormId);
+      }
+      
+      const [deleteResult] = await pool.execute(deleteQuery, deleteParams);
+      
+      return {
+        success: true,
+        canSubmit: true,
+        currentCount: currentCount,
+        maxAllowed: formConfig.maxAllowed,
+        remaining: formConfig.maxAllowed - currentCount,
+        deletedDrafts: deleteResult.affectedRows
+      };
+    }
+    
+    if (currentCount > formConfig.maxAllowed) {
+      return {
+        success: true,
+        canSubmit: false,
+        message: `Maximum limit reached (${formConfig.maxAllowed}). All draft forms have been deleted.`,
+      };
+    }
+
+    // User can still submit more forms
+    return {
+      success: true,
+      canSubmit: true,
+      currentCount: currentCount,
+      maxAllowed: formConfig.maxAllowed,
+      remaining: formConfig.maxAllowed - currentCount,
+    };
+  } catch (error) {
+    console.error("Error checking form limits:", error);
+    return {
+      success: false,
+      message: "Server error while checking form limits",
+      error: error.message,
+    };
+  }
+};
+
 module.exports = {
   sendFormToTrainee,
   sendSignatureToSupervisor,
@@ -228,4 +367,5 @@ module.exports = {
   deleteSignatureFilesFromDB,
   deleteOldSignatureIfUpdated,
   cleanupUploadedFiles,
+  checkFormLimitAndCleanDrafts,
 };

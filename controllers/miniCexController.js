@@ -57,6 +57,28 @@ const createMiniCEX = async (req, res) => {
       resident_id,
       draft_send
     );
+    
+    // If the form is being sent (not a draft), check form limits
+    if (Number(draft_send) === 1) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        resident_id,
+        "mini_cex"
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
+    }
+    
     const a_signature = req.files?.signature
       ? req.files.signature[0].path
       : null;
@@ -198,7 +220,31 @@ const updateMiniCEX = async (req, res) => {
 
     if (form.length === 0) {
       form_helper.cleanupUploadedFiles(req.files);
-      return res.status(404).json({ message: "Form not found" });
+      return res.status(404).json({ message: "Mini-CEX form not found" });
+    }
+    
+    const currentForm = form[0];
+
+    // If changing from draft to sent, check form limits
+    if (draft_send && Number(draft_send) === 1 && Number(currentForm.sent_to_trainee) === 0) {
+      const limitCheck = await form_helper.checkFormLimitAndCleanDrafts(
+        currentForm.resident_id,
+        "mini_cex",
+        id
+      );
+      
+      if (!limitCheck.success) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(500).json({ error: limitCheck.message });
+      }
+      
+      if (!limitCheck.canSubmit) {
+        form_helper.cleanupUploadedFiles(req.files);
+        return res.status(400).json({ 
+          error: limitCheck.message,
+          deletedDrafts: limitCheck.deletedDrafts 
+        });
+      }
     }
 
     // Fetch user names for notifications
