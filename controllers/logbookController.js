@@ -297,6 +297,10 @@ const getCertificateSignature = async (req, res) => {
     // Determine the actual trainee_id based on who is making the request
     const actualTraineeId = hasAccess ? userId : trainee_id;
 
+    if (!actualTraineeId) {
+      return res.status(400).json({ message: "Trainee ID is required." });
+    }
+
     // Fetch the certificate details and signatures from the logbook_profile_info table
     const [[profileInfo]] = await pool.execute(
       "SELECT id, trainee_id, hospital_signature, trainee_signature FROM logbook_profile_info WHERE trainee_id = ?",

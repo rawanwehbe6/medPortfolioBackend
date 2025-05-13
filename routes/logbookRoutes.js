@@ -47,8 +47,8 @@ router.delete('/logbook/profile', auth("delete_logbook_profile"), logbookControl
 // Logbook Certificate Routes
 router.post("/logbook/certificate", auth("sign_logbook_certificate"), uploadPNG, logbookController.signLogbookCertificate);
 router.post("/logbook/certificate/:trainee_id", auth("sign_logbook_certificate"), uploadPNG, logbookController.signLogbookCertificate);
-router.get("/logbook/certificate/sign/:certificate_id", auth("get_certificate_signature"), logbookController.getCertificateSignature);
-router.delete("/logbook/certificate/delete/:certificate_id",auth("delete_logbook_certificate"), logbookController.deleteLogbookCertificate);
+router.get("/logbook/certificate-signature/:trainee_id", auth("get_certificate_signature"), logbookController.getCertificateSignature);
+router.delete("/logbook/certificate/:certificate_id", auth("delete_logbook_certificate"), logbookController.deleteLogbookCertificate);
 
 // Logbook First Year Rotation Config Routes
 router.post('/logbook/first-year-rotation-config', auth("create_rotation_1st_year_config"), logbookController.createRotation1stYearConfig);
