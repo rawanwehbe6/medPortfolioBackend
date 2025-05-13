@@ -5,7 +5,7 @@ const auth = require('../middleware/auth');
 const upload = require('../middleware/multerConfig');
 
 const uploadPNG = upload.fields([
-    { name: "files", maxCount: 1 }, // Supervisor or Resident signature
+    { name: "file", maxCount: 1 }, // Supervisor or Resident signature
   ]);
   
 // Routes

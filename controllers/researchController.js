@@ -7,11 +7,15 @@ const createResearch = async (req, res) => {
     const { title, date, description } = req.body;
     const userId = req.user ? req.user.userId : null;
 
-    if (!title || !date || !description || !userId || !req.file) {
+    if (!title || !date || !description || !userId || !req.files || 
+        (!req.files.files && (!req.files.file || req.files.file.length === 0))) {
       return res.status(400).json({ error: "Missing required fields: title, date, description, or file." });
     }
-
-    const filePath = form_helper.getPublicUrl(req.file.path);
+    console.log(req.files);
+    
+    // Get the file from the appropriate array
+    const fileObject = req.files.file ? req.files.file[0] : req.files.files[0];
+    const filePath = form_helper.getPublicUrl(fileObject.path);
 
     const [result] = await pool.execute(
       "INSERT INTO research (User_ID, Title, Date, Description, File_Path) VALUES (?, ?, ?, ?, ?)",
@@ -25,7 +29,13 @@ const createResearch = async (req, res) => {
     });
   } catch (err) {
     console.error("Database Error:", err);
-    form_helper.cleanupUploadedFiles(req.file);
+    if (req.files) {
+      if (req.files.files) {
+        form_helper.cleanupUploadedFiles(req.files.files[0]);
+      } else if (req.files.file && req.files.file.length > 0) {
+        form_helper.cleanupUploadedFiles(req.files.file[0]);
+      }
+    }
     res.status(500).json({ error: "Server error during research creation" });
   }
 };
@@ -51,15 +61,22 @@ const updateResearch = async (req, res) => {
     }
 
     let filePath = existingResearches[0].File_Path;
-    if (req.file) {
-      await form_helper.deleteOldSignatureIfUpdated(
-        "research",
-        id,
-        "File_Path",
-        req.file.path,
-        "id"
-      );
-      filePath = form_helper.getPublicUrl(req.file.path);
+    if (req.files) {
+      const hasNewFile = (req.files.files && req.files.files.length > 0) || 
+                         (req.files.file && req.files.file.length > 0);
+      
+      if (hasNewFile) {
+        const fileObject = req.files.file ? req.files.file[0] : req.files.files[0];
+        
+        await form_helper.deleteOldSignatureIfUpdated(
+          "research",
+          id,
+          "File_Path",
+          fileObject.path,
+          "id"
+        );
+        filePath = form_helper.getPublicUrl(fileObject.path);
+      }
     }
 
     await pool.execute(
@@ -73,8 +90,12 @@ const updateResearch = async (req, res) => {
     });
   } catch (err) {
     console.error("Database Error:", err);
-    if (req.file) {
-      form_helper.cleanupUploadedFiles(req.file);
+    if (req.files) {
+      if (req.files.files) {
+        form_helper.cleanupUploadedFiles(req.files.files[0]);
+      } else if (req.files.file && req.files.file.length > 0) {
+        form_helper.cleanupUploadedFiles(req.files.file[0]);
+      }
     }
     res.status(500).json({ error: "Server error during research update" });
   }
@@ -133,6 +154,8 @@ const getResearch = async (req, res) => {
       WHERE User_ID = ?
     `, [userId]);
 
+    console.log("Research data returned:", researches);
+    
     res.status(200).json({ researches });
   } catch (err) {
     console.error("Database Error:", err);
