@@ -225,6 +225,17 @@ const updateUser = async (req, res) => {
 //Delete user
 const deleteUser = async (req, res) => {
   const { id } = req.params;
+  const currentUserId = req.user.userId;
+
+  // Prevent deleting the main admin user
+  if (Number(id) === 1) {
+    return res.status(403).json({ message: "Cannot delete the main admin user" });
+  }
+
+  // Prevent users from deleting their own account
+  if (Number(currentUserId) === Number(id)) {
+    return res.status(403).json({ message: "You cannot delete your own account" });
+  }
 
   try {
     const [users] = await pool.execute(
