@@ -455,7 +455,7 @@ const getRotation3rdYearConfig = async (req, res) => {
 
   try {
     const [rows] = await pool.execute(
-      `SELECT from_date, to_date FROM rotation_3rd_year_config WHERE trainee_id = ?`,
+      `SELECT id AS config_id,from_date, to_date FROM rotation_3rd_year_config WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
@@ -493,11 +493,7 @@ const createThirdYearRotationDetails = async (req, res) => {
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
 
    // Validate required fields (basic check)
-   if (!from_date || !to_date || !total_duration || !area_of_rotation || !overall_performance) {
-    return res.status(400).json({
-      message: 'All fields are required.'
-    });
-  }
+
 
   try {
     const [result] = await pool.execute(
@@ -623,14 +619,14 @@ const getThirdYearRotationDetailsById = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `SELECT trainee_id, from_date, to_date, total_duration, 
+      `SELECT rotation_id,trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
       FROM third_year_rotations WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
     if (result.length === 0) {
-      return res.status(404).json({ message: 'Rotation not found' });
+      return res.status(200).json({ message: 'Rotation not found' });
     }
 
     res.status(200).json(result);
@@ -716,7 +712,7 @@ const getRotation2ndYearConfig = async (req, res) => {
 
   try {
     const [rows] = await pool.execute(
-      `SELECT from_date, to_date FROM rotation_2nd_year_config WHERE trainee_id = ?`,
+      `SELECT id AS config_id,from_date, to_date FROM rotation_2nd_year_config WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
@@ -757,11 +753,6 @@ const createSecondYearRotationDetails = async (req, res) => {
   const { from_date, to_date, total_duration, area_of_rotation, overall_performance} = req.body;
 
    // Validate required fields (basic check)
-   if (!from_date || !to_date || !total_duration || !area_of_rotation || !overall_performance) {
-    return res.status(400).json({
-      message: 'All fields are required.'
-    });
-  }
 
   try {
     const [result] = await pool.execute(
@@ -890,14 +881,14 @@ const getSecondYearRotationDetailsById = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `SELECT trainee_id, from_date, to_date, total_duration, 
+      `SELECT rotation_id,trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
       FROM second_year_rotations WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
     if (result.length === 0) {
-      return res.status(404).json({ message: 'Rotation not found' });
+      return res.status(200).json({ message: 'Rotation not found' });
     }
 
     res.status(200).json(result);
@@ -996,7 +987,7 @@ const getRotation1stYearConfig = async (req, res) => {
 
   try {
     const [rows] = await pool.execute(
-      `SELECT from_date, to_date FROM rotation_1st_year_config WHERE trainee_id = ?`,
+      `SELECT id AS config_id,from_date, to_date FROM rotation_1st_year_config WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
@@ -1155,14 +1146,14 @@ const getFirstYearRotationDetailsById = async (req, res) => {
 
   try {
     const [result] = await pool.execute(
-      `SELECT trainee_id, from_date, to_date, total_duration, 
+      `SELECT rotation_id,trainee_id, from_date, to_date, total_duration, 
       area_of_rotation, overall_performance, supervisor_signature 
       FROM first_year_rotations WHERE trainee_id = ?`,
       [actualTraineeId]
     );
 
     if (result.length === 0) {
-      return res.status(404).json({ message: 'Rotation not found' });
+      return res.status(200).json({ message: 'Rotation not found' });
     }
 
     res.status(200).json(result);
